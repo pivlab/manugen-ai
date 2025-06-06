@@ -1,0 +1,39 @@
+[project]
+name = "manugen-ai"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "Dave Bunten", email = "david.bunten@cuanschutz.edu" },
+    { name = "Vincent Rubinetti", email = "vincent.rubinetti@cuanschutz.edu" },
+    { name = "Milton Pividori", email = "milton.pividori@cuanschutz.edu" },
+    { name = "Faisal Alquaddoomi", email = "faisal.alquaddoomi@cuanschutz.edu" },
+]
+requires-python = ">=3.12"
+readme = "README.md"
+license = "BSD-3-Clause"
+dependencies = [
+    "google-adk (>=1.2.1,<2.0.0)",
+    "cyclopts (>=3.17.0,<4.0.0)",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0,<26",
+    "pytest>=8.4.0,<9",
+]
+
+[project.scripts]
+manugen = "manugen_ai.cli:app"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/manugen_ai"]
+
+[tool.hatch.build.targets.wheel]
+include = ["src/manugen_ai"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src/manugen_ai" = "manugen_ai"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
