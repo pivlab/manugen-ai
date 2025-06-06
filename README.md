@@ -22,6 +22,8 @@ docker compose up --build
 ```
 
 This will build the Docker images and start the application.
+You'll be attached to the logs of the application, which will show you live output from the various services that make up the stack.
+Pressing `Ctrl+C` will stop the application.
 
 
 ## Usage
