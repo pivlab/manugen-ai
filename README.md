@@ -37,11 +37,15 @@ If you'd prefer not to use the web interface, you can also run the *Manugen AI* 
 You can use the package directly for this (see the package docs), but if you'd prefer to run it from within a Docker container, you can use the following command:
 
 ```bash
-docker compose --profile cli run -v <content_dir>:/content/ manugen
+# first, build the image if you haven't already, or if you've made changes to the package
+docker compose --profile cli build manugen
+
+# then, execute it, replacing <content_dir> with the path to your content files
+docker compose --profile cli run --build --rm -v <content_dir>:/content/ manugen
 ```
 
-Where `<content_dir>` is the path to the directory containing the content files.
-
+Currently the command runs the *Manugen AI* package's `cli` module with the `--content-dir` option set to `/content/`, which is the directory where the content files are mounted in the Docker container.
+*TBC: add where the output files are saved, once that's implemented.*
 
 ## Other Resources
 
