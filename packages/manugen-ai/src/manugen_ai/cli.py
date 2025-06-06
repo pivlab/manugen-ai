@@ -4,11 +4,30 @@ from cyclopts import App
 app = App()
 
 @app.default
-def manugen(content_dir: Path):
-    print("* Manugen AI CLI *")
-    print(f"Content directory: {content_dir.resolve()}")
+def manugen(content_dir: Path, output_dir: Path = None):
+    """
+    Manugen AI CLI - A command line interface for Manugen AI.
 
-    print("...this will eventually do something useful...")
+    Ingests content from the content directory and processes it, saving the output
+    to the specified output directory or a default subdirectory of the content directory.
+
+    Args:
+        content_dir (Path): The directory containing the content to process.
+        output_dir (Path, optional): The directory where the output will be saved.
+            If not specified, defaults to a subdirectory named '_output' within the content directory.
+    """
+    print("* Manugen AI CLI *")
+    print(f"- Input content directory: {content_dir.resolve()}")
+
+    if output_dir:
+        print(f"- Output directory: {output_dir.resolve()}")
+    else:
+        output_dir = content_dir / "_output"
+        print(f"- No output directory specified, using default of {output_dir}.")
+
+    print()
+    print("**Implemention TBC**")
+    print()
 
 if __name__ == '__main__':
     app()
