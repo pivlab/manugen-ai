@@ -7,12 +7,14 @@ We intend to submit this project to the 2025 [Agent Development Kit Hackathon wi
 
 ## Installation
 
-The project relies on [Poetry](https://python-poetry.org/) for dependency management.
+The project relies on [uv](https://docs.astral.sh/uv/) for dependency management.
 
 To install the project, run:
 
 ```bash
-poetry install
+uv venv # creates a virtual environment
+source .venv/bin/activate # activates the virtual environment
+uv sync # updates your new venv with the project's dependencies
 ```
 
 ## Usage
@@ -24,7 +26,7 @@ The project can be used both as a command line tool and as a Python package.
 To run the project from the command line, you can use the following command:
 
 ```bash
-poetry run manugen <content_dir>
+uv run manugen <content_dir>
 ```
 
 Where `<content_dir>` is the path to the directory containing the content files.
