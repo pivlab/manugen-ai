@@ -37,7 +37,7 @@ If you'd prefer not to use the web interface, you can also run the *Manugen AI* 
 You can use the package directly for this (see the package docs), but if you'd prefer to run it from within a Docker container, you can use the following command:
 
 ```bash
-docker compose run manugen -v <content_dir>:/content manugen /content
+docker compose --profile cli run -v <content_dir>:/content/ manugen
 ```
 
 Where `<content_dir>` is the path to the directory containing the content files.
