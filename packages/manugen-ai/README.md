@@ -36,9 +36,13 @@ Where `<content_dir>` is the path to the directory containing the content files.
 You can also use the project as a Python package. Here is an example of how to use it in your code:
 
 ```python
-from manugen_ai import ManugenAI
+from pathlib import Path
+from manugen_ai.cli import manugen
 
-# TBC...
+manugen(
+    content_dir=Path("/path/to/content"),
+    output_dir=Path("/path/to/output")
+)
 ```
 
 ## Contributing
