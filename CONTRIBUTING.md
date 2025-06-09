@@ -7,18 +7,19 @@ We welcome contributions from the community to help improve and expand the funct
 
 1. **Fork the Repository**: Start by forking the repository to your own GitHub account.
 
-2. **Clone the Forked Repository**: Clone your forked repository to your local machine using:
+1. **Clone the Forked Repository**: Clone your forked repository to your local machine using:
+
    ```bash
    git clone https://github.com/<your-username>/adk-hack-2025.git
    ```
 
-4. **Make Your Changes**: Implement your feature or fix the bug. Ensure that your code adheres to the project's coding standards and style.
+1. **Make Your Changes**: Implement your feature or fix the bug. Ensure that your code adheres to the project's coding standards and style.
 
-5. **Write Tests**: If applicable, write tests for your changes to ensure they work as expected and do not break existing functionality.
+1. **Write Tests**: If applicable, write tests for your changes to ensure they work as expected and do not break existing functionality.
 
-6. **Commit Your Changes**: Commit your changes with a clear and concise commit message that describes the changes you made.
+1. **Commit Your Changes**: Commit your changes with a clear and concise commit message that describes the changes you made.
 
-7. **Push to Your Fork**: Push your changes to your forked repository:
+1. **Push to Your Fork**: Push your changes to your forked repository:
 
 ```bash
 git push origin your-branch-name
