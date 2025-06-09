@@ -14,6 +14,8 @@ license = "BSD-3-Clause"
 dependencies = [
     "google-adk (>=1.2.1,<2.0.0)",
     "cyclopts (>=3.17.0,<4.0.0)",
+    "python-dotenv>=1.1.0",
+    "litellm>=1.72.1",
 ]
 
 [dependency-groups]
