@@ -4,6 +4,7 @@ from google.adk.agents import Agent
 
 from google.adk.models.lite_llm import LiteLlm
 
+
 def get_weather(city: str) -> dict:
     """Retrieves the current weather report for a specified city.
 
@@ -43,7 +44,7 @@ def get_current_time(city: str, tz_identifier: str) -> dict:
         tz = ZoneInfo(tz_identifier)
         now = datetime.datetime.now(tz)
         report = (
-            f'The current time in {city} is {now.strftime("%Y-%m-%d %H:%M:%S %Z%z")}'
+            f"The current time in {city} is {now.strftime('%Y-%m-%d %H:%M:%S %Z%z')}"
         )
         return {"status": "success", "report": report}
     except Exception as e:
@@ -55,12 +56,11 @@ def get_current_time(city: str, tz_identifier: str) -> dict:
             ),
         }
 
+
 root_agent = Agent(
     name="weather_time_agent",
     model=LiteLlm(model="ollama_chat/mistral-small3.1"),
-    description=(
-        "Agent to answer questions about the time and weather in a city."
-    ),
+    description=("Agent to answer questions about the time and weather in a city."),
     instruction=(
         "You are a helpful agent who can answer user questions about the time and weather in a city."
     ),

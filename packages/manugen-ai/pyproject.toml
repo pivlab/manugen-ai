@@ -14,15 +14,6 @@ authors = [
   { name = "Milton Pividori", email = "milton.pividori@cuanschutz.edu" },
   { name = "Faisal Alquaddoomi", email = "faisal.alquaddoomi@cuanschutz.edu" },
 ]
-dependencies = [
-    "google-adk (>=1.2.1,<2.0.0)",
-    "cyclopts (>=3.17.0,<4.0.0)",
-    "python-dotenv>=1.1.0",
-    "litellm>=1.72.1",
-    "ipython>=9.2",
-    "nbconvert>=7.16.6",
-    "pygit2>=1.18",
-]
 requires-python = ">=3.12"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
@@ -30,7 +21,15 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 
-
+dependencies = [
+  "cyclopts>=3.17,<4",
+  "google-adk>=1.2.1,<2",
+  "ipython>=9.2",
+  "litellm>=1.72.1",
+  "nbconvert>=7.16.6",
+  "pygit2>=1.18",
+  "python-dotenv>=1.1",
+]
 scripts.manugen = "manugen_ai.cli:app"
 
 [dependency-groups]
