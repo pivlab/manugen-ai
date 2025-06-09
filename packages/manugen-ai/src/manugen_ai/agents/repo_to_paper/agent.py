@@ -9,14 +9,10 @@ which were used as background services outside of this file.
 
 from __future__ import annotations
 import os
-import asyncio
 
 from google.adk.agents import Agent, LoopAgent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
-from google.adk.sessions import InMemorySessionService
-from google.adk.runners import Runner
-from google.genai import types
 from manugen_ai.tools.tools import exit_loop, read_path_contents, clone_repository
 
 # ollama / llama3.2 workaround:
@@ -35,8 +31,8 @@ agent_getter = Agent(
     model=LiteLlm(model=MODEL_NAME),
     name="agent_getter",
     description=("You're an intelligent research software engineer."),
-    instruction=f"""
-You are a helpful assistant. Decide when a tool call is 
+    instruction="""
+You are a helpful assistant. Decide when a tool call is
 needed based on the instructions provided.
 You have advanced scientific knowledge and
 research software engineering skills.
@@ -49,10 +45,12 @@ Add the most important contents of the repo to the final result for context in l
 Don't make things up about the content that aren't in there, simply return the content as-is.
 We need to make sure we don't hallucinate aspects that aren't in the content.
 """,
-    tools=(writer_tools := [
-    FunctionTool(func=clone_repository),
-    FunctionTool(func=read_path_contents),
-]),
+    tools=(
+        writer_tools := [
+            FunctionTool(func=clone_repository),
+            FunctionTool(func=read_path_contents),
+        ]
+    ),
     output_key="code_summary",
 )
 
@@ -60,7 +58,7 @@ agent_writer = Agent(
     model=LiteLlm(model=MODEL_NAME),
     name="agent_writer",
     description=("You're a scientific writing assistant."),
-    instruction=f"""
+    instruction="""
 You are a helpful assistant. Use the information provided by the getter_agent to write an abstract for a scientific paper covering the repository we've investigated earlier.
 This is the content you have to work with:
 ```
@@ -88,7 +86,7 @@ agent_editor = Agent(
     name="agent_editor",
     description=("You're a scientific writing editor."),
     instruction=f"""
-You are a helpful scientific writing editor who has been 
+You are a helpful scientific writing editor who has been
 given an abstract to review.
 If you exit, please tell me why.
 
@@ -143,29 +141,19 @@ Do not add explanations. Either output the refined document OR call the exit_loo
 # sequence for gathering and creating initial content
 sequence_get_content = SequentialAgent(
     name="WriterSequence",
-    sub_agents=[
-        agent_getter,
-        agent_writer
-    ],
+    sub_agents=[agent_getter, agent_writer],
 )
 
 # loop for refining the initial content
 loop_refinement = LoopAgent(
     name="RefinementLoop",
-    sub_agents=[
-        agent_editor,
-        agent_refiner
-    ],
+    sub_agents=[agent_editor, agent_refiner],
     max_iterations=10,
 )
 
 # sequence for orchestrating everything together
 root_agent = SequentialAgent(
     name="root_agent",
-    sub_agents=[
-        sequence_get_content,
-        loop_refinement
-    ],
-    description="Writes an initial document and then iteratively refines it with critique loop."
+    sub_agents=[sequence_get_content, loop_refinement],
+    description="Writes an initial document and then iteratively refines it with critique loop.",
 )
-
