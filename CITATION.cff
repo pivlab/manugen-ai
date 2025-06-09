@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+title: Manugen-AI
+message: >-
+  If you use this work in some way, please use the 
+  information found within the CITATION.cff file.
+type: software
+authors:
+  - given-names: Faisal
+    family-names: Alquaddoomi
+    orcid: "https://orcid.org/0000-0003-4297-8747"
+  - given-names: Vincent
+    family-names: Rubinetti
+    orcid: "https://orcid.org/0000-0002-4655-3773"
+  - given-names: Dave
+    family-names: Bunten
+    orcid: "https://orcid.org/0000-0001-6041-3665"
+  - given-names: Milton
+    family-names: Pividori
+    orcid: "https://orcid.org/0000-0002-3035-4403"
+repository-code: "https://github.com/pivlab/adk-hack-2025"
+abstract: |
+  A multi-agent tool for creating academic manuscripts from a collection of images, text, and other content files.
+keywords:
+  - google-adk
+  - AI
+  - writer
+  - manuscript
+  - revision
+  - research
+  - large-language-models
+license: BSD-3-Clause
