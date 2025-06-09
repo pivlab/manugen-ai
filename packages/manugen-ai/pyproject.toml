@@ -1,39 +1,50 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [ "hatchling" ]
+
 [project]
 name = "manugen-ai"
 version = "0.1.0"
 description = ""
-authors = [
-    { name = "Dave Bunten", email = "david.bunten@cuanschutz.edu" },
-    { name = "Vincent Rubinetti", email = "vincent.rubinetti@cuanschutz.edu" },
-    { name = "Milton Pividori", email = "milton.pividori@cuanschutz.edu" },
-    { name = "Faisal Alquaddoomi", email = "faisal.alquaddoomi@cuanschutz.edu" },
-]
-requires-python = ">=3.12"
 readme = "README.md"
 license = "BSD-3-Clause"
-dependencies = [
-    "google-adk (>=1.2.1,<2.0.0)",
-    "cyclopts (>=3.17.0,<4.0.0)",
+authors = [
+  { name = "Dave Bunten", email = "david.bunten@cuanschutz.edu" },
+  { name = "Vincent Rubinetti", email = "vincent.rubinetti@cuanschutz.edu" },
+  { name = "Milton Pividori", email = "milton.pividori@cuanschutz.edu" },
+  { name = "Faisal Alquaddoomi", email = "faisal.alquaddoomi@cuanschutz.edu" },
 ]
+requires-python = ">=3.12"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "cyclopts>=3.17,<4",
+  "google-adk>=1.2.1,<2",
+  "ipython>=9.2",
+  "jinja2>=3.1.6",
+  "litellm>=1.72.1",
+  "llama-index>=0.12.40",
+  "nbconvert>=7.16.6",
+  "pygit2>=1.18",
+]
+
+scripts.manugen = "manugen_ai.cli:app"
 
 [dependency-groups]
 dev = [
-    "black>=25.1.0,<26",
-    "pytest>=8.4.0,<9",
+  "black>=25.1,<26",
+  "pytest>=8.4,<9",
+  "pytest-asyncio>=1",
 ]
 
-[project.scripts]
-manugen = "manugen_ai.cli:app"
-
 [tool.hatch.build.targets.sdist]
-include = ["src/manugen_ai"]
+include = [ "src/manugen_ai" ]
 
 [tool.hatch.build.targets.wheel]
-include = ["src/manugen_ai"]
+include = [ "src/manugen_ai" ]
 
 [tool.hatch.build.targets.wheel.sources]
 "src/manugen_ai" = "manugen_ai"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
