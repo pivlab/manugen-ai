@@ -1,17 +1,23 @@
 services:
   backend:
     build:
-      context: ./backend/
+      context: .
+      dockerfile: ./backend/Dockerfile
     ports:
-      - "8000:8000"
+      - "8900:8000"
     env_file:
       - .env
+    environment:
+      - "OLLAMA_API_BASE=http://host.docker.internal:11434"
+    volumes:
+      - ./packages/manugen-ai/src/:/opt/manugen-ai/src/
+      - ./packages/manugen-ai/tests/:/opt/manugen-ai/tests/
 
   frontend:
     build:
       context: ./frontend/
     ports:
-      - "3000:3000"
+      - "3900:3000"
 
   # service that's invoked explicitly to run the manugen-ai command
   manugen:
@@ -19,4 +25,8 @@ services:
       - cli
     build:
       context: ./packages/
+    env_file:
+      - .env
+    environment:
+      - "OLLAMA_API_BASE=http://host.docker.internal:11434"
     command: "uv run manugen /content/"
