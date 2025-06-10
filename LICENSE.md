@@ -1,6 +1,6 @@
 # BSD 3-Clause License
 
-Copyright (c) 2024, Contributors and the Pividori Lab at the University of Colorado Anschutz Medical Campus
+Copyright (c) 2025, Contributors and the Pividori Lab at the University of Colorado Anschutz Medical Campus
 
 All rights reserved.
 
