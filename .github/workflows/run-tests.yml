@@ -24,15 +24,13 @@ jobs:
     strategy:
       matrix:
         python_version: ["3.12", "3.13"]
-        os: [ubuntu-24.04]
+        os: [ubuntu-24.04, macos-14]
     runs-on: ${{ matrix.os }}
     env:
       OS: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install ollama
-        run: curl -fsSL https://ollama.com/install.sh | sh
       - uses: pydantic/ollama-action@v3
         with:
           model: llama3.2
