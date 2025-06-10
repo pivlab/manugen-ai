@@ -42,7 +42,7 @@ repos:
     rev: "v0.11.13"
     hooks:
     -   id: ruff-format
-    -   id: ruff
+    -   id: ruff-check
 -   repo: https://github.com/rhysd/actionlint
     rev: v1.7.7
     hooks:

@@ -31,9 +31,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: pydantic/ollama-action@v3
-        with:
-          model: llama3.2
+      - name: Install ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+      - name: Run ollama
+        run: |
+          ollama serve &
+          ollama pull llama3.2
       - name: Python setup
         uses: actions/setup-python@v5
         with:
