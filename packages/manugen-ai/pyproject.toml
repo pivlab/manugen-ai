@@ -27,6 +27,7 @@ dependencies = [
   "ipython>=9.2",
   "litellm>=1.72.1",
   "nbconvert>=7.16.6",
+  "psycopg2-binary>=2.9.10",
   "pygit2>=1.18",
   "python-dotenv>=1.1",
 ]
