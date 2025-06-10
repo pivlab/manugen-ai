@@ -30,12 +30,16 @@ dependencies = [
   "psycopg2-binary>=2.9.10",
   "pygit2>=1.18",
   "python-dotenv>=1.1",
+  "requests>=2.32.3",
 ]
 scripts.manugen = "manugen_ai.cli:app"
 
 [dependency-groups]
 dev = [
   "black>=25.1,<26",
+  "jupyterlab>=4.4.3",
+  "nbclient>=0.10.2",
+  "nbformat>=5.10.4",
   "pytest>=8.4,<9",
   "pytest-asyncio>=1",
 ]
