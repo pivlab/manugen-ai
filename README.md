@@ -78,6 +78,16 @@ Wait until you see the following message in the logs:
 
 Visit http://localhost:8900 in your web browser to access the ADK web agent interface.
 
+### Purging Session State
+
+If you want to clear the session state, you can run the following command to stop any application containers that are running and remove the database volume:
+
+```bash
+docker compose down -v
+```
+
+This will purge any sessions or other data that ADK stores to the database.
+
 ### Command Line Interface
 
 If you'd prefer not to use the web interface, you can also run the *Manugen AI* package from the command line.
