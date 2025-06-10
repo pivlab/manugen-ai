@@ -10,6 +10,7 @@ load_dotenv()
 
 app = App()
 
+
 @app.default
 def manugen(content_dir: Path, output_dir: Path = None):
     """
@@ -34,8 +35,9 @@ def manugen(content_dir: Path, output_dir: Path = None):
         print(f"- No output directory specified, using default of {output_dir}.")
 
     print()
-    print("**Implemention TBC**")
+    print("**Implementation TBC**")
     print()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app()

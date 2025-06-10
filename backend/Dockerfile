@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7-labs 
+# syntax=docker/dockerfile:1.7-labs
 
 # copied from https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 

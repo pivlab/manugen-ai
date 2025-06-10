@@ -9,9 +9,14 @@ services:
       - .env
     environment:
       - "OLLAMA_API_BASE=http://host.docker.internal:11434"
+      - "POSTGRES_HOST=db"
+      - "POSTGRES_DB=manugen"
+      - "SESSION_DB_CONN_STRING=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
     volumes:
       - ./packages/manugen-ai/src/:/opt/manugen-ai/src/
       - ./packages/manugen-ai/tests/:/opt/manugen-ai/tests/
+    depends_on:
+      - db
 
   frontend:
     build:
@@ -30,3 +35,9 @@ services:
     environment:
       - "OLLAMA_API_BASE=http://host.docker.internal:11434"
     command: "uv run manugen /content/"
+
+  # session database for ADK
+  db:
+    image: postgres:16
+    env_file:
+      - .env
