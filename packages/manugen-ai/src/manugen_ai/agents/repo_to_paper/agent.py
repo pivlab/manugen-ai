@@ -17,7 +17,17 @@ from manugen_ai.tools.tools import exit_loop, read_path_contents, clone_reposito
 
 # ollama / llama3.2 workaround:
 # https://github.com/google/adk-python/issues/49
-os.environ["OPENAI_API_BASE"] = "http://localhost:11434/v1"
+# also mentioned here, https://google.github.io/adk-docs/agents/models/#using-openai-provider
+
+# retrieve the model API base from environment variable, since it's different if
+# the agents are running in a container or directly on the host
+model_api_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
+
+# when using the openai provider we need a /v1 suffix, so if it doesn't end in /v1, add it
+if not model_api_base.endswith("/v1"):
+    model_api_base += "/v1"
+
+os.environ["OPENAI_API_BASE"] = model_api_base
 os.environ["OPENAI_API_KEY"] = "unused"
 os.environ["CHAT_MODEL"] = "llama3.2"
 
