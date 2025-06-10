@@ -8,7 +8,6 @@ It includes Docker Compose configuration to run the application stack locally.
 The application stack relies on a package called *Manugen AI*, a multi-agent tool for creating academic manuscripts from a collection of images, text, and other content files.
 See the [Manugen AI package README](packages/manugen-ai/README.md) for more details on the package itself.
 
-
 ## Project Structure
 
 The project is a standard three-tier web application, with the following components:
@@ -19,7 +18,6 @@ The project is a standard three-tier web application, with the following compone
   The backend relies on this package to perform the actual manuscript generation.
 
 The project includes a PostgreSQL database that ADK uses to store session data.
-
 
 ## Installation
 
@@ -50,7 +48,6 @@ If you'd like to see if your Ollama server is accepting requests, you can run th
 ```bash
 tail -f ~/.ollama/logs/server.log
 ```
-
 
 ## Usage
 
@@ -106,7 +103,6 @@ docker compose --profile cli run --build --rm \
 
 Currently the command runs the *Manugen AI* package's `cli` module with the `--content-dir` option set to `/content/`, which is the directory where the content files are mounted in the Docker container.
 *TBC: add where the output files are saved, once that's implemented.*
-
 
 ## Other Resources
 
