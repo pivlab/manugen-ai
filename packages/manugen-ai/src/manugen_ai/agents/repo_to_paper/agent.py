@@ -29,9 +29,9 @@ if not model_api_base.endswith("/v1"):
 
 os.environ["OPENAI_API_BASE"] = model_api_base
 os.environ["OPENAI_API_KEY"] = "unused"
-os.environ["CHAT_MODEL"] = "llama3.2"
+os.environ["CHAT_MODEL"] = "llama3.2:3b"
 
-MODEL_NAME = "openai/llama3.2"
+MODEL_NAME = "openai/llama3.2:3b"
 COMPLETION_PHRASE = "All the way finished!"
 APP_NAME = "db_tool_app"
 USER_ID = "repo_to_paper_user"
