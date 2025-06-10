@@ -68,6 +68,8 @@ def clone_repository(repo_url: str) -> str:
     temp_dir = tempfile.mkdtemp()
     # Define the path for the cloned repository within the temporary directory
     repo_path = pathlib.Path(temp_dir) / "repo"
+    # ensure the path exists
+    repo_path.mkdir(parents=True, exist_ok=True)
     # Clone the repository from the given URL into the defined path
     pygit2.clone_repository(repo_url, str(repo_path))
 
