@@ -4,8 +4,9 @@ version = "0.1.0"
 description = "A backend for the Manugen AI project, providing APIs for AI-driven manuscript generation."
 readme = "README.md"
 requires-python = ">=3.13"
+classifiers = [ "Programming Language :: Python :: 3 :: Only", "Programming Language :: Python :: 3.13" ]
 dependencies = [
-    "manugen-ai",
+  "manugen-ai",
 ]
 
 [tool.uv.sources]
