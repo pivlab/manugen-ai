@@ -13,11 +13,14 @@
     "@tiptap/pm": "^2.14.0",
     "@tiptap/starter-kit": "^2.14.0",
     "@tiptap/vue-3": "^2.14.0",
+    "@types/poisson-disk-sampling": "^2.2.4",
     "@vueuse/core": "^13.3.0",
+    "lodash": "^4.17.21",
     "lucide": "^0.514.0",
     "lucide-vue-next": "^0.514.0",
     "mammoth": "^1.9.1",
     "pdfjs-dist": "^5.3.31",
+    "poisson-disk-sampling": "^2.3.1",
     "tailwindcss": "^4.1.8",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
@@ -25,13 +28,14 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
+    "@types/lodash": "^4.17.17",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
     "npm-run-all2": "^7.0.2",
     "typescript": "~5.8.0",
-    "vite-plugin-vue-devtools": "^7.7.2",
     "vite": "^6.2.4",
+    "vite-plugin-vue-devtools": "^7.7.2",
     "vue-tsc": "^2.2.8"
   }
 }
