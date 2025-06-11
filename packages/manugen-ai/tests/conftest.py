@@ -2,10 +2,11 @@
 conftest for pytest fixutres and related
 """
 
-import tempfile
 import pathlib
+import tempfile
+from typing import Any, Generator
+
 import pytest
-from typing import Generator, Any
 
 
 @pytest.fixture

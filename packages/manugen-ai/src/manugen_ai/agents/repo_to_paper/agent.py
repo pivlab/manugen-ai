@@ -9,14 +9,20 @@ which were used as background services outside of this file.
 
 from __future__ import annotations
 
-from google.adk.agents import Agent, LoopAgent, SequentialAgent, ParallelAgent
+from google.adk.agents import (
+    Agent,
+    BaseAgent,
+    LoopAgent,
+    ParallelAgent,
+    SequentialAgent,
+)
+from google.adk.agents.invocation_context import InvocationContext
+from google.adk.events import Event, EventActions
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
-from manugen_ai.tools.tools import read_path_contents, clone_repository
+
+from manugen_ai.tools.tools import clone_repository, read_path_contents
 from manugen_ai.utils import prepare_ollama_llama_for_adk_state
-from google.adk.agents import BaseAgent
-from google.adk.events import Event, EventActions
-from google.adk.agents.invocation_context import InvocationContext
 
 prepare_ollama_llama_for_adk_state()
 
@@ -252,12 +258,15 @@ sequence_writer = SequentialAgent(
 loop_refinement = LoopAgent(
     name="refiner",
     sub_agents=[agent_editor, agent_refiner, StopChecker()],
-    max_iterations=10,
+    max_iterations=5,
 )
 
 # sequence for orchestrating everything together
 root_agent = SequentialAgent(
     name="root_agent",
     sub_agents=[parallel_get_content, sequence_writer, loop_refinement],
-    description="Writes an initial document and then iteratively refines it with critique loop.",
+    description="""
+        Gathers content, writes an initial document,
+        and then iteratively refines it with critique loop.
+        """,
 )

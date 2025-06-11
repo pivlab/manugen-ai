@@ -5,13 +5,14 @@ Utils for manugen-ai
 from __future__ import annotations
 
 import itertools
-import requests
-from typing import Any, Tuple
-from google.adk.agents import SequentialAgent, LoopAgent, ParallelAgent
-from google.adk.sessions import InMemorySessionService
-from google.adk.runners import Runner
-from google.genai import types
 import os
+from typing import Any, Tuple
+
+import requests
+from google.adk.agents import LoopAgent, ParallelAgent, SequentialAgent
+from google.adk.runners import Runner
+from google.adk.sessions import InMemorySessionService
+from google.genai import types
 
 
 def prepare_ollama_llama_for_adk_state() -> None:

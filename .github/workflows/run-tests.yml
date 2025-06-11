@@ -45,4 +45,5 @@ jobs:
         uses: astral-sh/setup-uv@v6
       - name: Run pytest
         # cd into the packages dir and run pytest
-        run: cd packages/manugen-ai && uv run --frozen pytest
+        # note: we skip notebooks as these are for reporting only.
+        run: cd packages/manugen-ai && uv run --frozen pytest -m "not notebooks"

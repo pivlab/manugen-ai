@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
-from cyclopts import App
 
+from cyclopts import App
 from dotenv import load_dotenv
 
 # load up secrets from a .env file in the first ancestor directory that contains
