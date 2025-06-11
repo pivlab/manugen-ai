@@ -1,1 +1,14 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+* {
+  font-family: "Liter", sans-serif;
+}
+
+.tippy-box {
+  font: inherit !important;
+}
+
+.dragging {
+  @apply inset-ring-4 inset-ring-indigo-500;
+}
