@@ -45,6 +45,11 @@
     <AppAgents />
   </div>
 
+  <div class="fixed left-0 bottom-0 flex p-5 gap-2">
+    <AppButton @click="editor?.commands.undo()"><Undo /></AppButton>
+    <AppButton @click="editor?.commands.redo()"><Redo /></AppButton>
+  </div>
+
   <div class="fixed right-0 bottom-0 flex p-5 gap-2">
     <AppUpload
       tooltip="Upload document, or drag & drop onto page"
@@ -72,7 +77,14 @@ import StarterKit from "@tiptap/starter-kit";
 import AppAgents from "@/components/AppAgents.vue";
 import AppUpload from "@/components/AppUpload.vue";
 import AppButton from "@/components/AppButton.vue";
-import { Download, Feather, Paperclip, Send } from "lucide-vue-next";
+import {
+  Download,
+  Feather,
+  Paperclip,
+  Redo,
+  Send,
+  Undo,
+} from "lucide-vue-next";
 import { downloadTxt } from "@/util/download";
 import { agents, useAgentAction } from "@/api/agents";
 import { endpoint1, endpoint2, endpoint3 } from "@/api/endpoints";
