@@ -1,3 +1,7 @@
 <template>
-  <div class="text-emerald-800 p-8">Hello World</div>
+  <AppEditor />
 </template>
+
+<script setup lang="ts">
+import AppEditor from "../components/AppEditor.vue";
+</script>
