@@ -13,6 +13,7 @@ from google.adk.runners import Runner
 from google.genai import types
 import os
 
+
 def prepare_ollama_llama_for_adk_state() -> None:
     """
     Prepares Ollama Llama models for use with
@@ -157,23 +158,24 @@ async def run_agent_workflow(
 
     return final_output, session_state, output_events
 
+
 def build_mermaid(root: Any) -> Tuple[str, bytes]:
     """
-    Generates a Mermaid 'flowchart LR' diagram for a google-adk 
+    Generates a Mermaid 'flowchart LR' diagram for a google-adk
     agent tree and returns both the Mermaid source and a PNG
     image rendered via the Kroki API.
 
     Args:
-        root (Any): 
-            The root agent node of the google-adk agent tree. 
+        root (Any):
+            The root agent node of the google-adk agent tree.
             This should be an instance
-            of SequentialAgent, LoopAgent, ParallelAgent, 
+            of SequentialAgent, LoopAgent, ParallelAgent,
             or a compatible agent class with a
             `name` attribute and an optional `sub_agents`
             attribute.
 
     Returns:
-        Tuple[str, bytes]: 
+        Tuple[str, bytes]:
             A tuple containing:
             - The Mermaid source code as a string.
             - The PNG image bytes rendered from the Mermaid diagram.
@@ -189,7 +191,7 @@ def build_mermaid(root: Any) -> Tuple[str, bytes]:
     """
     clusters, edges = [], []
 
-    first_of, last_of, name_of = {}, {}, {}       # keyed by id(node)
+    first_of, last_of, name_of = {}, {}, {}  # keyed by id(node)
 
     # ── walk the tree & build sub-graphs ───────────────────────────────
     def walk(node):
@@ -197,27 +199,29 @@ def build_mermaid(root: Any) -> Tuple[str, bytes]:
         name_of[nid] = node.name
         subs = getattr(node, "sub_agents", [])
 
-        if subs:                                 # remember ends for sequencing
+        if subs:  # remember ends for sequencing
             first_of[nid], last_of[nid] = subs[0].name, subs[-1].name
 
         # sub-graph for non-root workflow agents
-        if node is not root and isinstance(node, (SequentialAgent, LoopAgent, ParallelAgent)):
+        if node is not root and isinstance(
+            node, (SequentialAgent, LoopAgent, ParallelAgent)
+        ):
             block = [f'  subgraph {node.name}["{node.name}"]']
             if isinstance(node, SequentialAgent):
                 for a, b in itertools.pairwise(subs):
-                    block.append(f'    {a.name} --> {b.name}')
+                    block.append(f"    {a.name} --> {b.name}")
             elif isinstance(node, LoopAgent):
                 for a, b in itertools.pairwise(subs):
-                    block.append(f'    {a.name} --> {b.name}')
-                if len(subs) > 1:                # loop-back
-                    block.append(f'    {subs[-1].name} -.->|repeat| {subs[0].name}')
+                    block.append(f"    {a.name} --> {b.name}")
+                if len(subs) > 1:  # loop-back
+                    block.append(f"    {subs[-1].name} -.->|repeat| {subs[0].name}")
             elif isinstance(node, ParallelAgent):
-                for child in subs:               # declare nodes inside block
+                for child in subs:  # declare nodes inside block
                     block.append(f'    {child.name}["{child.name}"]')
-            block.append('  end')
-            clusters.append('\n'.join(block))
+            block.append("  end")
+            clusters.append("\n".join(block))
 
-        for child in subs:                       # recurse
+        for child in subs:  # recurse
             walk(child)
 
     walk(root)
@@ -230,13 +234,12 @@ def build_mermaid(root: Any) -> Tuple[str, bytes]:
         # Kick-off: root  -.->  first container
         if isinstance(first_child, ParallelAgent):
             for c in first_child.sub_agents:
-                edges.append(f'  {root.name} -.-> {c.name}')
+                edges.append(f"  {root.name} -.-> {c.name}")
         else:
-            edges.append(f'  {root.name} -.-> {first_of[id(first_child)]}')
+            edges.append(f"  {root.name} -.-> {first_of[id(first_child)]}")
 
         # Chain container i  →  container i+1
         for prev, nxt in itertools.pairwise(children):
-
             # what are the exit nodes of *prev* ?
             prev_exits = (
                 [child.name for child in prev.sub_agents]
@@ -252,27 +255,27 @@ def build_mermaid(root: Any) -> Tuple[str, bytes]:
             )
 
             # solid arrow for single-path, dotted when fanning into a Parallel
-            arrow = '-.->' if isinstance(nxt, ParallelAgent) else '-.->'
+            arrow = "-.->" if isinstance(nxt, ParallelAgent) else "-.->"
 
             for src in prev_exits:
                 for dst in nxt_entries:
-                    edges.append(f'  {src} {arrow} {dst}')
+                    edges.append(f"  {src} {arrow} {dst}")
     else:
         # fallback: plain edge root → each immediate child
         for c in getattr(root, "sub_agents", []):
-            edges.append(f'  {root.name} --> {c.name}')
+            edges.append(f"  {root.name} --> {c.name}")
 
     # ── assemble diagram ───────────────────────────────────────────────
-    graph = ['flowchart LR', f'  {root.name}["{root.name}"]']
+    graph = ["flowchart LR", f'  {root.name}["{root.name}"]']
     graph.extend(clusters)
     graph.extend(edges)
 
-    mermaid_src = '\n'.join(graph)
+    mermaid_src = "\n".join(graph)
     # ✧ STEP 2: POST Mermaid → PNG via Kroki  ──────────────────────────────
     PNG = requests.post(
-        "https://kroki.io/mermaid/png",       # public endpoint
+        "https://kroki.io/mermaid/png",  # public endpoint
         data=mermaid_src.encode("utf-8"),
         headers={"Content-Type": "text/plain"},
-    ).content # PNG bytes
+    ).content  # PNG bytes
 
     return mermaid_src, PNG

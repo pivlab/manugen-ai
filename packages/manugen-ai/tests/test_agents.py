@@ -32,6 +32,7 @@ async def test_something(temp_markdown_dir: pathlib.Path):
     # assert we have an abstract which was added
     assert "abstract" in session_state.keys()
 
+
 import nbformat
 from nbclient import NotebookClient
 from pathlib import Path
@@ -90,7 +91,10 @@ def get_cell_outputs(nb: nbformat.NotebookNode) -> list[str]:
     ],
 )
 def test_notebook_outputs_match(tmp_path, notebook_path, reference_path):
-    executed = run_notebook(input_path=pathlib.Path(notebook_path), output_path=(new_path := tmp_path / "temp_path"))
+    executed = run_notebook(
+        input_path=pathlib.Path(notebook_path),
+        output_path=(new_path := tmp_path / "temp_path"),
+    )
     reference = nbformat.read(Path(new_path), as_version=4)
 
     executed_outputs = get_cell_outputs(executed)

@@ -7,8 +7,13 @@ import pathlib
 import pytest
 from typing import Generator, Any
 
+
 @pytest.fixture
-def temp_markdown_dir() -> Generator[pathlib.Path, Any, Any,]:
+def temp_markdown_dir() -> Generator[
+    pathlib.Path,
+    Any,
+    Any,
+]:
     temp_dir = tempfile.TemporaryDirectory()
     dir_path = pathlib.Path(temp_dir.name)
     # Create example markdown files
