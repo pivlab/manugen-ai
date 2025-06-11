@@ -15,9 +15,9 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
 
-def prepare_ollama_llama_for_adk_state() -> None:
+def prepare_ollama_models_for_adk_state() -> None:
     """
-    Prepares Ollama Llama models for use with
+    Prepares Ollama models for use with
     google-adk state. We must use openai configurations
     to help make sure the state content are passed
     to the agents without exceptions.
@@ -36,8 +36,8 @@ def prepare_ollama_llama_for_adk_state() -> None:
         model_api_base += "/v1"
 
     os.environ["OPENAI_API_BASE"] = model_api_base
-    os.environ["OPENAI_API_KEY"] = "unused"
-    os.environ["CHAT_MODEL"] = "llama3.2:3b"
+    os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY", "unused")
+    os.environ["CHAT_MODEL"] = os.environ.get("OPENAI_API_KEY", "llama3.2:3b")
 
 
 async def run_agent_workflow(

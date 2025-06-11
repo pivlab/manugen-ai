@@ -9,6 +9,8 @@ which were used as background services outside of this file.
 
 from __future__ import annotations
 
+import os
+
 from google.adk.agents import (
     Agent,
     BaseAgent,
@@ -22,16 +24,19 @@ from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 
 from manugen_ai.tools.tools import clone_repository, read_path_contents
-from manugen_ai.utils import prepare_ollama_llama_for_adk_state
+from manugen_ai.utils import prepare_ollama_models_for_adk_state
 
-prepare_ollama_llama_for_adk_state()
+# preconfigure ollama for use with google-adk
+prepare_ollama_models_for_adk_state()
 
-GENERAL_MODEL_NAME = "openai/llama3.2:3b"
-CODE_SPECIALIST_MODEL_NAME = "openai/devstral"
+GENERAL_MODEL_NAME = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/llama3.2:3b")
+CODE_SPECIALIST_MODEL_NAME = os.environ.get(
+    "MAI_CODE_SPECIALIST_MODEL_NAME", "openai/mistral-small"
+)
 COMPLETION_PHRASE = "All the way finished!"
 
 agent_code_summarizer = Agent(
-    model=LiteLlm(model=GENERAL_MODEL_NAME),
+    model=LiteLlm(model=CODE_SPECIALIST_MODEL_NAME),
     name="agent_code_summarizer",
     description=("I am an intelligent and experienced research software engineer."),
     instruction="""
