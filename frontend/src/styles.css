@@ -12,3 +12,7 @@
 .dragging {
   @apply inset-ring-4 inset-ring-indigo-500;
 }
+
+.lucide {
+  height: 1.5em;
+}
