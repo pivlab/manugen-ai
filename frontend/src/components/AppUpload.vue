@@ -1,9 +1,5 @@
 <template>
-  <AppButton
-    v-tooltip="tooltip"
-    :disabled="uploading"
-    @click="onClick"
-  >
+  <AppButton v-tooltip="tooltip" :disabled="uploading" @click="onClick">
     <LoaderCircle v-if="uploading" class="spin" />
     <Upload v-else />
   </AppButton>
@@ -22,7 +18,7 @@ import { ref, useTemplateRef, watchEffect } from "vue";
 import { LoaderCircle, Upload } from "lucide-vue-next";
 import { useEventListener } from "@vueuse/core";
 import { parsePdf, parseWordDoc } from "@/util/upload";
-import AppButton from "./AppButton.vue";
+import AppButton from "@/components/AppButton.vue";
 
 type Props = {
   accept: string[];

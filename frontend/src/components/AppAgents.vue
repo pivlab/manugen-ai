@@ -21,6 +21,6 @@
 </template>
 
 <script setup lang="ts">
-import { agents } from "./agents";
-import AppBrain from "./AppBrain.vue";
+import { agents } from "@/api/agents";
+import AppBrain from "@/components/AppBrain.vue";
 </script>
