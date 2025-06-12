@@ -51,6 +51,10 @@ tail -f ~/.ollama/logs/server.log
 
 ## Usage
 
+First, copy `.env.TEMPLATE` in the root of the project to a file named `.env`, then fill in any missing values.
+You can use whatever values for the password you like, but try to use a long, random value.
+(Note that some values specified in `.env` are overridden in the `docker-compose.yml` file, under the service's `environment` key.)
+
 To run the project, clone the repository and run:
 
 ```bash
