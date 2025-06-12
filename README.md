@@ -31,19 +31,20 @@ Docker Compose is typically included with Docker Desktop installations, but if y
 ### Ollama
 
 To run models locally, you'll need to have [Ollama](https://ollama.com/) installed on your machine.
-Once you have Ollama installed, you'll need to pull the llama3.2 model, which is used by the *Manugen AI* package for invoking tools and generating text.
-
-```bash
-ollama pull llama3.2
-```
-
-You'll then want to run the Ollama server, which will allow the application to access the model:
+Once you have Ollama installed, you want to run the Ollama server, which will allow the application to access the model.
+If Ollama server is not running as a system service already, you have to start it manually:
 
 ```bash
 ollama serve
 ```
 
-If you'd like to see if your Ollama server is accepting requests, you can run the following command on OS X to tail the server logs:
+Then, you'll need to pull the `llama3.2` model, which is used by the *Manugen AI* package for invoking tools and generating text.
+
+```bash
+ollama pull llama3.2
+```
+
+In OS X, if you'd like to see if your Ollama server is accepting requests, you can run the following command to tail the server logs:
 
 ```bash
 tail -f ~/.ollama/logs/server.log
