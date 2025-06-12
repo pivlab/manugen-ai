@@ -18,11 +18,11 @@ services:
     depends_on:
       - db
 
-  frontend:
-    build:
-      context: ./frontend/
-    ports:
-      - "3900:3000"
+  # frontend:
+  #   build:
+  #     context: ./frontend/
+  #   ports:
+  #     - "3900:3000"
 
   # service that's invoked explicitly to run the manugen-ai command
   manugen:
