@@ -1,0 +1,48 @@
+---
+# used for running tests
+name: tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  pre_commit_checks:
+    runs-on: ubuntu-24.04
+    steps:
+      # checks out the repo
+      - uses: actions/checkout@v4
+      # run pre-commit
+      - name: Python setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: pre-commit/action@v3.0.1
+  run_package_tests:
+    strategy:
+      matrix:
+        python_version: ["3.12", "3.13"]
+        os: [ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    env:
+      OS: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+      - name: Run ollama
+        run: |
+          ollama serve &
+          ollama pull llama3.2:3b
+      - name: Python setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
+      - name: Run pytest
+        # cd into the packages dir and run pytest
+        run: cd packages/manugen-ai && uv run --frozen pytest

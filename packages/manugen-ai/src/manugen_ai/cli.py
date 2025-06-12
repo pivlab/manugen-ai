@@ -1,7 +1,15 @@
+import os
 from pathlib import Path
 from cyclopts import App
 
+from dotenv import load_dotenv
+
+# load up secrets from a .env file in the first ancestor directory that contains
+# one (typically the root of the project)
+load_dotenv()
+
 app = App()
+
 
 @app.default
 def manugen(content_dir: Path, output_dir: Path = None):
@@ -17,6 +25,7 @@ def manugen(content_dir: Path, output_dir: Path = None):
             If not specified, defaults to a subdirectory named '_output' within the content directory.
     """
     print("* Manugen AI CLI *")
+    print(f"- Ollama API URL: {os.environ.get('OLLAMA_API_BASE', '<not set>')}")
     print(f"- Input content directory: {content_dir.resolve()}")
 
     if output_dir:
@@ -26,8 +35,9 @@ def manugen(content_dir: Path, output_dir: Path = None):
         print(f"- No output directory specified, using default of {output_dir}.")
 
     print()
-    print("**Implemention TBC**")
+    print("**Implementation TBC**")
     print()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app()

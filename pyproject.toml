@@ -1,0 +1,6 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+fix = true
+# Ignore `F401` (unused imports) for `__init__.py` file
+lint.per-file-ignores."__init__.py" = [ "F401" ]
