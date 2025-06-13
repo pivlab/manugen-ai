@@ -1,39 +1,22 @@
 import { useQuery } from "@/util/composables";
 import { ref, watchEffect } from "vue";
 
-export const agents = ref({
+export const agents = {
   gemini: {
     name: "Gemini",
-    abbrev: "Gem",
-    color: "bg-indigo-500",
-    running: false,
+    bgColor: "bg-linear-to-r from-blue-100 to-indigo-100",
+    textColor: "text-indigo-700",
   },
 
   chatgpt: {
     name: "ChatGPT",
-    abbrev: "GPT",
-    color: "bg-emerald-500",
-    running: false,
+    bgColor: "bg-linear-to-r from-green-100 to-emerald-100",
+    textColor: "text-emerald-700",
   },
 
   claude: {
     name: "Claude",
-    abbrev: "Cla",
-    color: "bg-orange-500",
-    running: false,
+    bgColor: "bg-linear-to-r from-red-100 to-orange-100",
+    textColor: "text-orange-700",
   },
-});
-
-export const useAgentAction = <Data, Args extends unknown[]>(
-  key: keyof typeof agents.value,
-  func: () => Promise<Data>
-) => {
-  const { query, data, status } = useQuery(func, undefined);
-  watchEffect(() => {
-    agents.value[key].running = status.value === "loading";
-  });
-  return async () => {
-    await query();
-    return data.value;
-  };
 };

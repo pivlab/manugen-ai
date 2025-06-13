@@ -115,11 +115,11 @@ line.animate {
 }
 
 @keyframes draw {
-  from {
+  0% {
     stroke-dashoffset: 3;
   }
 
-  to {
+  100% {
     stroke-dashoffset: 1;
   }
 }

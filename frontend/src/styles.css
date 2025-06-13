@@ -2,16 +2,11 @@
 @plugin "@tailwindcss/typography";
 
 * {
-  font-family: "Liter", sans-serif;
+  font-family: "Mullish", sans-serif;
 }
 
-.tippy-box {
-  font: inherit !important;
-  @apply rounded-md;
-}
-
-.tippy-content:has(:nth-child(1)) {
-  padding: 0 !important;
+button {
+  cursor: pointer;
 }
 
 .dragging {
@@ -23,6 +18,11 @@
   height: 1em;
 }
 
-button {
-  cursor: pointer;
+.tippy-box {
+  font: inherit !important;
+  @apply rounded-md;
+}
+
+.tippy-content:has(:nth-child(1)) {
+  padding: 0 !important;
 }
