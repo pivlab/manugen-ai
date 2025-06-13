@@ -138,6 +138,12 @@ const getContext = () => {
 
   /** "current" paragraph that selection is in */
   const { parentElement: p } = node;
+  /** actual dom element, not editor node. using familiar dom functionality
+   * (e.g. previousElementSibling) turned out to be more straight forward than
+   * using built-in tiptap/prosemirror funcs. hacky but necessary to move fast.
+   * may want to look into editor.js as simpler alternative, or
+   * atlassian/prosemirror-utils.
+   */
 
   return {
     /** full text content of editor */
