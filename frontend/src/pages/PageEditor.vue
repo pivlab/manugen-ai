@@ -75,6 +75,7 @@ import {
   BubbleMenu,
   EditorContent,
   FloatingMenu,
+  findChildren,
 } from "@tiptap/vue-3";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
@@ -89,7 +90,8 @@ import {
   Undo,
 } from "lucide-vue-next";
 import { downloadTxt } from "@/util/download";
-import { random } from "lodash";
+import { random, uniqueId } from "lodash";
+import CustomParagraph from "./custom-paragraph";
 
 const { VITE_TITLE: title } = import.meta.env;
 
@@ -112,6 +114,7 @@ const editor = useEditor({
   extensions: [
     StarterKit,
     Placeholder.configure({ placeholder: "Start writing" }),
+    CustomParagraph,
   ],
   editorProps: {
     attributes: {
@@ -121,13 +124,15 @@ const editor = useEditor({
   },
 });
 
-const action = () => {
+const getContext = () => {
   if (!editor.value) return;
   const {
     view,
-    state: { doc, selection },
+    state: {
+      doc,
+      selection: { from, to, $from, $to },
+    },
   } = editor.value;
-  const { from, to, $from, $to } = selection;
 
   const {
     node: { parentElement: p },
@@ -144,7 +149,10 @@ const action = () => {
   const pBefore = p?.previousElementSibling?.textContent ?? "";
   const pAfter = p?.nextElementSibling?.textContent ?? "";
 
-  console.log({
+  const id = addNode("test");
+  if (id) window.setTimeout(() => deleteNode(id), 1000);
+
+  return {
     full,
     sel,
     selP,
@@ -152,7 +160,41 @@ const action = () => {
     afterSel,
     pBefore,
     pAfter,
+  };
+};
+
+const addNode = (text = "") => {
+  if (!editor.value) return;
+  const id = "node" + uniqueId();
+  editor.value.commands.insertContent({
+    type: "custom-paragraph",
+    attrs: { id },
+    content: [{ type: "text", text }],
   });
+  return id;
+};
+
+const deleteNode = (id: string) => {
+  if (!editor.value) return;
+  const {
+    state: { doc },
+    commands,
+  } = editor.value;
+
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const item = findChildren(doc, (node) => node.attrs.id === id)?.[0];
+  if (!item) return;
+
+  return commands.deleteRange({
+    from: item.pos,
+    to: item.pos + item.node.nodeSize,
+  });
+};
+
+const action = () => {
+  console.log(getContext());
 };
 
 const actions = [
