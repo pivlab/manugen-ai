@@ -65,11 +65,13 @@
         </button>
       </template>
     </BubbleMenu>
+
+    <AppAgents />
   </main>
 </template>
 
 <script setup lang="ts">
-import type { ComponentInstance } from "vue";
+import { type ComponentInstance } from "vue";
 import {
   useEditor,
   BubbleMenu,
@@ -81,6 +83,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import AppUpload from "@/components/AppUpload.vue";
 import AppButton from "@/components/AppButton.vue";
+import AppAgents from "@/components/AppAgents.vue";
 import {
   Download,
   Feather,
@@ -91,7 +94,10 @@ import {
 } from "lucide-vue-next";
 import { downloadTxt } from "@/util/download";
 import { random, uniqueId } from "lodash";
-import CustomParagraph from "./custom-paragraph";
+import Portal from "./portal";
+import { agentsWorking } from "@/components/AppAgents.vue";
+import type { AgentId } from "@/api/agents";
+import { endpoint1, endpoint2, endpoint3 } from "@/api/endpoints";
 
 const { VITE_TITLE: title } = import.meta.env;
 
@@ -108,13 +114,14 @@ const example = "abcde"
 
 const editor = useEditor({
   content: example,
+  enableContentCheck: false,
   parseOptions: {
     preserveWhitespace: "full",
   },
   extensions: [
     StarterKit,
     Placeholder.configure({ placeholder: "Start writing" }),
-    CustomParagraph,
+    Portal,
   ],
   editorProps: {
     attributes: {
@@ -126,17 +133,12 @@ const editor = useEditor({
 
 const getContext = () => {
   if (!editor.value) return;
-  const {
-    view,
-    state: {
-      doc,
-      selection: { from, to, $from, $to },
-    },
-  } = editor.value;
+  const { view, state } = editor.value;
+  const { doc, selection } = state;
+  const { from, to, $from, $to } = selection;
 
-  const {
-    node: { parentElement: p },
-  } = view.domAtPos($from.pos);
+  const { node } = view.domAtPos($from.pos);
+  const { parentElement: p } = node;
 
   const full = editor.value.getText();
 
@@ -149,9 +151,6 @@ const getContext = () => {
   const pBefore = p?.previousElementSibling?.textContent ?? "";
   const pAfter = p?.nextElementSibling?.textContent ?? "";
 
-  const id = addNode("test");
-  if (id) window.setTimeout(() => deleteNode(id), 1000);
-
   return {
     full,
     sel,
@@ -163,57 +162,85 @@ const getContext = () => {
   };
 };
 
-const addNode = (text = "") => {
+const addPortal = () => {
   if (!editor.value) return;
   const id = "node" + uniqueId();
-  editor.value.commands.insertContent({
-    type: "custom-paragraph",
-    attrs: { id },
-    content: [{ type: "text", text }],
-  });
+  editor.value
+    .chain()
+    .setMeta("addToHistory", false)
+    .insertContent({ type: "portal", attrs: { id } })
+    .run();
   return id;
 };
 
-const deleteNode = (id: string) => {
+const findPortal = (id: string) => {
   if (!editor.value) return;
-  const {
-    state: { doc },
-    commands,
-  } = editor.value;
-
+  const { state } = editor.value;
+  const { doc } = state;
   const el = document.getElementById(id);
   if (!el) return;
-
-  const item = findChildren(doc, (node) => node.attrs.id === id)?.[0];
-  if (!item) return;
-
-  return commands.deleteRange({
-    from: item.pos,
-    to: item.pos + item.node.nodeSize,
-  });
+  return findChildren(doc, (node) => node.attrs.id === id)?.[0];
 };
 
-const action = () => {
-  console.log(getContext());
-};
+type Context = NonNullable<ReturnType<typeof getContext>>;
+
+const action =
+  (agents: AgentId[], func: (context: Context) => Promise<string>) =>
+  async () => {
+    if (!editor.value) return;
+
+    const context = getContext();
+    if (!context) return;
+
+    const portalId = addPortal();
+    if (!portalId) return;
+    agentsWorking.value[portalId] = agents;
+
+    const result = await func(context);
+
+    delete agentsWorking.value[portalId];
+    const portalNode = findPortal(portalId);
+    if (!portalNode) return;
+
+    editor.value
+      .chain()
+      .deleteRange({
+        from: portalNode.pos,
+        to: portalNode.pos + portalNode.node.nodeSize,
+      })
+      .insertContentAt(portalNode.pos, {
+        type: "paragraph",
+        content: [{ type: "text", text: result }],
+      })
+      .run();
+  };
 
 const actions = [
   {
     icon: Feather,
     label: "Action 1",
-    action,
+    action: action(
+      ["gemini"],
+      async ({ full }) => (await endpoint1(full)).output
+    ),
     type: "selection",
   },
   {
     icon: Paperclip,
     label: "Action 2",
-    action,
+    action: action(
+      ["gemini", "chatgpt"],
+      async ({ sel }) => (await endpoint2(sel)).output
+    ),
     type: "cursor",
   },
   {
     icon: Send,
     label: "Action 3",
-    action,
+    action: action(
+      ["claude"],
+      async ({ pBefore }) => (await endpoint3(pBefore)).output
+    ),
     selection: true,
     type: "cursor",
   },
