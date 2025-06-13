@@ -79,21 +79,22 @@ VITE v6.3.5  ready in 1276 ms
 Browse to http://localhost:8901 and you should see the frontend.
 *(FYI: Despite the port being 5173 in the logs, the Docker Compose configuration maps it to port 8901 on the host machine.)*
 
-### (Optional) Directly Accessing the Backend
+### Accessing the Backend API
 
 While it's not necessary to use the app, you might want to access the backend API directly for testing or debugging purposes.
 
 Wait until you see the following message in the logs:
 
 ```
-+----------------------------------------------------------+
-| ADK Web Server started                                   |
-|                                                          |
-| For local testing, access at http://localhost:8000.      |
-+----------------------------------------------------------+
+INFO:     Will watch for changes in these directories: ['/app']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [102] using WatchFiles
+INFO:     Started server process [104]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
 ```
 
-Visit http://localhost:8900 in your web browser to access the ADK web agent interface.
+Visit http://localhost:8900 in your web browser to access the backend API; docs can be found at http://localhost:8900/docs.
 
 *(Again, note that the port within the container, 8000, is different than the one on the host to prevent collisions with other host services.)*
 
@@ -129,3 +130,23 @@ Currently the command runs the *Manugen AI* package's `cli` module with the `--c
 ## Other Resources
 
 - *For project members: [internal planning doc](https://olucdenver.sharepoint.com/:w:/r/sites/CenterforHealthAI939-SoftwareEngineering/Shared%20Documents/Software%20Engineering/Projects/PivLab%20-%20ADK%20Hackathon/Agent%20Development%20Kit%20Hackathon%20with%20Google%20Cloud.docx?d=w0cfff935f2754c3492489ef5b15fe2f4&csf=1&web=1&e=NRM3en)*
+
+### (Optional) Running ADK Web
+
+If you'd like to run the ADK web agent interface, you can do so by running the following command:
+
+```bash
+docker compose run -p 8905:8000 --rm -it backend /app/start_adk_web.sh
+```
+
+Wait until you see the following message in the logs:
+
+```
++----------------------------------------------------------+
+| ADK Web Server started                                   |
+|                                                          |
+| For local testing, access at http://localhost:8000.      |
++----------------------------------------------------------+
+```
+
+Visit http://localhost:8905 in your web browser to access the ADK web agent interface.
