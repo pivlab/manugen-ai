@@ -26,6 +26,9 @@ services:
     environment:
       - "VITE_API=http://localhost:8900"
       - "VITE_TITLE=Manugen AI"
+    volumes:
+      # map the src folder to allow hot reloading
+      - ./frontend/src/:/app/src/
 
   # service that's invoked explicitly to run the manugen-ai command
   manugen:
