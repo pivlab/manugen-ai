@@ -52,11 +52,11 @@ Don't provide me with code you expect me to run.
 
 ** repository URL **
 ```
-{{repository_url}}
+{repository_url}
 ```
 
 Steps:
-1. clone the repo {{repository_url}} provided by the user using tool: clone_repository.
+1. clone the repo {repository_url} provided by the user using tool: clone_repository.
 This tool will provide a temporary directory where you may find the contents.
 2. read the contents of the repo from the clone_repository output using tool: read_path_contents
 Add the most important contents of the repo to the final result for context in later steps.
@@ -86,11 +86,11 @@ Don't provide me with code you expect me to run.
 
 ** path to summarize **
 ```
-{{content_path}}
+{content_path}
 ```
 
 Steps:
-1. Read the contents of {{content_path}} using tool: read_path_contents
+1. Read the contents of {content_path} using tool: read_path_contents
 Add the most important contents of the repo to the final result for context in later steps.
 Don't make things up about the content that aren't in there, simply return the content as-is.
 We need to make sure we don't hallucinate aspects that aren't in the content.
@@ -143,7 +143,7 @@ Only use tools if they exist.
 
 Use the following guidance from another helpful agent
 in performing your written work:
-{{school_thoughts}}
+{school_thoughts}
 
 Here are the content summaries you have to work with.
 If either of these are blank or state that there is nothing
@@ -151,11 +151,11 @@ available you should ignore the input when writing.
 
 Content:
 ```
-{{content_summary}}
+{content_summary}
 ```
 Code:
 ```
-{{code_summary}}
+{code_summary}
 ```
 
 Steps:
