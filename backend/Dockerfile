@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 
 # copy backend contents into working dir
-COPY ./backend/ .
+COPY --exclude=.venv ./backend/ .
 
 # for now, simply run the ADK test webserver
 CMD ["/app/start_api_server.sh"]
