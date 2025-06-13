@@ -4,9 +4,11 @@ import workerSrc from "pdfjs-dist/build/pdf.worker?url";
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
+/** parse word file data */
 export const parseWordDoc = async (buffer: ArrayBuffer) =>
   (await extractRawText({ arrayBuffer: buffer })).value;
 
+/** parse pdf file data */
 export const parsePdf = async (buffer: ArrayBuffer) => {
   const pdf = await pdfjs.getDocument(buffer).promise;
   let text = "";

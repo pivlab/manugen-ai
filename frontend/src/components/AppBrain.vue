@@ -57,12 +57,16 @@ type Point = { x: number; y: number; d: number };
 const points = ref<Point[]>([]);
 const links = ref<[Point, Point][]>([]);
 
-const generate = async () => {
+/** start new animation */
+const animate = async () => {
+  /** reset options */
   points.value = [];
   links.value = [];
 
+  /** wait for previous dom nodes to unmount so animations restart */
   await nextTick();
 
+  /** generate evenly spaced random points in a circle, [-1, 1] */
   points.value = new PoissonDiskSampling({
     shape: [2, 2],
     minDistance,
@@ -74,18 +78,22 @@ const generate = async () => {
     .filter(({ d }) => d <= 1)
     .sort((a, b) => a.d - b.d);
 
+  /** link close points together */
   const indices = range(points.value.length);
   for (const ai of indices)
-    for (const bi of indices)
+    for (const bi of indices) {
+      /** avoid doubling links (a->b and b->a) */
       if (bi > ai) {
         const a = points.value[ai];
         const b = points.value[bi];
         if (dist(a.x, a.y, b.x, b.y) < linkDistance) links.value.push([a, b]);
       }
+    }
 };
 
-generate();
-useIntervalFn(generate, (duration + stagger) * 1000);
+/** periodically animate */
+animate();
+useIntervalFn(animate, (duration + stagger) * 1000);
 </script>
 
 <style scoped>

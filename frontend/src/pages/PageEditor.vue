@@ -8,6 +8,9 @@
     <AppButton v-tooltip="'Redo'" @click="editor?.commands.redo()">
       <Redo />
     </AppButton>
+    <AppButton v-tooltip="'Try an example'" @click="overwrite(example)">
+      <Lightbulb />
+    </AppButton>
 
     <h1
       class="flex-grow-1 text-center text-lg font-light tracking-wider uppercase"
@@ -87,92 +90,95 @@ import AppAgents from "@/components/AppAgents.vue";
 import {
   Download,
   Feather,
+  Lightbulb,
   Paperclip,
   Redo,
   Send,
   Undo,
 } from "lucide-vue-next";
 import { downloadTxt } from "@/util/download";
-import { random, uniqueId } from "lodash";
+import { uniqueId } from "lodash";
 import Portal from "./portal";
 import { agentsWorking } from "@/components/AppAgents.vue";
 import type { AgentId } from "@/api/agents";
 import { endpoint1, endpoint2, endpoint3 } from "@/api/endpoints";
+import example from "./example.txt?raw";
 
+/** app info */
 const { VITE_TITLE: title } = import.meta.env;
 
-const example = "abcde"
-  .split("")
-  .map((c) =>
-    Array(10)
-      .fill(null)
-      .map(() => c.repeat(random(2, 20)))
-      .join(" ")
-  )
-  .map((p) => `<p>${p}</p>`)
-  .join("");
+const placeholder =
+  "Start writing your manuscript.\n\nSelect some text or start a new paragraph to see AI-assisted actions that can help you generate or revise your content.";
 
+/** tiptap/prosemirror editor instance */
 const editor = useEditor({
-  content: example,
-  enableContentCheck: false,
-  parseOptions: {
-    preserveWhitespace: "full",
-  },
-  extensions: [
-    StarterKit,
-    Placeholder.configure({ placeholder: "Start writing" }),
-    Portal,
-  ],
+  content: "",
+  parseOptions: { preserveWhitespace: "full" },
+  extensions: [StarterKit, Placeholder.configure({ placeholder }), Portal],
   editorProps: {
     attributes: {
+      /** style of immediate child of editor root element (EditorContent) */
       class:
         "flex-grow-1 flex flex-col gap-5 w-full h-full p-10 focus:outline-none",
     },
   },
 });
 
+/** get info about state of document and selection */
 const getContext = () => {
   if (!editor.value) return;
+
+  /** methods and props from editor */
   const { view, state } = editor.value;
   const { doc, selection } = state;
   const { from, to, $from, $to } = selection;
 
+  /** get node at selection start */
   const { node } = view.domAtPos($from.pos);
+
+  /** "current" paragraph that selection is in */
   const { parentElement: p } = node;
 
-  const full = editor.value.getText();
-
-  const sel = doc.textBetween(from, to, "");
-  const selP = p?.textContent ?? "";
-
-  const beforeSel = $from.nodeBefore?.textContent;
-  const afterSel = $to.nodeAfter?.textContent;
-
-  const pBefore = p?.previousElementSibling?.textContent ?? "";
-  const pAfter = p?.nextElementSibling?.textContent ?? "";
-
   return {
-    full,
-    sel,
-    selP,
-    beforeSel,
-    afterSel,
-    pBefore,
-    pAfter,
+    /** full text content of editor */
+    full: editor.value.getText(),
+
+    /** selected text */
+    sel: doc.textBetween(from, to, ""),
+    /** current paragraph text */
+    selP: p?.textContent ?? "",
+
+    /** text before selection in current paragraph */
+    beforeSel: $from.nodeBefore?.textContent,
+    /** text after selection in current paragraph */
+    afterSel: $to.nodeAfter?.textContent,
+
+    /** text of paragraph before current paragraph */
+    pBefore: p?.previousElementSibling?.textContent ?? "",
+    /** text of paragraph after current paragraph */
+    pAfter: p?.nextElementSibling?.textContent ?? "",
   };
 };
 
+type Context = NonNullable<ReturnType<typeof getContext>>;
+
+/** add blank node for arbitrary content to be rendered into */
 const addPortal = () => {
   if (!editor.value) return;
+  /** unique id for node */
   const id = "node" + uniqueId();
   editor.value
     .chain()
+    /** prevent undo */
     .setMeta("addToHistory", false)
+    /** insert node into editor */
     .insertContent({ type: "portal", attrs: { id } })
     .run();
+  /** return id so node can be cleaned up later */
   return id;
 };
 
+/** find editor node corresponding to dom node with id */
 const findPortal = (id: string) => {
   if (!editor.value) return;
   const { state } = editor.value;
@@ -182,32 +188,46 @@ const findPortal = (id: string) => {
   return findChildren(doc, (node) => node.attrs.id === id)?.[0];
 };
 
-type Context = NonNullable<ReturnType<typeof getContext>>;
-
+/** create func that runs an action and handles placeholder in the editor while its working */
 const action =
-  (agents: AgentId[], func: (context: Context) => Promise<string>) =>
+  (
+    /** ids of agents that are involved in this action */
+    agents: AgentId[],
+    /** actual work to run */
+    func: (context: Context) => Promise<string>
+  ) =>
   async () => {
     if (!editor.value) return;
 
+    /** get context info */
     const context = getContext();
     if (!context) return;
 
+    /** create portal */
     const portalId = addPortal();
     if (!portalId) return;
+
+    /** tell agents component that these agents are working in this portal */
     agentsWorking.value[portalId] = agents;
 
+    /** run actual work func, providing context */
     const result = await func(context);
 
+    /** tell agents component that work is done */
     delete agentsWorking.value[portalId];
+
+    /** find node of portal created earlier */
     const portalNode = findPortal(portalId);
     if (!portalNode) return;
 
     editor.value
       .chain()
+      /** delete portal node */
       .deleteRange({
         from: portalNode.pos,
         to: portalNode.pos + portalNode.node.nodeSize,
       })
+      /** insert response in its place */
       .insertContentAt(portalNode.pos, {
         type: "paragraph",
         content: [{ type: "text", text: result }],
@@ -215,14 +235,20 @@ const action =
       .run();
   };
 
+/** actions available to run in editor */
 const actions = [
   {
+    /** icon to show popup */
     icon: Feather,
+    /** label to show in popup */
     label: "Action 1",
     action: action(
       ["gemini"],
-      async ({ full }) => (await endpoint1(full)).output
+      async ({ full }) =>
+        /** run actual work on backend */
+        (await endpoint1(full)).output
     ),
+    /** whether action appears when text selected, or just single cursor position */
     type: "selection",
   },
   {
@@ -246,9 +272,11 @@ const actions = [
   },
 ] as const;
 
+/** replace text content of entire editor */
 const overwrite = (text = "") =>
   editor.value?.commands.setContent(text, true, { preserveWhitespace: "full" });
 
+/** upload file types */
 const accept = [
   ".txt",
   ".doc",
@@ -263,6 +291,7 @@ type TippyOptions = ComponentInstance<
   typeof BubbleMenu
 >["$props"]["tippyOptions"];
 
+/** options for editor popups */
 const tippyOptions: TippyOptions = { placement: "bottom" };
 </script>
 

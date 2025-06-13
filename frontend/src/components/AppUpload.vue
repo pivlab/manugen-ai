@@ -42,22 +42,28 @@ type Slots = {
 
 defineSlots<Slots>();
 
+/** actual file input element */
 const input = useTemplateRef("input");
 
+/** dragging state */
 const dragging = ref(false);
 
+/** uploading status */
 const uploading = ref(false);
 
+/** when dragging state changes */
 watchEffect(() => {
   emit("dragging", dragging.value);
   dropZone.value?.classList[dragging.value ? "add" : "remove"]("dragging");
 });
 
+/** upload file(s) */
 const onLoad = async (fileList: FileList | null) => {
   if (!fileList) return;
 
   uploading.value = true;
 
+  /** parse each file as appropriate format */
   const files =
     (await Promise.all(
       [...fileList].map(async (file) => {
@@ -75,20 +81,26 @@ const onLoad = async (fileList: FileList | null) => {
 
   uploading.value = false;
 
+  /** notify parent of new files */
   if (files) emit("files", files);
 
+  /** reset file input so the same file could be re-selected */
   if (input.value) input.value.value = "";
 };
 
+/** on upload button click */
 const onClick = () => input.value?.click();
 
+/** on file input change */
 const onChange = (event: Event) =>
   onLoad((event.target as HTMLInputElement).files ?? null);
 
+/** track drag & drop state */
 useEventListener(dropZone, "dragenter", () => (dragging.value = true));
 useEventListener(dropZone, "dragleave", () => (dragging.value = false));
 useEventListener(dropZone, "dragover", (event) => event.preventDefault());
 
+/** when file dropped on drop zone */
 useEventListener(dropZone, "drop", (event) => {
   event.preventDefault();
   event.stopPropagation();
