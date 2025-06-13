@@ -37,7 +37,7 @@ def prepare_ollama_models_for_adk_state() -> None:
 
     os.environ["OPENAI_API_BASE"] = model_api_base
     os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY", "unused")
-    os.environ["CHAT_MODEL"] = os.environ.get("OPENAI_API_KEY", "llama3.2:3b")
+    os.environ["CHAT_MODEL"] = os.environ.get("CHAT_MODEL", "llama3.2:3b")
 
 
 async def run_agent_workflow(
