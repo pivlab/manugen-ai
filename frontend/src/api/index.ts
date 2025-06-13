@@ -1,6 +1,5 @@
 import { random } from "lodash";
 import { sleep } from "@/util/misc";
-import { label } from "@/api/fake";
 
 export const api = import.meta.env.VITE_API;
 
@@ -9,7 +8,6 @@ export async function request<Response>(
   options: RequestInit = {}
 ) {
   await sleep(random(1000, 3000));
-  return { output: label() };
 
   url = new URL(url);
   const request = new Request(url, options);
