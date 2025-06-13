@@ -1,6 +1,3 @@
-import { useQuery } from "@/util/composables";
-import { ref, watchEffect } from "vue";
-
 export const agents = {
   gemini: {
     name: "Gemini",
@@ -20,3 +17,5 @@ export const agents = {
     textColor: "text-orange-700",
   },
 };
+
+export type AgentId = keyof typeof agents;

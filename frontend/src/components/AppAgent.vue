@@ -1,15 +1,13 @@
 <template>
-  <div class="flex flex-col items-start p-5 gap-2">
-    <div
-      :class="[
-        'flex justify-center items-center gap-3 min-w-10 min-h-10 px-3 py-1  rounded-full overflow-hidden transition-all',
-        bgColor,
-        textColor,
-      ]"
-    >
-      <AppBrain class="h-6" />
-      {{ name }}
-    </div>
+  <div
+    :class="[
+      'flex justify-center items-center gap-3 min-w-10 min-h-10 px-3 py-1  rounded-full overflow-hidden transition-all',
+      bgColor,
+      textColor,
+    ]"
+  >
+    <AppBrain class="h-6" />
+    {{ name }}
   </div>
 </template>
 
