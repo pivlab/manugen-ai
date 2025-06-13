@@ -18,11 +18,14 @@ services:
     depends_on:
       - db
 
-  # frontend:
-  #   build:
-  #     context: ./frontend/
-  #   ports:
-  #     - "3900:3000"
+  frontend:
+    build:
+      context: ./frontend/
+    ports:
+      - "8901:5173"
+    environment:
+      - "VITE_API=http://localhost:8900"
+      - "VITE_TITLE=Manugen AI"
 
   # service that's invoked explicitly to run the manugen-ai command
   manugen:
