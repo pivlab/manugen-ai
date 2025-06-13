@@ -25,4 +25,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 COPY ./backend/ .
 
 # for now, simply run the ADK test webserver
-CMD ["/app/start_adk_web.sh"]
+CMD ["/app/start_api_server.sh"]

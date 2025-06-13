@@ -15,8 +15,8 @@ services:
     volumes:
       - ./packages/manugen-ai/src/:/packages/manugen-ai/src/
       - ./packages/manugen-ai/tests/:/packages/manugen-ai/tests/
-      - ./packages/manugen-ai/src/:/opt/manugen-ai/src/
-      - ./packages/manugen-ai/tests/:/opt/manugen-ai/tests/
+      - ./backend/src/:/app/src/
+      - ./backend/tests/:/app/tests/
     depends_on:
       - db
 
