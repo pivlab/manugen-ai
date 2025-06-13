@@ -2,9 +2,9 @@
 Tests for various agents
 """
 
+import pytest
 from manugen_ai.agents.capitalizer.agent import root_agent
 from manugen_ai.utils import run_agent_workflow
-import pytest
 
 
 @pytest.mark.asyncio
