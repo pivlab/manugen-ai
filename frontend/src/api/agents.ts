@@ -1,3 +1,4 @@
+/** list of agents and their "branding" */
 export const agents = {
   gemini: {
     name: "Gemini",

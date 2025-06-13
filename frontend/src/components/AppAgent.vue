@@ -16,6 +16,8 @@ import { computed } from "vue";
 import { agents } from "@/api/agents";
 import AppBrain from "@/components/AppBrain.vue";
 
+/** agent badge */
+
 type Props = {
   agent: keyof typeof agents;
 };
