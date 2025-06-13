@@ -5,7 +5,7 @@ cd /opt/manugen-ai/src/
 if [ -z "${SESSION_DB_CONN_STRING}" ]; then
     SESSION_DB_ARG=""
 else
-    SESSION_DB_ARG="--session_db_url ${SESSION_DB_CONN_STRING}"
+    SESSION_DB_ARG="--session_service_uri ${SESSION_DB_CONN_STRING}"
 fi
 
 uv run --project /app \
