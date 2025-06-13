@@ -5,6 +5,7 @@ provided from a prompt.
 """
 
 from __future__ import annotations
+
 import os
 
 from google.adk.agents import Agent
