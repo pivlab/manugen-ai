@@ -65,19 +65,37 @@ This will build the Docker images and start the application.
 You'll be attached to the logs of the application, which will show you live output from the various services that make up the stack.
 Pressing `Ctrl+C` will stop the application.
 
+Wait until you see a message resembling the following in the logs:
+
+### Accessing the Frontend
+
+```
+VITE v6.3.5  ready in 1276 ms
+
+➜  Local:   http://localhost:5173/
+➜  Network: http://172.22.0.2:5173/
+```
+
+Browse to http://localhost:8901 and you should see the frontend.
+*(FYI: Despite the port being 5173 in the logs, the Docker Compose configuration maps it to port 8901 on the host machine.)*
+
+### (Optional) Directly Accessing the Backend
+
+While it's not necessary to use the app, you might want to access the backend API directly for testing or debugging purposes.
+
 Wait until you see the following message in the logs:
 
 ```
-+-----------------------------------------------------------------------------+
-| ADK Web Server started                                                      |
-|                                                                             |
-| For local testing, access at http://localhost:8000.                         |
-+-----------------------------------------------------------------------------+
++----------------------------------------------------------+
+| ADK Web Server started                                   |
+|                                                          |
+| For local testing, access at http://localhost:8000.      |
++----------------------------------------------------------+
 ```
 
-*(Note that the port within the container, 8000, is different than the one on the host, to prevent collisions.)*
-
 Visit http://localhost:8900 in your web browser to access the ADK web agent interface.
+
+*(Again, note that the port within the container, 8000, is different than the one on the host to prevent collisions with other host services.)*
 
 ### Purging Session State
 
