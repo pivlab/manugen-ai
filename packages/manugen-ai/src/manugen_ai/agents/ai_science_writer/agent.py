@@ -17,31 +17,6 @@ os.environ["OPENAI_API_KEY"] = "unused"
 
 MODEL_NAME = "openai/qwen3:30b"
 
-introduction_agent = Agent(
-    name="introduction_agent",
-    model=LiteLlm(model=MODEL_NAME),
-    include_contents='none',
-    description="Handles the drafting of the Introduction section of a scientific manuscript.",
-    instruction="""
-    You are an expert in drafting the Introduction section of a scientific manuscript.
-    Take the rough structure of the manuscript provided by the user (either in Markdown or LaTeX), extract the instructions
-    provided under the Introduction section, and draft a properly structured Introduction section.
-    """.strip(),
-)
-# introduction_writer = AgentTool(agent=introduction_agent, skip_summarization=True)
-
-results_agent = Agent(
-    name="results_agent",
-    model=LiteLlm(model=MODEL_NAME),
-    include_contents='none',
-    description="Handles the drafting of the Results section of a scientific manuscript.",
-    instruction="You are an expert in drafting the Results section of a scientific manuscript. "
-                "Take the rough structure of the manuscript provided by the user (either in Markdown or LaTeX), extract the instructions "
-                "provided under the Results section, and draft a properly structured "
-                "Results section.",
-)
-# results_writer = AgentTool(agent=results_agent, skip_summarization=True)
-
 # ccc_agent = Agent(
 #     name="ccc_agent",
 #     model=LiteLlm(model=MODEL_NAME),
@@ -50,46 +25,167 @@ results_agent = Agent(
 
 from pydantic import BaseModel, Field
 
-class UserInstructions(BaseModel):
-    introduction: str = Field(description="Introduction instructions.")
-    results: str = Field(description="Results instructions.")
+class ManuscriptStructure(BaseModel):
+    title: str = Field(description="Title.")
+    keywords: str = Field(description="Keywords.")
+    abstract: str = Field(description="Abstract.")
+    introduction: str = Field(description="Introduction.")
+    results: str = Field(description="Results.")
+    # figures: dict[str, str] = Field(description="Figures IDs (keys) and any metadata (value).")
+    # tables: dict[str, str] = Field(description="Tables IDs (keys) and any metadata (value).")
+    # source_code_files: dict[str, str] = Field(description="Source code file IDs (keys) and any metadata (value).")
+    discussion: str = Field(description="Discussion.")
+    methods: str = Field(description="Methods.")
 
 article_structure_agent = Agent(
     name="article_structure_agent",
     model=LiteLlm(model=MODEL_NAME),
     description="Extracts sections of the user input.",
     instruction=f"""
-    Given the input in Markdown format, extract the Introduction and Results, including all their content.
+    Given the input content of a scientific article in Markdown or LaTeX format, extract all the typical sections present
+    in a scientific article (like the title, abstract, introduction, etc), including all their content in the original
+    format (Markdown or LaTeX), and also individual components such as figures, tables, and source code files.
     Respond ONLY with a JSON object matching this exact schema:
-    {json.dumps(UserInstructions.model_json_schema(), indent=2)}
+    {json.dumps(ManuscriptStructure.model_json_schema(), indent=2)}
     """.strip(),
-    output_schema=UserInstructions,
+    output_schema=ManuscriptStructure,
     output_key="instructions"
 )
 
-def prepare_results_input(callback_context: CallbackContext) -> Optional[types.Content]:
+def prepare_inputs(callback_context: CallbackContext) -> Optional[types.Content]:
     current_state = callback_context.state.to_dict()
-    callback_context.state["results_instructions"] = current_state["instructions"]["results"]
+    
+    if "content" in current_state and "results" in current_state["content"]:
+        callback_context.state["results"] = current_state["content"]["results"]
+    else:
+        callback_context.state["results"] = current_state["instructions"]["results"]
+    
+    if "content" in current_state and "introduction" in current_state["content"]:
+        callback_context.state["introduction"] = current_state["content"]["introduction"]
+    else:
+        callback_context.state["introduction"] = current_state["instructions"]["introduction"]
+        
     return None
 
-results_output_agent = Agent(
-    name="results_output_agent",
+results_agent = Agent(
+    name="results_agent",
     model=LiteLlm(model=MODEL_NAME),
     include_contents="none",
-    description="Extracts sections of the user input.",
+    description="Agent expert in drafting a Results section of a scientific manuscript given some rough instructions.",
     instruction="""
-    Given the rough instructions to write a Results section below, draft a proper Results
-    section for a scientific article.
+    You are an expert in drafting the Results section of a scientific manuscript.
+    Your goal is to draft the Results section as a sequence of statements, supported by figures (if present),
+    that connect logically to support the central contribution. The results section needs to convince the
+    reader that the central claim is supported by data and logic.
+    Given the rough set of instructions and/or ideas for a Results section below, you will:
+    1. Group the instructions/ideas into a set of declarative statements that will become the headers of subsections within
+    the Results section.
+    2. For each of these subsections, you will follow the guidelines below to convert the rough set
+    of instructions/ideas, into a set of properly structured paragraphs. 
     
-    **Instructions for Results section**:
+    **Rough instructions and/or ideas for the Results section**:
     ```
-    {results_instructions}
+    {results}
+    ```
+    
+    **Current Introduction content or rough instructions and/or ideas for the Introduction section**:
+    ```
+    {introduction}
+    ```
+    
+    **Guidelines for the Results section**:
+    ```
+    * The first results paragraph is special in that it typically summarizes the 
+    overall approach to the problem outlined in the introduction, along with any key 
+    innovative methods that were developed. Most readers do not read the methods, 
+    so this paragraph gives them the gist of the methods that were used.
+    
+    * Each subsequent paragraph in the results section starts with a sentence or two 
+    that set up the question that the paragraph answers, such as the following: “To 
+    verify that there are no artifacts…,” “What is the test-retest reliability of our 
+    measure?,” or “We next tested whether Ca2+ flux through L-type Ca2+ channels was 
+    involved.” The middle of the paragraph presents data and logic that pertain to 
+    the question, and the paragraph ends with a sentence that answers the question. 
+    For example, it may conclude that none of the potential artifacts were detected. 
+    This structure makes it easy for experienced readers to fact-check a paper. Each 
+    paragraph convinces the reader of the answer given in its last sentence. This 
+    makes it easy to find the paragraph in which a suspicious conclusion is drawn and 
+    to check the logic of that paragraph. The result of each paragraph is a logical 
+    statement, and paragraphs farther down in the text rely on the logical 
+    conclusions of previous paragraphs, much as theorems are built in mathematical 
+    literature.
     ```
     
     **Output:**
-    Output only the fully structured Results section.
+    Output only the content of the Results section. Do not provide any explanation.
     """.strip(),
-    before_agent_callback=prepare_results_input,
+    before_agent_callback=prepare_inputs,
+    output_key="results",
+)
+
+introduction_agent = Agent(
+    name="introduction_agent",
+    model=LiteLlm(model=MODEL_NAME),
+    include_contents="none",
+    description="Agent expert in drafting an Introduction section of a scientific manuscript given some rough instructions.",
+    instruction="""
+    You are an expert in drafting the Introduction section of a scientific manuscript.
+    Your goal is to draft the Introduction section that communicates why the scientific manuscript matters.
+    For this, you will take the rough set of instructions and/or ideas for the Introduction section,
+    and follow the guidelines for the Introduction below to draft it, while connecting it with the current Results section
+    for context.
+
+    **Rough instructions and/or ideas for the Introduction section**:
+    ```
+    {introduction}
+    ```
+
+    **Current Results section**:
+    ```
+    {results}
+    ```
+
+    **Guidelines for the Results section**:
+    ```
+    * The introduction highlights the gap that exists in current knowledge or methods 
+    and why it is important. This is usually done by a set of progressively more 
+    specific paragraphs that culminate in a clear exposition of what is lacking in 
+    the literature, followed by a paragraph summarizing what the paper does to fill 
+    that gap.
+    
+    * As an example of the progression of gaps, a first paragraph may explain why 
+    understanding cell differentiation is an important topic and that the field has 
+    not yet solved what triggers it (a field gap). A second paragraph may explain 
+    what is unknown about the differentiation of a specific cell type, such as 
+    astrocytes (a subfield gap). A third may provide clues that a particular gene 
+    might drive astrocytic differentiation and then state that this hypothesis is 
+    untested (the gap within the subfield that you will fill). The gap statement sets 
+    the reader’s expectation for what the paper will deliver.
+    
+    * The structure of each introduction paragraph (except the last) serves the goal 
+    of developing the gap. Each paragraph first orients the reader to the topic (a 
+    context sentence or two) and then explains the "knowns" in the relevant 
+    literature (content) before landing on the critical “unknown” (conclusion) that 
+    makes the paper matter at the relevant scale. Along the path, there are often 
+    clues given about the mystery behind the gaps; these clues lead to the untested 
+    hypothesis or undeveloped method of the paper and give the reader hope that the 
+    mystery is solvable. The introduction should not contain a broad literature 
+    review beyond the motivation of the paper. This gap-focused structure makes it 
+    easy for experienced readers to evaluate the potential importance of a paper—they 
+    only need to assess the importance of the claimed gap.
+    
+    * The last paragraph of the introduction is special: it compactly summarizes the 
+    results, which fill the gap you just established. It differs from the abstract in 
+    the following ways: it does not need to present the context (which has just been 
+    given), it is somewhat more specific about the results, and it only briefly 
+    previews the conclusion of the paper, if at all.
+    ```
+
+    **Output:**
+    Output only the content of the Introduction section. Do not provide any explanation.
+    """.strip(),
+    before_agent_callback=prepare_inputs,
+    output_key="introduction",
 )
 
 root_agent = SequentialAgent(
@@ -97,52 +193,7 @@ root_agent = SequentialAgent(
     description="Writes a scientific article",
     sub_agents=[
         article_structure_agent,
-        results_output_agent,
-        # results_agent,
-        # introduction_extractor_agent,
-        # introduction_agent,
+        results_agent,
+        introduction_agent,
     ],
 )
-
-# root_agent = Agent(
-#     name="ai_science_writer",
-#     model=LiteLlm(model=MODEL_NAME),
-#     description="The main coordinator agent to draft a scientific manuscript given the user's instructions.",
-#     instruction="""
-#     You are the main scientific writer coordinating a team. Your primary responsibility is to help draft a scientific article.
-#     The user's input should be the basic structure of a scientific manuscript (either in Markdown or LaTeX).
-#     This structure might have some common sections in any scientific article, such as the Title, Abstract,
-#     Introduction, Results, Discussion and/or Methods.
-#     Under each section, the user will provide some very rough instructions or ideas on how to draft it.
-#     Your goal is to draft the scientific article including only the sections specified by the user.
-#     You'll follow these steps:
-#     1. You first have to draft the Results section. For this, you first need to extract the specific instructions for the Results section by delegating to the "results_extractor_agent"
-#     """.strip(),
-#     # tools=[results_writer, introduction_writer], # Root agent still needs the weather tool for its core task
-#     # Key change: Link the sub-agents here!
-#     sub_agents=[results_agent, introduction_agent]
-# )
-
-
-# root_agent = Agent(
-#     name="ai_science_writer",
-#     model=LiteLlm(model=MODEL_NAME),
-#     description="The main coordinator agent to draft a scientific manuscript given the user's instructions.",
-#     instruction="You are the main Science Writer coordinating a team. Your primary responsibility is to help draft a scientific article. "
-#                 "You have two specialized agents: "
-#                 "1. 'results_agent': Drafts the Results section given the specific instructions for this section. Delegate to this agent to draft the Results section. "
-#                 "2. 'introduction_agent': Drafts the Introduction section given the specific instructions for this section. Delegate to this agent to draft the Introduction section. "
-#                 "Analyze the user's input, which should be the basic structure of a scientific manuscript (either in Markdown or LaTeX). "
-#                 "This structure will have some common sections in any scientific article, such as the Title, Abstract, "
-#                 "Introduction, Results, Discussion or Methods. "
-#                 "Under each section, the user will provide some very rough instructions on how to draft it. "
-#                 "Your goal is to draft the entire scientific article by following the user's instructions. "
-#                 "You first need to draft the Results section. "
-#                 "Then, you need to continue with the Introduction section. "
-#                 "Return the draft of the scientific manuscript in the same format of the input (either Markdown or LaTeX). "
-#                 "Include only the sections that are mentioned in the user's input and those for which you have specialized agents to draft them. "
-#                 "Ignore any other section in your output.",
-#     # tools=[results_writer, introduction_writer], # Root agent still needs the weather tool for its core task
-#     # Key change: Link the sub-agents here!
-#     sub_agents=[results_agent, introduction_agent]
-# )
