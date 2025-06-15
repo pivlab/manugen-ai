@@ -160,6 +160,7 @@ async def run_agent_workflow(
     return final_output, session_state, output_events
 
 
+# --- Visualization Helper ---
 def build_mermaid(root: Any) -> Tuple[str, bytes]:
     """
     Generates a Mermaid 'flowchart LR' diagram for a google-adk
@@ -191,92 +192,73 @@ def build_mermaid(root: Any) -> Tuple[str, bytes]:
         ...     f.write(png_bytes)
     """
     clusters, edges = [], []
+    first_of, last_of, nodes = {}, {}, {}
 
-    first_of, last_of, name_of = {}, {}, {}  # keyed by id(node)
-
-    # ── walk the tree & build sub-graphs ───────────────────────────────
+    # Walk the agent tree
     def walk(node):
         nid = id(node)
-        name_of[nid] = node.name
-        subs = getattr(node, "sub_agents", [])
-
-        if subs:  # remember ends for sequencing
+        nodes[nid] = node
+        name = node.name
+        subs = getattr(node, "sub_agents", []) or []
+        if subs:
             first_of[nid], last_of[nid] = subs[0].name, subs[-1].name
-
-        # sub-graph for non-root workflow agents
-        if node is not root and isinstance(
-            node, (SequentialAgent, LoopAgent, ParallelAgent)
-        ):
-            block = [f'  subgraph {node.name}["{node.name}"]']
-            if isinstance(node, SequentialAgent):
+        # Create subgraph for non-root composite nodes
+        if node is not root and isinstance(node, (SequentialAgent, LoopAgent, ParallelAgent)):
+            block = [f'subgraph {name}["{name}"]']
+            if isinstance(node, (SequentialAgent, LoopAgent)):
                 for a, b in itertools.pairwise(subs):
-                    block.append(f"    {a.name} --> {b.name}")
-            elif isinstance(node, LoopAgent):
-                for a, b in itertools.pairwise(subs):
-                    block.append(f"    {a.name} --> {b.name}")
-                if len(subs) > 1:  # loop-back
-                    block.append(f"    {subs[-1].name} -.->|repeat| {subs[0].name}")
+                    block.append(f"  {a.name} --> {b.name}")
+                # loop-back even for single-child loops
+                if isinstance(node, LoopAgent):
+                    if len(subs) == 1:
+                        block.append(f"  {subs[0].name} --> {subs[0].name}")
+                    elif len(subs) > 1:
+                        block.append(f"  {subs[-1].name} -.->|repeat| {subs[0].name}")
             elif isinstance(node, ParallelAgent):
-                for child in subs:  # declare nodes inside block
-                    block.append(f'    {child.name}["{child.name}"]')
-            block.append("  end")
+                for child in subs:
+                    block.append(f'  {child.name}["{child.name}"]')
+            block.append("end")
             clusters.append("\n".join(block))
-
-        for child in subs:  # recurse
+        # Recurse
+        for child in subs:
             walk(child)
 
     walk(root)
 
-    # ── link *direct* children of the root (if root is Sequential) ─────
+    # Link root children
     if isinstance(root, SequentialAgent):
-        children = root.sub_agents
-        first_child = children[0]
-
-        # Kick-off: root  -.->  first container
-        if isinstance(first_child, ParallelAgent):
-            for c in first_child.sub_agents:
-                edges.append(f"  {root.name} -.-> {c.name}")
-        else:
-            edges.append(f"  {root.name} -.-> {first_of[id(first_child)]}")
-
-        # Chain container i  →  container i+1
+        children = root.sub_agents or []
+        # Kick-off
+        if children:
+            first = children[0]
+            if isinstance(first, ParallelAgent):
+                for c in first.sub_agents:
+                    edges.append(f"{root.name} -.-> {c.name}")
+            else:
+                edges.append(f"{root.name} -.-> {first_of.get(id(first), first.name)}")
+        # Chain
         for prev, nxt in itertools.pairwise(children):
-            # what are the exit nodes of *prev* ?
-            prev_exits = (
-                [child.name for child in prev.sub_agents]
-                if isinstance(prev, ParallelAgent)
-                else [last_of[id(prev)]]
-            )
-
-            # what are the entry nodes of *nxt* ?
-            nxt_entries = (
-                [child.name for child in nxt.sub_agents]
-                if isinstance(nxt, ParallelAgent)
-                else [first_of[id(nxt)]]
-            )
-
-            # solid arrow for single-path, dotted when fanning into a Parallel
-            arrow = "-.->" if isinstance(nxt, ParallelAgent) else "-.->"
-
+            prev_exits = ([c.name for c in prev.sub_agents]
+                          if isinstance(prev, ParallelAgent)
+                          else [last_of.get(id(prev), prev.name)])
+            nxt_entries = ([c.name for c in nxt.sub_agents]
+                           if isinstance(nxt, ParallelAgent)
+                           else [first_of.get(id(nxt), nxt.name)])
+            arrow = "-.->" if isinstance(nxt, ParallelAgent) else "-->"
             for src in prev_exits:
                 for dst in nxt_entries:
-                    edges.append(f"  {src} {arrow} {dst}")
+                    edges.append(f"{src} {arrow} {dst}")
     else:
-        # fallback: plain edge root → each immediate child
-        for c in getattr(root, "sub_agents", []):
-            edges.append(f"  {root.name} --> {c.name}")
+        for c in getattr(root, "sub_agents", []) or []:
+            edges.append(f"{root.name} --> {c.name}")
 
-    # ── assemble diagram ───────────────────────────────────────────────
-    graph = ["flowchart LR", f'  {root.name}["{root.name}"]']
-    graph.extend(clusters)
-    graph.extend(edges)
-
+    # Assemble graph
+    graph = ["flowchart LR", f'{root.name}["{root.name}"]'] + clusters + edges
     mermaid_src = "\n".join(graph)
-    # ✧ STEP 2: POST Mermaid → PNG via Kroki  ──────────────────────────────
-    PNG = requests.post(
-        "https://kroki.io/mermaid/png",  # public endpoint
+    # Render via Kroki
+    png = requests.post(
+        "https://kroki.io/mermaid/png",
         data=mermaid_src.encode("utf-8"),
         headers={"Content-Type": "text/plain"},
-    ).content  # PNG bytes
-
-    return mermaid_src, PNG
+    ).content
+    return mermaid_src, png
