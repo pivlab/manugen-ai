@@ -101,7 +101,8 @@ import { uniqueId } from "lodash";
 import Portal from "./portal";
 import { agentsWorking } from "@/components/AppAgents.vue";
 import type { AgentId } from "@/api/agents";
-import { endpoint1, endpoint2, endpoint3 } from "@/api/endpoints";
+import { endpoint1, endpoint2, endpoint3, capitalizer } from "@/api/endpoints";
+import { extractADKText } from "@/api/adk";
 import example from "./example.txt?raw";
 
 /** app info */
@@ -275,6 +276,15 @@ const actions = [
     ),
     selection: true,
     type: "cursor",
+  },
+  {
+    icon: Paperclip,
+    label: "Capitalize",
+    action: action(
+      ["capitalizer"],
+      async ({ sel }) => extractADKText(await capitalizer(sel))
+    ),
+    type: "selection",
   },
 ] as const;
 

@@ -17,6 +17,12 @@ export const agents = {
     bgColor: "bg-linear-to-r from-red-100 to-orange-100",
     textColor: "text-orange-700",
   },
+
+  capitalizer: {
+    name: "Capitalizer",
+    bgColor: "bg-linear-to-r from-red-100 to-orange-100",
+    textColor: "text-orange-700",
+  },
 };
 
 export type AgentId = keyof typeof agents;
