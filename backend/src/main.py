@@ -2,16 +2,24 @@
 FastAPI backend for Manugen AI project.
 """
 
+import os
+
+# read version number from manugen_ai package
+from importlib.metadata import version
+
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-import os
+
+from .adk_api import adk_app  # Import the ADK FastAPI app
+
+MANUGEN_VERSION = version("manugen_ai")
 
 # Create FastAPI app
 app = FastAPI(
     title="Manugen AI Backend",
     description="A backend for the Manugen AI project, providing APIs for AI-driven manuscript generation.",
-    version="0.1.0",
+    version=MANUGEN_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -31,8 +39,9 @@ async def root():
     """Root endpoint returning basic API information."""
     return {
         "message": "Welcome to Manugen AI Backend",
-        "version": "0.1.0",
+        "version": MANUGEN_VERSION,
         "docs": "/docs",
+        "adk_api_docs": "/adk_api/docs",
     }
 
 
@@ -51,6 +60,13 @@ async def api_status():
         "features": ["manuscript_generation", "ai_agents"],
     }
 
+
+# mount the ADK FastAPI app as a sub-app of our API server
+app.mount(
+    "/adk_api",
+    adk_app,
+    name="adk_agents",
+)
 
 if __name__ == "__main__":
     # This allows running the app directly with python
