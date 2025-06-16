@@ -2,6 +2,8 @@
 contains ADK-specific types and utility functions
 */
 
+import { api, request } from "./"
+
 /*
 ADK sends a response from /run or /run_sse back as a list of objects, where each
 object represents a set of function invocations, function
@@ -46,6 +48,48 @@ export type ADKResponse = [
         "timestamp": number
     }
 ]
+
+type ADKSessionResponse = {
+    "id": string,
+    "appName": string,
+    "userId": string,
+    [key: string]: any
+}
+
+/**
+ *  ensures that a session exists for the current user
+ */
+export const ensureSessionExists = async (appName: string, userId: string, sessionId : string|null) => {
+  // perform GET for the session
+  try {
+    const result = await fetch(`${api}/adk_api/apps/${appName}/users/${userId}/sessions/${sessionId}`)
+    // check that result is not 200 OK
+    // this will immediately be caught below to attempt to create a new session
+    if (!result.ok) {
+      throw new Error(`Session for app ${appName} and user ${userId} does not exist`);
+    }
+    // if it is 200 OK, return the session
+    return await result.json() as ADKSessionResponse;
+  }
+  catch (e) {
+    // if it fails, create a new session
+    const createResponse = await fetch(`${api}/adk_api/apps/${appName}/users/${userId}/sessions/${sessionId}`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "state": {}
+      }),
+    });
+
+    if (!createResponse.ok) {
+      throw new Error(`Failed to create session for app ${appName} and user ${userId}`);
+    }
+
+    return await createResponse.json() as ADKSessionResponse;
+  }
+}
 
 export const extractADKText = (response: ADKResponse, onlyLast: boolean = true): string => {
   const textSections = response

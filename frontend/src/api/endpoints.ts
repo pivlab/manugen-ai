@@ -1,20 +1,22 @@
 import { api, request } from "./";
 
-import type { ADKResponse } from "./adk";
+import { ensureSessionExists, type ADKResponse } from "./adk";
 
 type Response = { output: string };
 
 /** capitalizes the selected text using the capitalizer */
-export const capitalizer = (input: string) =>
-  request<ADKResponse>(`${api}/adk_api/run`, {
+export const capitalizer = async (input: string, username: string, sessionId: string) => {
+  const session = await ensureSessionExists("capitalizer", username, sessionId);
+
+  return request<ADKResponse>(`${api}/adk_api/run`, {
     method: "POST",
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      "appName": "capitalizer",
-      "userId": "falquaddoomi",
-      "sessionId": "session-1749846534881",
+      "appName": session.appName,
+      "userId": session.userId,
+      "sessionId": session.id,
       "newMessage": {
         "role": "user",
         "parts": [{
@@ -23,6 +25,7 @@ export const capitalizer = (input: string) =>
       }
     }),
   });
+}
 
 /** arbitrary endpoint */
 export const endpoint1 = (input: string) =>
