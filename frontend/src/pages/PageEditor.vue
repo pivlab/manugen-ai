@@ -92,6 +92,7 @@ import {
   Feather,
   Lightbulb,
   Paperclip,
+  Type,
   Redo,
   Send,
   Undo,
@@ -288,7 +289,7 @@ const actions = [
     type: "cursor",
   },
   {
-    icon: Paperclip,
+    icon: Type,
     label: "Capitalize",
     action: action(
       ["capitalizer"],

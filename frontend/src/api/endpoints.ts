@@ -20,7 +20,7 @@ export const capitalizer = async (input: string, username: string, sessionId: st
       "newMessage": {
         "role": "user",
         "parts": [{
-          "text": `Capitalize every word in this text: "${input}"`
+          "text": `Capitalize every word in this text: "${input}". Include only the text, no additional information.`,
         }]
       }
     }),
