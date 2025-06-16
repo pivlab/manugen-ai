@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { type ComponentInstance } from "vue";
+import { type ComponentInstance, ref, onMounted } from "vue";
 import {
   useEditor,
   BubbleMenu,
@@ -107,6 +107,16 @@ import example from "./example.txt?raw";
 
 /** app info */
 const { VITE_TITLE: title } = import.meta.env;
+
+/** random variable used to initialize ADK session for this browser session */
+const adkUsername = ref("test-user")
+const adkSessionid = ref(null)
+
+onMounted(() => {
+  // use the unix timestamp as a unique session id
+  const date = Math.floor(Date.now() / 1000);
+  adkSessionid.value = `session-${date}`;
+})
 
 const placeholder =
   "Start writing your manuscript.\n\nSelect some text or start a new paragraph to see AI-assisted actions that can help you generate or revise your content.";
@@ -282,7 +292,9 @@ const actions = [
     label: "Capitalize",
     action: action(
       ["capitalizer"],
-      async ({ sel }) => extractADKText(await capitalizer(sel))
+      async ({ sel }) => extractADKText(
+        await capitalizer(sel,  adkUsername.value, adkSessionid.value)
+      )
     ),
     type: "selection",
   },
