@@ -8,9 +8,12 @@ import pathlib
 import tempfile
 
 import pygit2
+import requests
 from google.adk.tools.tool_context import ToolContext
+from manugen_ai.utils import graceful_fail
 
 
+@graceful_fail()
 def exit_loop(tool_context: ToolContext):
     """Call this function ONLY when the critique indicates no further changes are needed,
     signaling the iterative process should end."""
@@ -18,6 +21,13 @@ def exit_loop(tool_context: ToolContext):
     tool_context.actions.escalate = True
     # Return empty dict as tools should typically return JSON-serializable output
     return {}
+
+
+@graceful_fail()
+def fetch_url(url: str) -> str:
+    res = requests.get(url)
+    res.raise_for_status()
+    return res.text
 
 
 def read_path_contents(path: str) -> str:

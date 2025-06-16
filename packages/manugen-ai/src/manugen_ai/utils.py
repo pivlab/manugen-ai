@@ -4,9 +4,10 @@ Utils for manugen-ai
 
 from __future__ import annotations
 
+import functools
 import itertools
 import os
-from typing import Any, Tuple
+from typing import Any, Callable, Optional, Tuple, TypeVar
 
 import requests
 from google.adk.agents import LoopAgent, ParallelAgent, SequentialAgent
@@ -14,12 +15,53 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+# we leave this with no parameters and will depend on
+# the decorator implementation to wrap functions
+# due to how google-adk parses agent tools as functions.
+def graceful_fail():
+    """
+    A decorator that wraps a function to catch
+    exceptions and return a friendly error message.
+
+    Returns:
+        Callable:
+            A decorated function that
+            returns either the original result
+            or an error message.
+
+    Example:
+        @graceful_fail("Custom error occurred.")
+        def divide(a: float, b: float) -> float:
+            return a / b
+
+        divide(4, 0)
+        # Returns: "Custom error occurred.
+        # (ZeroDivisionError: division by zero)"
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                return (
+                    f"There was an error or the call was bad. ({type(e).__name__}: {e})"
+                )
+
+        return wrapper
+
+    return decorator
+
 
 def prepare_ollama_models_for_adk_state() -> None:
     """
     Prepares Ollama models for use with
     google-adk state. We must use openai configurations
-    to help make sure the state content are passed
+    to help make sure the state cfuncontent are passed
     to the agents without exceptions.
 
     See here:
@@ -203,7 +245,9 @@ def build_mermaid(root: Any) -> Tuple[str, bytes]:
         if subs:
             first_of[nid], last_of[nid] = subs[0].name, subs[-1].name
         # Create subgraph for non-root composite nodes
-        if node is not root and isinstance(node, (SequentialAgent, LoopAgent, ParallelAgent)):
+        if node is not root and isinstance(
+            node, (SequentialAgent, LoopAgent, ParallelAgent)
+        ):
             block = [f'subgraph {name}["{name}"]']
             if isinstance(node, (SequentialAgent, LoopAgent)):
                 for a, b in itertools.pairwise(subs):
@@ -238,12 +282,16 @@ def build_mermaid(root: Any) -> Tuple[str, bytes]:
                 edges.append(f"{root.name} -.-> {first_of.get(id(first), first.name)}")
         # Chain
         for prev, nxt in itertools.pairwise(children):
-            prev_exits = ([c.name for c in prev.sub_agents]
-                          if isinstance(prev, ParallelAgent)
-                          else [last_of.get(id(prev), prev.name)])
-            nxt_entries = ([c.name for c in nxt.sub_agents]
-                           if isinstance(nxt, ParallelAgent)
-                           else [first_of.get(id(nxt), nxt.name)])
+            prev_exits = (
+                [c.name for c in prev.sub_agents]
+                if isinstance(prev, ParallelAgent)
+                else [last_of.get(id(prev), prev.name)]
+            )
+            nxt_entries = (
+                [c.name for c in nxt.sub_agents]
+                if isinstance(nxt, ParallelAgent)
+                else [first_of.get(id(nxt), nxt.name)]
+            )
             arrow = "-.->" if isinstance(nxt, ParallelAgent) else "-->"
             for src in prev_exits:
                 for dst in nxt_entries:
