@@ -255,7 +255,7 @@ def build_mermaid(root: Any) -> Tuple[str, bytes]:
                 # loop-back even for single-child loops
                 if isinstance(node, LoopAgent):
                     if len(subs) == 1:
-                        block.append(f"  {subs[0].name} --> {subs[0].name}")
+                        block.append(f"  {subs[0].name} -.->|repeat| {subs[0].name}")
                     elif len(subs) > 1:
                         block.append(f"  {subs[-1].name} -.->|repeat| {subs[0].name}")
             elif isinstance(node, ParallelAgent):
