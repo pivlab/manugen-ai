@@ -7,7 +7,7 @@ export const api = import.meta.env.VITE_API;
 /** generic request */
 export const request = async <Response>(
   url: string | URL,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ) => {
   /** normalize url to url object */
   url = new URL(url);
@@ -15,9 +15,9 @@ export const request = async <Response>(
   /** create request */
   const request = new Request(url, options);
 
-  /** for testing, before real api hooked up */
-  await sleep(random(1000, 3000));
-  return { output: `${url.pathname} response` } as Response;
+  // /** for testing, before real api hooked up */
+  // await sleep(random(1000, 3000));
+  // return { output: `${url.pathname} response` } as Response;
 
   /** make request */
   const response = await fetch(request);
