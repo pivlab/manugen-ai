@@ -40,9 +40,6 @@ JSON_SCHEMA = {
     "required": ["title", "keywords", "sections", "urls"],
 }
 
-
-# --- Agents ---
-
 # Parse markdown outline
 agent_parse = Agent(
     model=DRAFT_LLM,
@@ -90,7 +87,6 @@ Do NOT return markdown.
     output_key="parse_result",
 )
 
-# --- Agent to repair invalid JSON ---
 agent_repair = Agent(
     model=DRAFT_LLM,
     name="repair_parse",
@@ -156,7 +152,7 @@ parallel_setup = ParallelAgent(
     sub_agents=[parse_validate_repair_json, loop_fetch],
 )
 
-# 3. Draft individual sections
+# Draft individual sections
 agent_draft_section = Agent(
     model=DRAFT_LLM,
     name="draft_section",
@@ -174,7 +170,7 @@ Compose the markdown for this section, embedding any relevant figure links.
 # instantiate the loop-writer
 section_writer = SectionWriterAgent(agent_draft_section)
 
-# 5. Combine sections
+# Combine sections
 agent_combine = Agent(
     model=DRAFT_LLM,
     name="combine_sections",
@@ -191,8 +187,7 @@ Do NOT provide me with code that can create markdown.
     output_key="full_md",
 )
 
-
-# 7. Full pipeline
+# Full pipeline
 root_agent = SequentialAgent(
     name="paper_pipeline",
     description="Parse outline, fetch assets, draft sections, combine, review & refine.",
