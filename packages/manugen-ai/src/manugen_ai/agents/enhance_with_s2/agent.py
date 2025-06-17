@@ -10,6 +10,7 @@ import os
 from google.adk.agents import Agent, LoopAgent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
+from manugen_ai.agents.meta_agent import ResilientToolAgent
 from manugen_ai.tools.tools import fetch_url, parse_list, semantic_scholar_search
 from manugen_ai.utils import prepare_ollama_models_for_adk_state
 
@@ -43,16 +44,19 @@ Return only those lines, no extra commentary or JSON.
 )
 
 # Parse text topics into list
-agent_parse_topics = Agent(
-    model=TOPIC_LLM,
-    name="parse_topics",
-    description="Convert bullet-list in `{topics_text}` into a Python list of topics.",
-    instruction="""
+agent_parse_topics = ResilientToolAgent(
+    Agent(
+        model=TOPIC_LLM,
+        name="parse_topics",
+        description="Convert bullet-list in `{topics_text}` into a Python list of topics.",
+        instruction="""
 Call the tool `parse_list` on `{topics_text}` and return the resulting Python list.
 Store the result in `topics`.
 """,
-    tools=[parse_list_tool],
-    output_key="topics",
+        tools=[parse_list_tool],
+        output_key="topics",
+    ),
+    max_retries=3,
 )
 
 seq_topics = SequentialAgent(
@@ -62,31 +66,37 @@ seq_topics = SequentialAgent(
 )
 
 # Search Semantic Scholar
-agent_search_scholar = Agent(
-    model=SEARCH_LLM,
-    name="search_semantic_scholar",
-    description="Use `semantic_scholar_search` on the list `topics` to get top paper URLs.",
-    instruction="""
+agent_search_scholar = ResilientToolAgent(
+    Agent(
+        model=SEARCH_LLM,
+        name="search_semantic_scholar",
+        description="Use `semantic_scholar_search` on the list `topics` to get top paper URLs.",
+        instruction="""
 Call `semantic_scholar_search` with `{topics}`.
 Return the mapping as `search_results` (topic → list of URLs).
 """,
-    tools=[s2_search_tool],
-    output_key="search_results",
+        tools=[s2_search_tool],
+        output_key="search_results",
+    ),
+    max_retries=3,
 )
 
 # Fetch paper contents
-agent_fetch_papers = Agent(
-    model=SEARCH_LLM,
-    name="fetch_paper_contents",
-    description="Fetch each URL in `search_results` via `fetch_url` and collect text.",
-    instruction="""
+agent_fetch_papers = ResilientToolAgent(
+    Agent(
+        model=SEARCH_LLM,
+        name="fetch_paper_contents",
+        description="Fetch each URL in `search_results` via `fetch_url` and collect text.",
+        instruction="""
 You get `{search_results}` mapping each topic to URLs.
 For each URL, call tool `fetch_url(url)` and collect the returned text.
 Return a dict `papers` mapping URL → content.
 Do not try to use a tool called fetch_paper_contents.
 """,
-    tools=[FunctionTool(func=fetch_url)],
-    output_key="papers",
+        tools=[FunctionTool(func=fetch_url)],
+        output_key="papers",
+    ),
+    max_retries=3,
 )
 
 loop_search_and_fetch = LoopAgent(
