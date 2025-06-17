@@ -2,17 +2,14 @@
 Agent for revising written work in a loop.
 """
 
-
-import json
 import os
 
-from google.adk.agents import Agent, LoopAgent, ParallelAgent, SequentialAgent
+from google.adk.agents import Agent, LoopAgent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
-from manugen_ai.agents.meta_agent import ResilientToolAgent, SectionWriterAgent
-from manugen_ai.tools.tools import exit_loop, fetch_url, json_conforms_to_schema
+from manugen_ai.agents.meta_agent import ResilientToolAgent
+from manugen_ai.tools.tools import exit_loop
 from manugen_ai.utils import prepare_ollama_models_for_adk_state
-
 
 # Preconfigure Ollama models for ADK
 prepare_ollama_models_for_adk_state()
