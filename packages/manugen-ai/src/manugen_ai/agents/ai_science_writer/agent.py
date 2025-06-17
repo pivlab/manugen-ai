@@ -10,17 +10,21 @@ from google.genai import types
 from typing import Optional
 
 # MODEL_NAME = "ollama/qwen3:30b"
-MODEL_NAME = "anthropic/claude-3-7-sonnet-20250219"
+# MODEL_NAME = "ollama/qwen3:30b-a3b"
+# MODEL_NAME = "ollama/qwen3:32b"
+# MODEL_NAME = "anthropic/claude-3-7-sonnet-20250219"
+# MODEL_NAME = "openai/gpt-4o-mini"
+MODEL_NAME = "openai/o4-mini"
 
 # when using the openai provider we need a /v1 suffix, so if it doesn't end in /v1, add it
 model_api_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
-if MODEL_NAME.startswith("ollama"):
+if MODEL_NAME.startswith(("ollama",)):
     MODEL_NAME.replace("ollama", "openai")
     if not model_api_base.endswith("/v1"):
         model_api_base += "/v1"
 
-os.environ["OPENAI_API_BASE"] = model_api_base
-os.environ["OPENAI_API_KEY"] = "unused"
+    os.environ["OPENAI_API_BASE"] = model_api_base
+    os.environ["OPENAI_API_KEY"] = "unused"
 
 # MANUSCRIPT_DIR = Path("/home/miltondp/projects/pivlab/adk-hackathon-2025/adk-hack-2025/packages/manugen-ai/src/manugen_ai/agents/ai_science_writer/rootstock/content").resolve()
 # assert MANUSCRIPT_DIR.exists()
@@ -34,40 +38,41 @@ os.environ["OPENAI_API_KEY"] = "unused"
 from pydantic import BaseModel, Field
 
 class ManuscriptStructure(BaseModel):
-    title: str = Field(description="Title.")
-    keywords: str = Field(description="Keywords.")
-    abstract: str = Field(description="Abstract.")
-    introduction: str = Field(description="Introduction.")
-    results: str = Field(description="Results.")
+    title: str = Field(default="")
+    keywords: str = Field(default="")
+    abstract: str = Field(default="")
+    introduction: str = Field(default="")
+    results: str = Field(default="")
     # figures: dict[str, str] = Field(description="Figures IDs (keys) and any metadata (value).")
     # tables: dict[str, str] = Field(description="Tables IDs (keys) and any metadata (value).")
     # source_code_files: dict[str, str] = Field(description="Source code file IDs (keys) and any metadata (value).")
-    discussion: str = Field(description="Discussion.")
-    methods: str = Field(description="Methods.")
+    discussion: str = Field(default="")
+    methods: str = Field(default="")
 
 request_interpreter_agent = Agent(
     name="request_interpreter_agent",
     model=LiteLlm(model=MODEL_NAME),
     # include_contents="none",
-    description="It interprets the user's input/request and extracts subrequests related to specific sections of the scientific manuscript.",
+    description="It interprets the user's input/request, extracts subrequests/ideas from it and assign them to specific sections of the scientific manuscript.",
     instruction=f"""
     Your goal is to interpret the user's input and extract subrequests or ideas that are specific
     to different sections of the scientific manuscript. For example, the user's request might
     have subrequests/ideas that are specific to the Introduction or Results sections, while other
     subrequests might be broader and impact different sections such as the Title, Introduction
     and Discussion.
-    The user's input could be related to broad ideas about the scientific 
-    manuscript, requests to edit specific sections of the manuscript, a rough set of
-    instructions on how to draft one or a few sections of the manuscript, a concrete
-    description of an experiment, etc.
-    The user's input could be plain text, Markdown or LaTeX.
-    Analyze the user's input, extract all the subrequests/ideas, and assignment them to
-    the typical sections present in a scientific article (like Title, Abstract,
-    Introduction, etc). Remember that some subrequests/ideas might impact several sections.
-    If there are no subrequests/ideas specific to one section, then assign an empty
-    value for that section.
-    Preserve the requests content in the original format (Markdown or LaTeX).
-    Respond ONLY with a JSON object matching this schema:
+    
+    Follow this workflow:
+    1. Analyze the user's input. Identify requests, ideas (both concrete or broad), broad
+    or narrow research topics, a rough set of instructions, a concrete description of an
+    experiment performed, or even an earlier draft of a manuscript section in either Markdown
+    or LaTeX, among other types of requests/ideas. Do not make things up, stick to what the
+    user has specified. And preserve the user's input format (such as plain text, Markdown or
+    LaTeX).
+    2. Assign these request/ideas to specific sections of the manuscript (such as title,
+    abstract, introduction, results, etc). Keep in mind that one specific request or idea could 
+    be assigned to multiple sections of the manuscript. If there are no subrequests/ideas
+    specific to one section, then assign an empty value for that section.
+    3. Respond ONLY with a JSON object matching this schema:
     {json.dumps(ManuscriptStructure.model_json_schema(), indent=2)}
     """.strip(),
     output_schema=ManuscriptStructure,
@@ -93,8 +98,13 @@ async def call_request_interpreter_agent(
 def prepare_instructions(callback_context: CallbackContext) -> Optional[types.Content]:
     current_state = callback_context.state.to_dict()
     
-    callback_context.state["instructions_results"] = current_state["instructions"]["results"]
-    callback_context.state["instructions_introduction"] = current_state["instructions"]["introduction"]
+    key0, key1 = "instructions", "results"
+    if key0 in current_state and key1 in current_state["instructions"]:
+        callback_context.state[f"instructions_{key1}"] = current_state[key0][key1]
+
+    key0, key1 = "instructions", "introduction"
+    if key0 in current_state and key1 in current_state["instructions"]:
+        callback_context.state[f"instructions_{key1}"] = current_state[key0][key1]
     
     if "introduction" not in callback_context.state:
         callback_context.state["introduction"] = ""
@@ -175,7 +185,7 @@ results_agent = Agent(
     ```
     
     # Output
-    Output only the Results section. Do not provide any explanation.
+    Output only the Results section. If not specified, use Markdown. Do not provide any explanation.
     """.strip(),
     before_agent_callback=prepare_instructions,
     # output_key="results",
@@ -195,7 +205,13 @@ async def call_results_agent(
         args={"request": "Follow your original instructions."},
         tool_context=tool_context,
     )
+    # save results
     tool_context.state["results"] = agent_output
+    
+    # remove current instructions since we already applied them
+    del tool_context.state["instructions"]["results"]
+    tool_context.state["instructions_results"] = ""
+    
     return agent_output
 
 introduction_agent = Agent(
@@ -225,12 +241,10 @@ introduction_agent = Agent(
     3. For each of these subsections, you will follow the guidelines below to convert the rough set
     of instructions/ideas, into a set of properly structured paragraphs.
     
-    
     Your goal is to draft the Introduction section that communicates why the scientific manuscript matters.
     For this, you will take the rough set of instructions and/or ideas for the Introduction section,
     and follow the guidelines for the Introduction below to draft it, while connecting it with the current Results section
     for context.
-
 
     # Current draft of the Introduction section (might be empty)
     ```
@@ -284,7 +298,7 @@ introduction_agent = Agent(
     ```
 
     # Output
-    Output only the Introduction section. Do not provide any explanation.
+    Output only the Introduction section. If not specified, use Markdown. Do not provide any explanation.
     """.strip(),
     before_agent_callback=prepare_instructions,
     # output_key="introduction",
@@ -303,7 +317,13 @@ async def call_introduction_agent(
         args={"request": "Follow your original instructions."},
         tool_context=tool_context,
     )
+    # save results
     tool_context.state["introduction"] = agent_output
+
+    # remove current instructions since we already applied them
+    del tool_context.state["instructions"]["introduction"]
+    tool_context.state["instructions_introduction"] = ""
+    
     return agent_output
 
 # sequential_manuscript_builder_agent = SequentialAgent(
@@ -342,8 +362,8 @@ manuscript_assembler_agent = Agent(
     # before_agent_callback=prepare_instructions,
 )
 async def call_manuscript_assembler_agent(
-    question: str,
-    tool_context: ToolContext,
+    question: str = "",
+    tool_context: ToolContext = None,
 ):
     """Tool to call the manuscript_assembler_agent."""
     agent_tool = AgentTool(
@@ -401,25 +421,28 @@ manuscript_builder_coordinator_agent = Agent(
     * `manuscript_assembler_agent`: it helps you assemble the final manuscript with all its
     sections after they have been drafted/edited by other agents.
     
-    IF the user's input IS NOT related to drafting/editing a scientific manuscript, then
-    simply disregard the request politely, state what's your goal and quit.
-    ELSE IF the user's input IS INDEED related to drafting/editing a scientific manuscript,
-    then follow this workflow:
-    1. Call the 'request_interpreter_agent' by providing it exactly the user's
-    input. This agent will return a JSON object with manuscript section names
+    Follow this workflow:
+    1. If the user's input IS NOT related to drafting/editing a scientific manuscript, then
+    simply disregard the request politely, state what's your goal and quit. Otherwise,
+    continue.
+    2. Interpret what the user's requesting from the latest user messages. If more context
+    is lacking, try to improve the user's request by adding more context (such as which sections
+    of the manuscript might be affected by the requests).
+    3. Call the 'request_interpreter_agent' by providing what the user wants for the
+    manuscript. This agent will return a JSON object with manuscript section names
     as keys and requests/ideas for that section as values.
-    2. Analyze this JSON object. If the value for a section is not
+    4. Analyze this JSON object. If the value for a section is not
     empty, it means that there are requests for that section that need to be completed, so
     you have to call the section-specific agent to draft it (next step). If none of the sections have
     requests, then your response is to ask the user for more specific requests/edits and quit.
-    4. For each section that has requests, call the section-specific agent that you have
+    Otherwise, continue.
+    5. For each section that has requests, call the section-specific agent that you have
     available to draft it, such as 'introduction_agent', 'results_agent', etc. NEVER draft/edit
     yourself, you rely on your agents/tools to write any part of the manuscript.
-    5. Once all sections (for which you have available agents for) were drafted/edited,
-    you have to call the 'manuscript_assembler_agent' who will assemble all sections of the manuscript
-    together. Please DO NOT EDIT/CHANGE IN ANY WAY what this agent returns.
-    The final response to the user will be the content generated by this agent without any
-    changes.
+    6. Once all sections (for which you have agents for) are drafted/edited,
+    you have to call the 'manuscript_assembler_agent' at the end and ALWAYS show the returned value
+    (a full manuscript draft) to the user. Please DO NOT EDIT/CHANGE
+    IN ANY WAY this manuscript draft, just show it to the user.
     """.strip(),
     tools=[
         # AgentTool(agent=request_interpreter_agent, skip_summarization=True),
