@@ -1,3 +1,9 @@
+"""
+Agent for taking a markdown-based outline
+of a scientific paper and converting it
+into a content-rich and cohesive whole.
+"""
+
 from __future__ import annotations
 
 import json
@@ -15,9 +21,6 @@ prepare_ollama_models_for_adk_state()
 
 # Environment-driven model names
 GENERAL_MODEL = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/llama3.2:3b")
-GENERAL_MODEL = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/mistral-small:22b")
-GENERAL_MODEL = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/command-r")
-# GENERAL_MODEL = os.environ.get("MAI_GENERAL_MODEL_NAME", "anthropic/claude-3-7-sonnet-20250219")
 DRAFT_MODEL = os.environ.get("MAI_DRAFT_MODEL_NAME", GENERAL_MODEL)
 REVIEW_MODEL = os.environ.get("MAI_REVIEW_MODEL_NAME", GENERAL_MODEL)
 COMPLETION_PHRASE = "THE AGENT HAS COMPLETED THE TASK."
@@ -40,8 +43,7 @@ JSON_SCHEMA = {
 
 # --- Agents ---
 
-
-# 1. Parse markdown outline
+# Parse markdown outline
 agent_parse = Agent(
     model=DRAFT_LLM,
     name="parse_outline",
@@ -189,52 +191,6 @@ Do NOT provide me with code that can create markdown.
     output_key="full_md",
 )
 
-# 6. Review & refine
-agent_review_loop = Agent(
-    model=REVIEW_LLM,
-    name="review_and_decide",
-    description="Critique full markdown and decide if it's final.",
-    instruction="""
-You receive:
-- full_md: the full manuscript markdown in {full_md}
-
-Your job:
-1. Provide a concise bullet-list of any changes needed.
-2. If **no** changes are needed (manuscript is publication-ready), call the tool `exit_loop` instead of returning bullets.
-
-Return either:
-- A JSON list of feedback bullets,
-- Or invoke `exit_loop` (via the FunctionTool) to end the loop.
-""",
-    tools=[FunctionTool(func=exit_loop)],
-    output_key="feedback",
-)
-
-# 2) Your existing refine agent
-agent_refine = Agent(
-    model=DRAFT_LLM,
-    name="refine_manuscript",
-    description="Apply feedback to revise the manuscript.",
-    instruction="""
-You receive:
-- full_md: the current manuscript in {full_md}
-- feedback: a list of bullets in {feedback}
-
-Revise the manuscript accordingly and return updated markdown as 'refined_md'.
-""",
-    output_key="refined_md",
-)
-
-# 3) Wrap them in a LoopAgent
-review_refine_loop = LoopAgent(
-    name="review_refine_loop",
-    # Use ResilientToolAgent so missing-tool errors auto-retry up to N times
-    sub_agents=[
-        ResilientToolAgent(agent_review_loop, max_retries=2),
-        ResilientToolAgent(agent_refine, max_retries=2),
-    ],
-    max_iterations=5,  # safety cap
-)
 
 # 7. Full pipeline
 root_agent = SequentialAgent(
@@ -244,6 +200,5 @@ root_agent = SequentialAgent(
         parallel_setup,
         section_writer,
         agent_combine,
-        review_refine_loop,
     ],
 )
