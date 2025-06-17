@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import pathlib
 import tempfile
-from typing import Any
+from typing import Any, Dict, List
 
 import pygit2
 import requests
@@ -17,9 +17,87 @@ from manugen_ai.utils import graceful_fail
 
 
 @graceful_fail()
+def parse_list(text: str) -> List[str]:
+    """
+    Convert newline- or bullet-separated
+    text into a list of strings.
+
+    Args:
+        text (str):
+            Text containing newline-
+            or bullet-separated lines.
+
+    Returns:
+        List[str]:
+            A list of cleaned string items,
+            with bullets or numbering removed.
+    """
+    lines = text.splitlines()
+    items = []
+    for ln in lines:
+        ln = ln.strip()
+        if not ln:
+            continue
+        # remove leading bullets or numbering
+        for prefix in ("-", "*"):
+            if ln.startswith(prefix):
+                ln = ln.lstrip(prefix).strip()
+        items.append(ln)
+    return items
+
+
+@graceful_fail()
+def semantic_scholar_search(topics: List[str], limit: int = 3) -> Dict[str, List[str]]:
+    """
+    Query the Semantic Scholar API for each topic
+    and return top paper URLs.
+
+    Args:
+        topics (List[str]):
+            List of research topic phrases to search.
+        limit (int, optional):
+            Maximum number of paper URLs to return
+            per topic. Defaults to 3.
+
+    Returns:
+        Dict[str, List[str]]:
+            Mapping from topic strings to
+            lists of paper URLs.
+
+    Raises:
+        HTTPError:
+            If any underlying HTTP request returns
+            an unsuccessful status code.
+    """
+    base_url = "https://api.semanticscholar.org/graph/v1/paper/search"
+    results: Dict[str, List[str]] = {}
+    for topic in topics:
+        resp = requests.get(
+            base_url,
+            params={"query": topic, "limit": limit, "fields": "paperId,url"},
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        urls: List[str] = []
+        for paper in data.get("data", []):
+            url = paper.get("url")
+            if url:
+                urls.append(url)
+            else:
+                urls.append(
+                    f"https://www.semanticscholar.org/paper/{paper.get('paperId')}"
+                )
+        results[topic] = urls
+    return results
+
+
+@graceful_fail()
 def exit_loop(tool_context: ToolContext):
-    """Call this function ONLY when the critique indicates no further changes are needed,
-    signaling the iterative process should end."""
+    """
+    Call this function ONLY when the critique
+    indicates no further changes are needed,
+    signaling the iterative process should end.
+    """
     print(f"  [Tool Call] exit_loop triggered by {tool_context.agent_name}")
     tool_context.actions.escalate = True
     # Return empty dict as tools should typically return JSON-serializable output
