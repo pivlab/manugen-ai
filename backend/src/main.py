@@ -22,6 +22,7 @@ app = FastAPI(
     version=MANUGEN_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
+    root_path=os.environ.get("API_ROOT_PREFIX"),
 )
 
 # Configure CORS
