@@ -3,12 +3,12 @@ Tests for meta agents
 """
 
 import os
+
 import pytest
-from manugen_ai.utils import run_agent_workflow
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
 from manugen_ai.agents.meta_agent import ResilientToolAgent
-from manugen_ai.utils import prepare_ollama_models_for_adk_state
+from manugen_ai.utils import prepare_ollama_models_for_adk_state, run_agent_workflow
 
 
 @pytest.mark.asyncio
@@ -21,7 +21,9 @@ async def test_ResilientToolAgent():
     prepare_ollama_models_for_adk_state()
 
     # LLM wrappers
-    DRAFT_LLM = LiteLlm(model=os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/llama3.2:3b"))
+    DRAFT_LLM = LiteLlm(
+        model=os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/llama3.2:3b")
+    )
 
     def example_tool():
         """
@@ -30,24 +32,27 @@ async def test_ResilientToolAgent():
         """
         pass
 
-    root_agent = ResilientToolAgent(wrapped_agent=Agent(
-    model=DRAFT_LLM,
-    name="agent1",
-    description=("Example"),
-    instruction="""
+    root_agent = ResilientToolAgent(
+        wrapped_agent=Agent(
+            model=DRAFT_LLM,
+            name="agent1",
+            description=("Example"),
+            instruction="""
     Use example_too to perform an example
     run of a tool in google-adk.
     """,
-    tools=[example_tool],
-    output_key="example"
-    ), max_retries=5)
+            tools=[example_tool],
+            output_key="example",
+        ),
+        max_retries=5,
+    )
 
     APP_NAME = "app"
     USER_ID = "user"
     SESSION_ID = "0001"
     final_output, session_state, output_events = await run_agent_workflow(
         agent=root_agent,
-        prompt=f"""
+        prompt="""
         Use the agent instructions to determine what to do.
         """,
         app_name=APP_NAME,
@@ -57,9 +62,4 @@ async def test_ResilientToolAgent():
         verbose=True,
     )
 
-    assert "example" in session_state.keys() 
-
-
-
-
-    
+    assert "example" in session_state.keys()
