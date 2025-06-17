@@ -1,0 +1,9 @@
+production_domain {
+    # Frontend on port 5173
+    reverse_proxy frontend:5173
+
+    # Backend API on port 8000
+    handle /api/* {
+        reverse_proxy backend:8000
+    }
+}
