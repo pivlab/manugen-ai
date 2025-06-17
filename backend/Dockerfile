@@ -14,7 +14,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 WORKDIR /app
 
 # copy packages/manugen-ai into /opt/manugen-ai
-COPY --exclude=.venv ./packages/manugen-ai /opt/manugen-ai
+COPY --exclude=.venv ./packages/manugen-ai/ /packages/manugen-ai/
 
 # Install dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 
 # copy backend contents into working dir
-COPY ./backend/ .
+COPY --exclude=.venv ./backend/ .
 
 # for now, simply run the ADK test webserver
-CMD ["/app/start_adk_web.sh"]
+CMD ["/app/start_api_server.sh"]

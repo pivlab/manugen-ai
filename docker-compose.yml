@@ -13,16 +13,24 @@ services:
       - "POSTGRES_DB=manugen"
       - "SESSION_DB_CONN_STRING=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
     volumes:
-      - ./packages/manugen-ai/src/:/opt/manugen-ai/src/
-      - ./packages/manugen-ai/tests/:/opt/manugen-ai/tests/
+      - ./packages/manugen-ai/src/:/packages/manugen-ai/src/
+      - ./packages/manugen-ai/tests/:/packages/manugen-ai/tests/
+      - ./backend/src/:/app/src/
+      - ./backend/tests/:/app/tests/
     depends_on:
       - db
 
-  # frontend:
-  #   build:
-  #     context: ./frontend/
-  #   ports:
-  #     - "3900:3000"
+  frontend:
+    build:
+      context: ./frontend/
+    ports:
+      - "8901:5173"
+    environment:
+      - "VITE_API=http://localhost:8900"
+      - "VITE_TITLE=Manugen AI"
+    volumes:
+      # map the src folder to allow hot reloading
+      - ./frontend/src/:/app/src/
 
   # service that's invoked explicitly to run the manugen-ai command
   manugen:
