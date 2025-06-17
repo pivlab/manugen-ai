@@ -80,8 +80,6 @@ class ResilientToolAgent(LlmAgent):
                 last_exc = e
                 msg = str(e)
 
-                print("WE'RE HERE")
-                print(msg)
                 # Look for the typical "not found in the tools_dict" pattern
                 if any(
                     val in msg
