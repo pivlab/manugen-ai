@@ -1,20 +1,16 @@
-import json
 import pathlib
-import tempfile
 from types import SimpleNamespace
 
 import pygit2
 import pytest
-
-import manugen_ai.tools.tools as agent_tools
 from manugen_ai.tools.tools import (
-    parse_list,
-    semantic_scholar_search,
+    clone_repository,
     exit_loop,
     fetch_url,
     json_conforms_to_schema,
+    parse_list,
     read_path_contents,
-    clone_repository,
+    semantic_scholar_search,
 )
 
 
@@ -57,8 +53,7 @@ def test_fetch_url_real() -> None:
 def test_exit_loop_sets_escalate() -> None:
     """Ensure exit_loop sets the escalate flag on the ToolContext."""
     fake_ctx: SimpleNamespace = SimpleNamespace(
-        agent_name="my_agent",
-        actions=SimpleNamespace(escalate=False)
+        agent_name="my_agent", actions=SimpleNamespace(escalate=False)
     )
     ret: dict = exit_loop(fake_ctx)
     assert ret == {}
