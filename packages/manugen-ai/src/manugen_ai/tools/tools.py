@@ -4,14 +4,15 @@ Tools for agents within manugen-ai
 
 from __future__ import annotations
 
+import json
 import pathlib
 import tempfile
 from typing import Any
-import json
+
 import pygit2
 import requests
-from jsonschema import validate, ValidationError
 from google.adk.tools.tool_context import ToolContext
+from jsonschema import ValidationError, validate
 from manugen_ai.utils import graceful_fail
 
 
@@ -31,20 +32,21 @@ def fetch_url(url: str) -> str:
     res.raise_for_status()
     return res.text
 
+
 @graceful_fail()
 def json_conforms_to_schema(raw: str, schema: dict) -> bool:
     """
-    Check whether a JSON string conforms 
+    Check whether a JSON string conforms
     to a given JSON Schema.
 
-    Parses the input string as JSON, 
+    Parses the input string as JSON,
     then validates it against the provided schema.
 
     Args:
-        raw: 
+        raw:
             A JSON-formatted string to validate.
-        schema: 
-            A JSON Schema (as a dict-like 
+        schema:
+            A JSON Schema (as a dict-like
             mapping) that `raw` must conform to.
 
     Returns:

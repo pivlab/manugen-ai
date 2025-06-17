@@ -7,7 +7,7 @@ from __future__ import annotations
 import functools
 import itertools
 import os
-from typing import Any, Callable, Optional, Tuple, TypeVar
+from typing import Any, Callable, Tuple, TypeVar
 
 import requests
 from google.adk.agents import LoopAgent, ParallelAgent, SequentialAgent

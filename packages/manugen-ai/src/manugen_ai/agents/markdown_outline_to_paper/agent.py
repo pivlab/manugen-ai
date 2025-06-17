@@ -4,14 +4,11 @@ import json
 import os
 from typing import AsyncGenerator
 
-import requests
-from google.adk.agents import Agent, LoopAgent, ParallelAgent, SequentialAgent, LlmAgent
-from google.adk.agents.base_agent import BaseAgent
+from google.adk.agents import Agent, LlmAgent, LoopAgent, ParallelAgent, SequentialAgent
 from google.adk.agents.invocation_context import InvocationContext
-from google.adk.events import Event, EventActions
+from google.adk.events import Event
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
-from google.adk.tools.tool_context import ToolContext
 from manugen_ai.tools.tools import exit_loop, fetch_url, json_conforms_to_schema
 from manugen_ai.utils import prepare_ollama_models_for_adk_state
 from pydantic import PrivateAttr
@@ -33,25 +30,27 @@ DRAFT_LLM = LiteLlm(model=DRAFT_MODEL)
 REVIEW_LLM = LiteLlm(model=REVIEW_MODEL)
 
 JSON_SCHEMA = {
-  "type": "object",
-  "properties": {
-    "title":    { "type": "string" },
-    "keywords": { "type": "array",  "items": { "type": "string" } },
-    "sections": { "type": "array",  "items": { "type": "string" } },
-    "urls":     { "type": "array",  "items": { "type": "string", "format": "uri" } }
-  },
-  "required": ["title","keywords","sections","urls"]
+    "type": "object",
+    "properties": {
+        "title": {"type": "string"},
+        "keywords": {"type": "array", "items": {"type": "string"}},
+        "sections": {"type": "array", "items": {"type": "string"}},
+        "urls": {"type": "array", "items": {"type": "string", "format": "uri"}},
+    },
+    "required": ["title", "keywords", "sections", "urls"],
 }
 
 
 # --- Agents ---
 
+
 class ResilientToolAgent(LlmAgent):
     """
     Wraps an LlmAgent to retry on missing-tool errors, without renaming the agent.
     """
+
     _wrapped: LlmAgent = PrivateAttr()
-    _max_retries: int  = PrivateAttr()
+    _max_retries: int = PrivateAttr()
 
     def __init__(
         self,
@@ -90,7 +89,6 @@ class ResilientToolAgent(LlmAgent):
         raise last_exc  # type: ignore
 
 
-
 # 1. Parse markdown outline
 agent_parse = Agent(
     model=DRAFT_LLM,
@@ -118,9 +116,9 @@ agent_validate = Agent(
     name="validate_parse",
     description="Check parse_result JSON against schema; if valid, call tool exit_loop",
     instruction=f"""
-Use the tool json_conforms_to_schema on 
+Use the tool json_conforms_to_schema on
 json:
-``` 
+```
 {{parse_result}}
 ```
 
@@ -158,13 +156,15 @@ Do NOT return jsonschema.
 
 validate_repair_json = LoopAgent(
     name="validate_repair_json",
-    sub_agents=[ResilientToolAgent(agent_validate, max_retries=3), ResilientToolAgent(agent_repair, max_retries=3)],
+    sub_agents=[
+        ResilientToolAgent(agent_validate, max_retries=3),
+        ResilientToolAgent(agent_repair, max_retries=3),
+    ],
     max_iterations=5,
 )
 
 parse_validate_repair_json = SequentialAgent(
-    name="parse_validate_repair_json",
-    sub_agents=[agent_parse, validate_repair_json]
+    name="parse_validate_repair_json", sub_agents=[agent_parse, validate_repair_json]
 )
 
 agent_fetch = Agent(
@@ -224,6 +224,7 @@ class SectionWriterAgent(LlmAgent):
     Loops through parse_result['sections'], sets session.state['section'],
     invokes the draft_section agent, and accumulates outputs.
     """
+
     _draft_agent: Agent = PrivateAttr()
 
     def __init__(self, draft_agent: Agent):
@@ -289,7 +290,7 @@ Return either:
 - A JSON list of feedback bullets,
 - Or invoke `exit_loop` (via the FunctionTool) to end the loop.
 """,
-    tools=[ FunctionTool(func=exit_loop) ],
+    tools=[FunctionTool(func=exit_loop)],
     output_key="feedback",
 )
 
@@ -314,9 +315,9 @@ review_refine_loop = LoopAgent(
     # Use ResilientToolAgent so missing-tool errors auto-retry up to N times
     sub_agents=[
         ResilientToolAgent(agent_review_loop, max_retries=2),
-        ResilientToolAgent(agent_refine,        max_retries=2),
+        ResilientToolAgent(agent_refine, max_retries=2),
     ],
-    max_iterations=5,   # safety cap
+    max_iterations=5,  # safety cap
 )
 
 # 7. Full pipeline

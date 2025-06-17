@@ -3,6 +3,8 @@ target-version = "py312"
 line-length = 88
 fix = true
 lint.select = [
+  # pyflakes
+  "F",
   # isort
   "I",
 ]
