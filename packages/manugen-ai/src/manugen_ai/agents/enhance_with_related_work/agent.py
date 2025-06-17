@@ -1,6 +1,6 @@
 """
 An agent workflow to enhance content
-using semantic scholar (s2).
+using openalex.
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ from google.adk.agents import Agent, LoopAgent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 from manugen_ai.agents.meta_agent import ResilientToolAgent
-from manugen_ai.tools.tools import fetch_url, parse_list, semantic_scholar_search
+from manugen_ai.tools.tools import openalex_query, parse_list
 from manugen_ai.utils import prepare_ollama_models_for_adk_state
 
 prepare_ollama_models_for_adk_state()
@@ -25,7 +25,7 @@ SEARCH_LLM = LiteLlm(model=SEARCH_MODEL)
 IMPROVE_LLM = LiteLlm(model=IMPROVE_MODEL)
 
 parse_list_tool = FunctionTool(func=parse_list)
-s2_search_tool = FunctionTool(func=semantic_scholar_search)
+oa_search_tool = FunctionTool(func=openalex_query)
 
 # Extract free-text topics
 agent_extract_topics = Agent(
@@ -65,44 +65,27 @@ seq_topics = SequentialAgent(
     sub_agents=[agent_extract_topics, agent_parse_topics],
 )
 
-# Search Semantic Scholar
-agent_search_scholar = ResilientToolAgent(
+# Search OpenAlex
+agent_search_openalex = ResilientToolAgent(
     Agent(
         model=SEARCH_LLM,
-        name="search_semantic_scholar",
-        description="Use `semantic_scholar_search` on the list `topics` to get top paper URLs.",
+        name="search_open_alex",
+        description="Use `openalex_query` on the list `topics` to get top paper URLs.",
         instruction="""
-Call `semantic_scholar_search` with `{topics}`.
+Call `openalex_query` with `{topics}`.
 Return the mapping as `search_results` (topic → list of URLs).
+Do NOT provide code to perform this action - you must do it by invoking the tool calls.
 """,
-        tools=[s2_search_tool],
+        tools=[oa_search_tool],
         output_key="search_results",
     ),
     max_retries=3,
 )
 
-# Fetch paper contents
-agent_fetch_papers = ResilientToolAgent(
-    Agent(
-        model=SEARCH_LLM,
-        name="fetch_paper_contents",
-        description="Fetch each URL in `search_results` via `fetch_url` and collect text.",
-        instruction="""
-You get `{search_results}` mapping each topic to URLs.
-For each URL, call tool `fetch_url(url)` and collect the returned text.
-Return a dict `papers` mapping URL → content.
-Do not try to use a tool called fetch_paper_contents.
-""",
-        tools=[FunctionTool(func=fetch_url)],
-        output_key="papers",
-    ),
-    max_retries=3,
-)
-
 loop_search_and_fetch = LoopAgent(
-    name="gather_scholar_data",
+    name="gather_oa_data",
     description="Search & fetch loop",
-    sub_agents=[agent_search_scholar, agent_fetch_papers],
+    sub_agents=[agent_search_openalex],
     max_iterations=3,
 )
 
@@ -114,7 +97,7 @@ agent_improve_draft = Agent(
     instruction="""
 You get:
 - Original draft: provided from the user prompt.
-- Fetched papers: `{papers}`
+- Fetched papers: `{search_results}`
 Incorporate relevant findings, facts, or citations into the draft.
 Output only the revised draft text.
 """,
@@ -123,7 +106,7 @@ Output only the revised draft text.
 
 # Full pipeline
 root_agent = SequentialAgent(
-    name="s2_enhancement_pipeline",
+    name="oa_enhancement_pipeline",
     description="Extract topics → search & fetch → improve draft",
     sub_agents=[
         seq_topics,

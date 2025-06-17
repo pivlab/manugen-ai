@@ -23,12 +23,14 @@ classifiers = [
 
 dependencies = [
   "cyclopts>=3.17,<4",
+  "docling>=2.37",
   "google-adk>=1.2.1,<2",
   "ipython>=9.2",
   "jsonschema>=4.24",
   "litellm>=1.72.1",
   "nbconvert>=7.16.6",
   "psycopg2-binary>=2.9.10",
+  "pyalex>=0.18",
   "pygit2>=1.18",
   "python-dotenv>=1.1",
   "requests>=2.32.3",
@@ -38,6 +40,7 @@ scripts.manugen = "manugen_ai.cli:app"
 [dependency-groups]
 dev = [
   "black>=25.1,<26",
+  "ipywidgets>=8.1.7",
   "jupyterlab>=4.4.3",
   "nbclient>=0.10.2",
   "nbformat>=5.10.4",

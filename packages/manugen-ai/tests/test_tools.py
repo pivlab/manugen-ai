@@ -8,9 +8,9 @@ from manugen_ai.tools.tools import (
     exit_loop,
     fetch_url,
     json_conforms_to_schema,
+    openalex_query,
     parse_list,
     read_path_contents,
-    semantic_scholar_search,
 )
 
 
@@ -25,23 +25,35 @@ def test_parse_list_basic() -> None:
     assert parse_list(text) == ["first item", "second item", "third item"]
 
 
-def test_semantic_scholar_search_empty() -> None:
-    """Verify that an empty topics list returns an empty dict without API calls."""
-    topics: list[str] = []
-    assert semantic_scholar_search(topics) == {}
+@pytest.mark.parametrize(
+    "topics, limit",
+    [
+        (["machine learning"], 1),
+        (["deep learning", "genomics"], 2),
+    ],
+)
+def test_openalex_query_live(topics, limit):
+    result = openalex_query(
+        topics, limit=limit, fields=["title", "abstract", "best_oa_location"]
+    )
 
+    print(result)
+    # the returned structure must be a dict of exactly our topics
+    assert set(result.keys()) == set(topics)
 
-def test_semantic_scholar_search_real() -> None:
-    """Check semantic_scholar_search returns dict of URLs for a real query."""
-    topics: list[str] = ["neural networks"]
-    result: dict[str, list[str]] = semantic_scholar_search(topics, limit=1)
-    assert isinstance(result, dict)
-    assert "neural networks" in result
-    urls: list[str] = result["neural networks"]
-    assert isinstance(urls, list)
-    assert len(urls) <= 1
-    for url in urls:
-        assert url.startswith("http")
+    for topic in topics:
+        works = result[topic]
+        # we asked for `limit` papers
+        assert isinstance(works, list)
+        assert len(works) == limit
+
+        for w in works:
+            # field checks
+            assert "title" in w and isinstance(w["title"], str)
+            assert "abstract" in w  # may be empty or None
+            # id/doi checks
+            assert "_id" in w and isinstance(w["_id"], str)
+            assert "_doi" in w and (isinstance(w["_doi"], str) or w["_doi"] is None)
 
 
 def test_fetch_url_real() -> None:

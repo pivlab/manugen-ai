@@ -7,13 +7,15 @@ from __future__ import annotations
 import json
 import pathlib
 import tempfile
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import pygit2
 import requests
+from docling.document_converter import DocumentConverter
 from google.adk.tools.tool_context import ToolContext
 from jsonschema import ValidationError, validate
 from manugen_ai.utils import graceful_fail
+from pyalex import Works
 
 
 @graceful_fail()
@@ -47,48 +49,67 @@ def parse_list(text: str) -> List[str]:
 
 
 @graceful_fail()
-def semantic_scholar_search(topics: List[str], limit: int = 3) -> Dict[str, List[str]]:
+def openalex_query(
+    topics: List[str],
+    limit: int = 2,
+    fields: Optional[List[str]] = None,
+    fetch_fulltext: bool = False,
+) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Query the Semantic Scholar API for each topic
-    and return top paper URLs.
+    For each topic, search OpenAlex and return minimal metadata,
+    optionally downloading the open-access full text.
 
     Args:
         topics (List[str]):
-            List of research topic phrases to search.
+            Search strings for which to find works.
         limit (int, optional):
-            Maximum number of paper URLs to return
-            per topic. Defaults to 3.
+            Number of works to retrieve per topic. Defaults to 2.
+        fields (List[str], optional):
+            Metadata fields to include. Defaults to ['title', 'abstract', 'best_oa_location'].
+        fetch_fulltext (bool, optional):
+            If True, attempts to download the open-access full text from
+            each record's best_oa_location URL and adds it as 'fulltext'.
 
     Returns:
-        Dict[str, List[str]]:
-            Mapping from topic strings to
-            lists of paper URLs.
-
-    Raises:
-        HTTPError:
-            If any underlying HTTP request returns
-            an unsuccessful status code.
+        Dict[str, List[Dict[str, Any]]]:
+            Mapping of topic → list of dicts containing specified fields,
+            '_id', '_doi', and optionally 'fulltext'.
     """
-    base_url = "https://api.semanticscholar.org/graph/v1/paper/search"
-    results: Dict[str, List[str]] = {}
+
+    if fields is None:
+        fields = ["title", "abstract", "best_oa_location"]
+
+    output: Dict[str, List[Dict[str, Any]]] = {}
+    client = Works()
+
     for topic in topics:
-        resp = requests.get(
-            base_url,
-            params={"query": topic, "limit": limit, "fields": "paperId,url"},
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        urls: List[str] = []
-        for paper in data.get("data", []):
-            url = paper.get("url")
-            if url:
-                urls.append(url)
-            else:
-                urls.append(
-                    f"https://www.semanticscholar.org/paper/{paper.get('paperId')}"
-                )
-        results[topic] = urls
-    return results
+        works = client.search(topic).get(per_page=limit)
+        topic_results: List[Dict[str, Any]] = []
+
+        for w in works:
+            rec: Dict[str, Any] = {}
+            for f in fields:
+                rec[f] = w.get(f) if isinstance(w, dict) else getattr(w, f, None)
+            rec["_id"] = w.get("id") if isinstance(w, dict) else None
+            rec["_doi"] = w.get("doi") if isinstance(w, dict) else None
+
+            # Attempt to fetch full text if requested
+            if fetch_fulltext and rec.get("best_oa_location"):
+                # best_oa_location may be a dict with 'url'
+                oa = rec["best_oa_location"]
+                url = oa.get("pdf_url") if isinstance(oa, dict) else None
+                if url:
+                    try:
+                        doc = DocumentConverter().convert(url).document
+                        rec["fulltext"] = doc.text
+                    except Exception:
+                        rec["fulltext"] = None
+
+            topic_results.append(rec)
+
+        output[topic] = topic_results
+
+    return output
 
 
 @graceful_fail()
