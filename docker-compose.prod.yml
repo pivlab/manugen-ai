@@ -3,6 +3,10 @@ volumes:
   caddy_config:
 
 services:
+  backend:
+    environment:
+      - "API_ROOT_PREFIX=/api"
+
   caddy:
     image: caddy:latest
     container_name: caddy
