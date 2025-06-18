@@ -23,7 +23,6 @@ classifiers = [
 
 dependencies = [
   "cyclopts>=3.17,<4",
-  "docling>=2.37",
   "google-adk>=1.2.1,<2",
   "ipython>=9.2",
   "jsonschema>=4.24",
