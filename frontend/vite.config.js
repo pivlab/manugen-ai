@@ -15,8 +15,5 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
-  },
-  server: {
-    allowedHosts: ['manugen-ai.cu-dbmi.dev', 'localhost']
   }
 });
