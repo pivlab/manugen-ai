@@ -11,7 +11,7 @@ services:
 
   frontend:
     environment:
-      - "VITE_API=http://manugen-ai.cu-dbmi.dev/api"
+      - "VITE_API=https://manugen-ai.cu-dbmi.dev/api"
     command: "bun run build"
     volumes:
       - frontend_dist:/app/dist/
