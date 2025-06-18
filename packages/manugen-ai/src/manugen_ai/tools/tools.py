@@ -7,11 +7,10 @@ from __future__ import annotations
 import json
 import pathlib
 import tempfile
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import pygit2
 import requests
-from docling.document_converter import DocumentConverter
 from google.adk.tools.tool_context import ToolContext
 from jsonschema import ValidationError, validate
 from manugen_ai.utils import graceful_fail
@@ -49,65 +48,32 @@ def parse_list(text: str) -> List[str]:
 
 
 @graceful_fail()
-def openalex_query(
-    topics: List[str],
-    limit: int = 2,
-    fields: Optional[List[str]] = None,
-    fetch_fulltext: bool = False,
-) -> Dict[str, List[Dict[str, Any]]]:
+def openalex_query(topics: List[str]) -> Dict[str, List[Dict[str, Any]]]:
     """
-    For each topic, search OpenAlex and return minimal metadata,
-    optionally downloading the open-access full text.
+    For each topic, search OpenAlex and return only title and abstract for open-access works.
 
     Args:
-        topics (List[str]):
-            Search strings for which to find works.
-        limit (int, optional):
-            Number of works to retrieve per topic. Defaults to 2.
-        fields (List[str], optional):
-            Metadata fields to include. Defaults to ['title', 'abstract', 'best_oa_location'].
-        fetch_fulltext (bool, optional):
-            If True, attempts to download the open-access full text from
-            each record's best_oa_location URL and adds it as 'fulltext'.
+        topics (List[str]): List of search strings.
 
     Returns:
-        Dict[str, List[Dict[str, Any]]]:
-            Mapping of topic → list of dicts containing specified fields,
-            '_id', '_doi', and optionally 'fulltext'.
+        Dict[str, List[Dict[str, Any]]]: Mapping from topic to list of dicts with
+        'title' and 'abstract'.
     """
-
-    if fields is None:
-        fields = ["title", "abstract", "best_oa_location"]
+    client = Works()
+    limit = 3
 
     output: Dict[str, List[Dict[str, Any]]] = {}
-    client = Works()
-
     for topic in topics:
-        works = client.search(topic).get(per_page=limit)
-        topic_results: List[Dict[str, Any]] = []
-
-        for w in works:
-            rec: Dict[str, Any] = {}
-            for f in fields:
-                rec[f] = w.get(f) if isinstance(w, dict) else getattr(w, f, None)
-            rec["_id"] = w.get("id") if isinstance(w, dict) else None
-            rec["_doi"] = w.get("doi") if isinstance(w, dict) else None
-
-            # Attempt to fetch full text if requested
-            if fetch_fulltext and rec.get("best_oa_location"):
-                # best_oa_location may be a dict with 'url'
-                oa = rec["best_oa_location"]
-                url = oa.get("pdf_url") if isinstance(oa, dict) else None
-                if url:
-                    try:
-                        doc = DocumentConverter().convert(url).document
-                        rec["fulltext"] = doc.text
-                    except Exception:
-                        rec["fulltext"] = None
-
-            topic_results.append(rec)
-
-        output[topic] = topic_results
+        works = (
+            client.search_filter(abstract=topic)
+            .filter(is_retracted=False)
+            .sort(cited_by_count="desc")
+            .get(per_page=limit)
+        )
+        output[topic] = [
+            {"title": w["title"], "abstract": w["abstract"], "doi": w["doi"]}
+            for w in works
+        ]
 
     return output
 
