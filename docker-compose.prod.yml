@@ -1,11 +1,19 @@
 volumes:
   caddy_data:
   caddy_config:
+  frontend_dist:
 
 services:
   backend:
     environment:
       - "API_ROOT_PREFIX=/api"
+
+  frontend:
+    environment:
+      - "VITE_API=http://production_domain/api"
+    command: "bun run build"
+    volumes:
+      - frontend_dist:/app/dist/
 
   caddy:
     image: caddy:latest
@@ -16,5 +24,6 @@ services:
       - "443:443"
     volumes:
       - ./services/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - frontend_dist:/app/dist/
       - caddy_data:/data
       - caddy_config:/config
