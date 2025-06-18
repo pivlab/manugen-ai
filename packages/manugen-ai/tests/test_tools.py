@@ -35,7 +35,6 @@ def test_parse_list_basic() -> None:
 def test_openalex_query_live(topics):
     result = openalex_query(topics)
 
-    print(result)
     # the returned structure must be a dict of exactly our topics
     assert set(result.keys()) == set(topics)
 

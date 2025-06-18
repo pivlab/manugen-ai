@@ -12,7 +12,11 @@ import os
 from google.adk.agents import Agent, LoopAgent, ParallelAgent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
-from manugen_ai.agents.meta_agent import ResilientToolAgent, SectionWriterAgent, StopChecker
+from manugen_ai.agents.meta_agent import (
+    ResilientToolAgent,
+    SectionWriterAgent,
+    StopChecker,
+)
 from manugen_ai.tools.tools import exit_loop, fetch_url, json_conforms_to_schema
 from manugen_ai.utils import prepare_ollama_models_for_adk_state
 
@@ -94,7 +98,7 @@ agent_repair = Agent(
     instruction=f"""
 This is some JSON we need to improve to match a schema below:
 ```json
-{{parsed_json}} 
+{{parsed_json}}
 ```
 
 Here is the schema the above JSON must abide:
@@ -119,7 +123,7 @@ validate_repair_json = LoopAgent(
     sub_agents=[
         ResilientToolAgent(agent_validate, max_retries=3),
         ResilientToolAgent(agent_repair, max_retries=3),
-        StopChecker(context_variable="feedback", completion_phrase=COMPLETION_PHRASE)
+        StopChecker(context_variable="feedback", completion_phrase=COMPLETION_PHRASE),
     ],
     max_iterations=5,
 )

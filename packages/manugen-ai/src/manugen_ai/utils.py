@@ -90,7 +90,7 @@ async def run_agent_workflow(
     session_id: str,
     initial_state: dict = None,
     verbose: bool = True,
-):
+):  # noqa: T201
     """
     Runs an agent workflow and returns the final output, session state
     and output_events.

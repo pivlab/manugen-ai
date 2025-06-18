@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from typing import AsyncGenerator, Optional, Set
 
-from google.adk.agents import Agent, LlmAgent, BaseAgent
+from google.adk.agents import Agent, BaseAgent, LlmAgent
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event, EventActions
 from pydantic import PrivateAttr
@@ -140,9 +140,7 @@ class StopChecker(BaseAgent):
 
     # optional: a generic name/description
     name: str = "stop_checker"
-    description: str = (
-        "Stops when the configured context variable signals completion"
-    )
+    description: str = "Stops when the configured context variable signals completion"
 
     async def _run_async_impl(self, ctx: InvocationContext):
         # pull whatever key you chose out of state

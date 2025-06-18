@@ -84,48 +84,53 @@ async def test_StopChecker():
     MAX_LOOPS = 8
 
     reviewer_agent = Agent(
-            model=DRAFT_LLM,
-            name="reviewer",
-            description=("You are an reviewer."),
-            instruction=f"""
+        model=DRAFT_LLM,
+        name="reviewer",
+        description=("You are an reviewer."),
+        instruction=f"""
             Identify whether the story length needs to be increased.
             Your *only* guideline is that the story must be 2 or more sentences long
             Focus on making feedback concise and quick - we don't want too much revision!
             Provide these specific suggestions concisely. Output *only* the critique text.
 
             ELSE IF there is no feedback and the document is good:
-            Respond *exactly* with the phrase: "{COMPLETION_PHRASE}" and nothing else (excluding quotes). 
+            Respond *exactly* with the phrase: "{COMPLETION_PHRASE}" and nothing else (excluding quotes).
             It doesn't need to be perfect, just functionally complete for this stage.
             Avoid suggesting purely subjective stylistic preferences if the core is sound.
             """,
-            output_key="feedback",
-        )
-    
+        output_key="feedback",
+    )
+
     writer_agent = Agent(
-            model=DRAFT_LLM,
-            name="writer",
-            description=("You are a writer."),
-            instruction=f"""
+        model=DRAFT_LLM,
+        name="writer",
+        description=("You are a writer."),
+        instruction=f"""
             Take feedback from a reviewer and improve the content.
 
-            The feedback is avaialable here:
-            ```    
+            The feedback is available here:
+            ```
             {{feedback}}
             ```
 
             If the feedback is equal to {COMPLETION_PHRASE} please
             simply provide **ONLY** the content with no additional commentary.
             """,
-            output_key="content",
-        )
-    
+        output_key="content",
+    )
+
     # loop for refining the initial content
     root_agent = LoopAgent(
         name="refiner",
-        sub_agents=[reviewer_agent, writer_agent, StopChecker(context_variable="feedback", completion_phrase=COMPLETION_PHRASE)],
+        sub_agents=[
+            reviewer_agent,
+            writer_agent,
+            StopChecker(
+                context_variable="feedback", completion_phrase=COMPLETION_PHRASE
+            ),
+        ],
         max_iterations=MAX_LOOPS,
     )
-    
 
     APP_NAME = "app"
     USER_ID = "user"
@@ -144,9 +149,8 @@ async def test_StopChecker():
         verbose=True,
     )
 
-    print(output_events)
+    # count the number of times we looped by counting a specific agent's events
     editor_count = sum(1 for ev in output_events if ev.get("agent") == "writer")
-    print(f"The editor agent ran {editor_count} times")
 
     assert "feedback" in session_state.keys()
     # test that we exited the loop earlier than the max number of loops
