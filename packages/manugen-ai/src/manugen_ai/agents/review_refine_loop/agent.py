@@ -15,7 +15,7 @@ from manugen_ai.utils import prepare_ollama_models_for_adk_state
 prepare_ollama_models_for_adk_state()
 
 # Environment-driven model names
-GENERAL_MODEL = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/llama3.2:3b")
+GENERAL_MODEL = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/command-r")
 DRAFT_MODEL = os.environ.get("MAI_DRAFT_MODEL_NAME", GENERAL_MODEL)
 REVIEW_MODEL = os.environ.get("MAI_REVIEW_MODEL_NAME", GENERAL_MODEL)
 COMPLETION_PHRASE = "THE AGENT HAS COMPLETED THE TASK."
