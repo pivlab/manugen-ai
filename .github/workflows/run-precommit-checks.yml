@@ -1,6 +1,5 @@
 ---
-# used for running tests
-name: tests
+name: pre-commit-checks
 on:
   push:
     branches: [main]
