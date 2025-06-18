@@ -4,11 +4,9 @@ manugen-ai.cu-dbmi.dev {
     # reverse_proxy frontend:5173
 
     # serve files from /app/dist, and redirect to index.html for SPA
-    handle / {
-        root * /app/dist
-        try_files {path} /index.html
-        file_server
-    }
+    root * /app/dist
+    file_server
+    try_files {path} /index.html
 
     # Backend API on port 8000
     handle /api/* {
