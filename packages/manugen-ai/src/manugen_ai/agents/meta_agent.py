@@ -9,9 +9,9 @@ from __future__ import annotations
 import json
 from typing import AsyncGenerator, Optional, Set
 
-from google.adk.agents import Agent, LlmAgent
+from google.adk.agents import Agent, LlmAgent, BaseAgent
 from google.adk.agents.invocation_context import InvocationContext
-from google.adk.events import Event
+from google.adk.events import Event, EventActions
 from pydantic import PrivateAttr
 
 
@@ -131,3 +131,24 @@ class SectionWriterAgent(LlmAgent):
                 yield event
             all_texts.append(ctx.session.state.get("section_text"))
         ctx.session.state["section_texts"] = all_texts
+
+
+class StopChecker(BaseAgent):
+    # these become configurable when you instantiate
+    context_variable: str = "stop_state"
+    completion_phrase: str = "ALL FINISHED!"
+
+    # optional: a generic name/description
+    name: str = "stop_checker"
+    description: str = (
+        "Stops when the configured context variable signals completion"
+    )
+
+    async def _run_async_impl(self, ctx: InvocationContext):
+        # pull whatever key you chose out of state
+        value = ctx.session.state.get(self.context_variable, "")
+        if value.strip() == self.completion_phrase:
+            yield Event(
+                author=self.name,
+                actions=EventActions(escalate=True),
+            )
