@@ -1,6 +1,14 @@
 manugen-ai.cu-dbmi.dev {
-    # Frontend on port 5173
-    reverse_proxy frontend:5173
+    # # Frontend on port 5173
+    # (enable this if we were running the dev server in the frontend container
+    # reverse_proxy frontend:5173
+
+    # serve files from /app/dist, and redirect to index.html for SPA
+    handle / {
+        root * /app/dist
+        try_files {path} /index.html
+        file_server
+    }
 
     # Backend API on port 8000
     handle /api/* {
