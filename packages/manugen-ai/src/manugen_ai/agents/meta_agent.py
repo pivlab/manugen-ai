@@ -121,7 +121,7 @@ class SectionWriterAgent(LlmAgent):
     async def _run_async_impl(
         self, ctx: InvocationContext
     ) -> AsyncGenerator[Event, None]:
-        sections = json.loads(ctx.session.state.get("parse_result", {})).get(
+        sections = json.loads(ctx.session.state.get("improved_json", {})).get(
             "sections", []
         )
         all_texts: list[str] = []

@@ -7,6 +7,8 @@ lint.select = [
   "F",
   # isort
   "I",
+  # for flake8-print
+  "T20"
 ]
 # Ignore `F401` (unused imports) for `__init__.py` file
 lint.per-file-ignores."__init__.py" = [ "F401" ]

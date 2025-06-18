@@ -12,7 +12,7 @@ import os
 from google.adk.agents import Agent, LoopAgent, ParallelAgent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
-from manugen_ai.agents.meta_agent import ResilientToolAgent, SectionWriterAgent
+from manugen_ai.agents.meta_agent import ResilientToolAgent, SectionWriterAgent, StopChecker
 from manugen_ai.tools.tools import exit_loop, fetch_url, json_conforms_to_schema
 from manugen_ai.utils import prepare_ollama_models_for_adk_state
 
@@ -57,42 +57,51 @@ Do NOT include additional descriptive text; only include the JSON.
 Do NOT include the jsonschema provided below as part of your response.
 
 The JSON must conform to this schema:
-{JSON_SCHEMA}
+{json.dumps(JSON_SCHEMA)}
 """,
-    output_key="parse_result",
+    output_key="parsed_json",
 )
 
 agent_validate = Agent(
     model=DRAFT_LLM,
     name="validate_parse",
-    description="Check parse_result JSON against schema; if valid, call tool exit_loop",
+    description="Check JSON against schema and use the completion phrase when it conforms.",
     instruction=f"""
-Use the tool json_conforms_to_schema on
-json:
-```
-{{parse_result}}
-```
-
-with schema:
-```
-{JSON_SCHEMA}
+Use the tool json_conforms_to_schema on json:
+```json
+{{parsed_json}}
 ```
 
-- If it returns true, call tool exit_loop to end the loop.
-- Otherwise, do nothing and let the loop continue.
+with jsonschema:
+```json
+{json.dumps(JSON_SCHEMA)}
+```
+
+- If it returns true, the JSON conforms to the schema and you
+should respond with *exactly* the phrase: "{COMPLETION_PHRASE}" (without quotations).
+- Otherwise, mention that the JSON does not yet conform to the schema.
 
 Do NOT return markdown.
 """,
-    tools=[FunctionTool(func=json_conforms_to_schema), FunctionTool(func=exit_loop)],
-    output_key="parse_result",
+    tools=[FunctionTool(func=json_conforms_to_schema)],
+    output_key="feedback",
 )
 
 agent_repair = Agent(
     model=DRAFT_LLM,
     name="repair_parse",
-    description="Given an invalid JSON in {parse_result}, produce ONLY corrected JSON conforming to the schema.",
+    description="Given an invalid JSON produce ONLY corrected JSON conforming to the schema.",
     instruction=f"""
-The JSON in {{parse_result}} is invalid against the schema {json.dumps(JSON_SCHEMA)}.
+This is some JSON we need to improve to match a schema below:
+```json
+{{parsed_json}} 
+```
+
+Here is the schema the above JSON must abide:
+```json
+{json.dumps(JSON_SCHEMA)}
+```
+
 Please provide ONLY the corrected JSON object (no markdown fences, no extra text) as output,
 so that it fully satisfies the schema.
 Do NOT provide markdown.
@@ -100,8 +109,9 @@ Do NOT provide extra commentary.
 Do NOT wrap the JSON within markdown, e.g. "```" or other similar syntax.
 Do NOT include additional descriptive text; only include the JSON.
 Do NOT return jsonschema.
+**ONLY** return improved JSON which matches the provided schema.
 """,
-    output_key="parse_result",
+    output_key="improved_json",
 )
 
 validate_repair_json = LoopAgent(
@@ -109,6 +119,7 @@ validate_repair_json = LoopAgent(
     sub_agents=[
         ResilientToolAgent(agent_validate, max_retries=3),
         ResilientToolAgent(agent_repair, max_retries=3),
+        StopChecker(context_variable="feedback", completion_phrase=COMPLETION_PHRASE)
     ],
     max_iterations=5,
 )
@@ -160,7 +171,7 @@ agent_draft_section = Agent(
     instruction="""
 You get:
 - section name: {section}
-- parse info: {parse_result}
+- parse info: {improved_json}
 - fetched assets: {assets}
 Compose the markdown for this section, embedding any relevant figure links.
 """,
