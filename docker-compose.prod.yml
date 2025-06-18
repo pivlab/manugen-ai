@@ -11,7 +11,7 @@ services:
 
   frontend:
     environment:
-      - "VITE_API=http://production_domain/api"
+      - "VITE_API=https://production_domain/api"
     command: "bun run build"
     volumes:
       - frontend_dist:/app/dist/
