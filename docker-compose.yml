@@ -19,6 +19,8 @@ services:
       - ./backend/tests/:/app/tests/
     depends_on:
       - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   frontend:
     build:
@@ -43,6 +45,8 @@ services:
     environment:
       - "OLLAMA_API_BASE=http://host.docker.internal:11434"
     command: "uv run manugen /content/"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # session database for ADK
   db:
