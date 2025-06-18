@@ -1,4 +1,4 @@
-manugen-ai.cu-dbmi.dev {
+{$DOMAIN_NAME} {
     # Backend API on port 8000
     handle /api/* {
         reverse_proxy backend:8000
