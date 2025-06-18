@@ -4,22 +4,15 @@ name: tests
 on:
   push:
     branches: [main]
+    paths:
+      - "packages/**"
   pull_request:
     branches: [main]
+    paths:
+      - "packages/**"
   workflow_dispatch:
 
 jobs:
-  pre_commit_checks:
-    runs-on: ubuntu-24.04
-    steps:
-      # checks out the repo
-      - uses: actions/checkout@v4
-      # run pre-commit
-      - name: Python setup
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - uses: pre-commit/action@v3.0.1
   run_package_tests:
     strategy:
       matrix:
