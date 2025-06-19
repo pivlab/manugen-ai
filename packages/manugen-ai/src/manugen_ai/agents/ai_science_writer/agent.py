@@ -964,4 +964,20 @@ manuscript_builder_coordinator_agent = Agent(
     ],
 )
 
+def exit_loop(tool_context: ToolContext):
+  """Call this function ONLY when the critique indicates no further changes are needed, signaling the iterative process should end."""
+  print(f"  [Tool Call] exit_loop triggered by {tool_context.agent_name}")
+  tool_context.actions.escalate = True
+  # Return empty dict as tools should typically return JSON-serializable output
+  return {}
+
+wf_manuscript_builder_coordinator_agent = SequentialAgent(
+    sub_agents=[
+        call_request_interpreter_agent,
+        call_results_agent,
+        call_introduction_agent,
+        call_discussion_agent,
+    ]
+)
+
 root_agent = manuscript_builder_coordinator_agent
