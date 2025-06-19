@@ -11,7 +11,7 @@ MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
 
 
 abstract_agent = Agent(
-    name="abstract_agent",
+    name=f"{ABSTRACT_KEY}_agent",
     model=LiteLlm(model=MODEL_NAME),
     include_contents="none",
     description="Agent expert in drafting or editing the Abstract of a scientific manuscript.",

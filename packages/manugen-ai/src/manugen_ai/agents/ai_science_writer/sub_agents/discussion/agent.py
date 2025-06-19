@@ -10,7 +10,7 @@ from . import prompt
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
 
 discussion_agent = Agent(
-    name="discussion_agent",
+    name=f"{DISCUSSION_KEY}_agent",
     model=LiteLlm(model=MODEL_NAME),
     include_contents="none",
     description="Agent expert in drafting or editing the Discussion section of a scientific manuscript.",
