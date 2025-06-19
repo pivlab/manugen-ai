@@ -4,7 +4,7 @@ from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import ToolContext
 from google.adk.tools.agent_tool import AgentTool
 
-from manugen_ai.utils import prepare_instructions, INSTRUCTIONS_KEY, TITLE_KEY
+from manugen_ai.schema import prepare_instructions, INSTRUCTIONS_KEY, TITLE_KEY
 from . import prompt
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
