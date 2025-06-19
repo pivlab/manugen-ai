@@ -7,6 +7,7 @@ from __future__ import annotations
 import functools
 import itertools
 import os
+import pathlib
 from typing import Any, Callable, Tuple, TypeVar
 
 import requests
@@ -312,3 +313,31 @@ def build_mermaid(root: Any) -> Tuple[str, bytes]:
         headers={"Content-Type": "text/plain"},
     ).content
     return mermaid_src, png
+
+
+def download_file_if_not_available(local_path: str, download_url: str):
+    """
+    Check if a file exists locally;
+    if not, download it from the given URL.
+
+    Args:
+        local_path (str):
+            Path (including filename) where the file should be saved.
+        download_url (str):
+            URL to download the file from.
+    """
+
+    # if the path exists, return it
+    if pathlib.Path(local_path).is_file():
+        return local_path
+
+    # Stream download to avoid loading the entire file into memory
+    with requests.get(download_url, stream=True) as response:
+        response.raise_for_status()
+        with open(local_path, "wb") as file_out:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    file_out.write(chunk)
+
+    # we now have the file so we can return the local path
+    return local_path
