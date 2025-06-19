@@ -195,4 +195,4 @@ cython_debug/
 
 withdrarxiv.parquet
 retraction_watch.csv
-widthdrarxiv_embeddings.duckdb
+withdrarxiv_embeddings.duckdb
