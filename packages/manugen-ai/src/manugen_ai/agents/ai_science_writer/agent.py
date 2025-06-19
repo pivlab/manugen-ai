@@ -39,15 +39,52 @@ from pydantic import BaseModel, Field
 
 class ManuscriptStructure(BaseModel):
     title: str = Field(default="")
-    keywords: str = Field(default="")
+    # keywords: str = Field(default="")
     abstract: str = Field(default="")
     introduction: str = Field(default="")
     results: str = Field(default="")
-    # figures: dict[str, str] = Field(description="Figures IDs (keys) and any metadata (value).")
-    # tables: dict[str, str] = Field(description="Tables IDs (keys) and any metadata (value).")
-    # source_code_files: dict[str, str] = Field(description="Source code file IDs (keys) and any metadata (value).")
     discussion: str = Field(default="")
     methods: str = Field(default="")
+
+INSTRUCTIONS_KEY = "instructions"
+TITLE_KEY = "title"
+# KEYWORDS_KEY = "keywords"
+ABSTRACT_KEY = "abstract"
+INTRODUCTION_KEY = "introduction"
+RESULTS_KEY = "results"
+DISCUSSION_KEY = "discussion"
+METHODS_KEY = "methods"
+
+
+# async def call_manuscript_section_agent(
+#         question: str,
+#         tool_context: ToolContext,
+#         section_key: str,
+#         agent_obj: Agent,
+# ):
+#     """Tool to call an agent."""
+#     
+#     section_key = SOMETHING
+#     agent_obj = SOMETHING
+#     
+#     agent_tool = AgentTool(
+#         agent=agent_obj,
+#         # skip_summarization=True,
+#     )
+# 
+#     agent_output = await agent_tool.run_async(
+#         # args={"request": question},
+#         args={"request": "Follow your original instructions."},
+#         tool_context=tool_context,
+#     )
+#     # save results
+#     tool_context.state[section_key] = agent_output
+# 
+#     # remove current instructions since we already applied them
+#     del tool_context.state[INSTRUCTIONS_KEY][section_key]
+#     tool_context.state[f"{INSTRUCTIONS_KEY}_{section_key}"] = ""
+# 
+#     return agent_output
 
 request_interpreter_agent = Agent(
     name="request_interpreter_agent",
@@ -92,111 +129,103 @@ async def call_request_interpreter_agent(
         args={"request": question},
         tool_context=tool_context
     )
-    tool_context.state["instructions"] = agent_output
+    tool_context.state[INSTRUCTIONS_KEY] = agent_output
     return agent_output
 
 def prepare_instructions(callback_context: CallbackContext) -> Optional[types.Content]:
     current_state = callback_context.state.to_dict()
     
-    key0, key1 = "instructions", "results"
-    if key0 in current_state and key1 in current_state["instructions"]:
-        callback_context.state[f"instructions_{key1}"] = current_state[key0][key1]
+    for key1 in ManuscriptStructure.model_json_schema()["properties"].keys():
+        # set instructions for each manuscript section
+        if INSTRUCTIONS_KEY in current_state and key1 in current_state[INSTRUCTIONS_KEY]:
+            callback_context.state[f"{INSTRUCTIONS_KEY}_{key1}"] = current_state[INSTRUCTIONS_KEY][key1]
 
-    key0, key1 = "instructions", "introduction"
-    if key0 in current_state and key1 in current_state["instructions"]:
-        callback_context.state[f"instructions_{key1}"] = current_state[key0][key1]
-    
-    if "introduction" not in callback_context.state:
-        callback_context.state["introduction"] = ""
-        
-    if "results" not in callback_context.state:
-        callback_context.state["results"] = ""
-    
-    return None
+        # if there is no draft for this section, assign empty string
+        if key1 not in callback_context.state:
+            callback_context.state[key1] = ""
 
-results_agent = Agent(
-    name="results_agent",
+
+title_agent = Agent(
+    name="title_agent",
     model=LiteLlm(model=MODEL_NAME),
     include_contents="none",
-    description="Agent expert in drafting or editing a Results section of a scientific manuscript.",
+    description="Agent expert in drafting or editing the Title of a scientific manuscript.",
     instruction="""
-    You are an expert in drafting or editing the Results section of a scientific manuscript.
+    You are an expert in drafting or editing the Title of a scientific manuscript.
     Your goal is to either:
-    1) Draft the Results section from scratch: if there is no current draft of the Results
-    section, you will draft a Results section from scratch using the user's instructions below;
-    2) Edit an existing Results section: if there is a current draft of the Results section,
-    you will edit it using the user's instructions below.
-    
-    Below you'll find the current draft of the Results section (if present), a rough set of
-    instructions from the user on how to draft it from scratch or edit an existing Results
-    section, the guidelines that you have to follow to correctly structure the Results section,
+    1) Draft the Title from scratch: if there is no current draft of the Title,
+    you will draft a Title from scratch using the user's instructions below and any
+    other relevant section of the manuscript;
+    2) Edit an existing Title: if there is a current draft of the Title,
+    you will edit it using the user's instructions below and any
+    other relevant section of the manuscript.
+
+    Below you'll find the current draft of the Title (if present), a rough set of
+    instructions from the user on how to draft it from scratch or edit an existing Title,
+    the guidelines that you have to follow to correctly structure the Title,
     and any other parts of the manuscript that might be relevant for you (such as the current
-    draft of the Introduction section, etc).
+    draft of the Abstract or Introduction section, etc).
 
     To achieve this, follow this workflow:
-    1. Analyze the rough set of instructions and/or ideas for a Results section that the user
+    1. Analyze the rough set of instructions and/or ideas for the Title that the user
     provided;
-    2. Group the instructions/ideas into a set of declarative statements that will become
-    the headers of subsections within the Results section.
-    3. For each of these subsections, you will follow the guidelines below to convert the rough set
-    of instructions/ideas, into a set of properly structured paragraphs.
+    2. Analyze the current draft of the manuscript;
+    3. Draft a new Title or edit an existing one following the guidelines below.
+
+    # Current draft of the Title (might be empty)
+    ```
+    {title}
+    ```
+
+    # Rough instructions from the user to draft or edit the Title
+    ```
+    {instructions_title}
+    ```
+
+    # Current draft of important manuscript sections (might be empty)
+    ```
+    {title}
     
-    # Current draft of the Results section (might be empty)
-    ```
-    {results}
-    ```
-    
-    # Rough instructions from the user to draft or edit the Results section
-    ```
-    {instructions_results}
-    ```
-    
-    # Current draft of the Introduction section (might be empty)
-    ```
     {introduction}
+    
+    {results}
+    
+    {discussion}
     ```
-    
-    # Guidelines for the Results section
+
+    # Guidelines for the Title
     ```
-    * The Results section should be a sequence of statements, supported by figures (if present),
-    that connect logically to support the central contribution. The results section needs
-    to convince the reader that the central claim (which should be present in Introduction)
-    is supported by data and logic.
+    * The most important element of a paper is the Title. The title is 
+    typically the first element a reader encounters, so its quality determines 
+    whether the reader will invest time in reading the abstract.
     
-    * The first results paragraph is special in that it typically summarizes the 
-    overall approach to the problem outlined in the introduction, along with any key 
-    innovative methods that were developed. Most readers do not read the methods, 
-    so this paragraph gives them the gist of the methods that were used.
-    
-    * Each subsequent paragraph in the results section starts with a sentence or two 
-    that set up the question that the paragraph answers, such as the following: “To 
-    verify that there are no artifacts…,” “What is the test-retest reliability of our 
-    measure?,” or “We next tested whether Ca2+ flux through L-type Ca2+ channels was 
-    involved.” The middle of the paragraph presents data and logic that pertain to 
-    the question, and the paragraph ends with a sentence that answers the question. 
-    For example, it may conclude that none of the potential artifacts were detected. 
-    This structure makes it easy for experienced readers to fact-check a paper. Each 
-    paragraph convinces the reader of the answer given in its last sentence. This 
-    makes it easy to find the paragraph in which a suspicious conclusion is drawn and 
-    to check the logic of that paragraph. The result of each paragraph is a logical 
-    statement, and paragraphs farther down in the text rely on the logical 
-    conclusions of previous paragraphs, much as theorems are built in mathematical 
-    literature.
+    * The Title transmits the manuscript's single, central contribution. 
+
+    * Your communication efforts are successful if readers can still describe the 
+    main contribution of your paper to their colleagues a year after reading it. 
+    Although it is clear that a paper often needs to communicate a number of 
+    innovations on the way to its final message, it does not pay to be greedy. Focus 
+    on a single message; papers that simultaneously focus on multiple contributions 
+    tend to be less convincing about each and are therefore less memorable.
     ```
-    
+
     # Output
-    Output only the Results section. If not specified, use Markdown. Do not provide any explanation.
+    Output only the Title. If not specified, use Markdown for formatting (if needed).
+    Do not provide any explanation.
     """.strip(),
     before_agent_callback=prepare_instructions,
     # output_key="results",
 )
-async def call_results_agent(
-    question: str,
-    tool_context: ToolContext,
+async def call_title_agent(
+        question: str,
+        tool_context: ToolContext,
 ):
-    """Tool to call the results_agent."""
+    """Tool to call the title_agent."""
+    section_key = TITLE_KEY
+    agent_obj = title_agent
+
     agent_tool = AgentTool(
-        agent=results_agent,
+        agent=agent_obj,
         # skip_summarization=True,
     )
 
@@ -206,13 +235,130 @@ async def call_results_agent(
         tool_context=tool_context,
     )
     # save results
-    tool_context.state["results"] = agent_output
-    
+    tool_context.state[section_key] = agent_output
+
     # remove current instructions since we already applied them
-    del tool_context.state["instructions"]["results"]
-    tool_context.state["instructions_results"] = ""
-    
+    del tool_context.state[INSTRUCTIONS_KEY][section_key]
+    tool_context.state[f"{INSTRUCTIONS_KEY}_{section_key}"] = ""
+
     return agent_output
+
+
+abstract_agent = Agent(
+    name="abstract_agent",
+    model=LiteLlm(model=MODEL_NAME),
+    include_contents="none",
+    description="Agent expert in drafting or editing the Abstract of a scientific manuscript.",
+    instruction="""
+    You are an expert in drafting or editing the Abstract of a scientific manuscript.
+    Your goal is to either:
+    1) Draft the Abstract from scratch: if there is no current draft of the Abstract,
+    you will draft an Abstract from scratch using the user's instructions below and any
+    other relevant section of the manuscript;
+    2) Edit an existing Abstract: if there is a current draft of the Abstract,
+    you will edit it using the user's instructions below and any
+    other relevant section of the manuscript;
+
+    Below you'll find the current draft of the Abstract (if present), a rough set of
+    instructions from the user on how to draft it from scratch or edit an existing Abstract,
+    the guidelines that you have to follow to correctly structure the Abstract,
+    and any other parts of the manuscript that might be relevant for you (such as the current
+    draft of the Introduction or Results section, etc).
+
+    To achieve this, follow this workflow:
+    1. Analyze the rough set of instructions and/or ideas for the Abstract that the user
+    provided;
+    2. Analyze the current draft of the manuscript;
+    3. Draft a new Abstract or edit an existing one following the guidelines below.
+
+    # Current draft of the Abstract (might be empty)
+    ```
+    {abstract}
+    ```
+
+    # Rough instructions from the user to draft or edit the Abstract
+    ```
+    {instructions_abstract}
+    ```
+
+    # Current draft of important manuscript sections (might be empty)
+    ```
+    {title}
+    
+    {introduction}
+
+    {results}
+    
+    {discussion}
+    ```
+
+    # Guidelines for the Abstract
+    ```
+    * The abstract is, for most readers, the only part of the paper that will be 
+    read. This means that the abstract must convey the entire message of the paper 
+    effectively. To serve this purpose, the abstract’s structure is highly conserved. 
+    Each of the Context-Content-Conclusion scheme (C-C-C) elements is detailed below.
+    
+    * The context must communicate to the reader what gap the paper will fill. The 
+    first sentence orients the reader by introducing the broader field in which the 
+    particular research is situated. Then, this context is narrowed until it lands on 
+    the open question that the research answered. A successful context section sets 
+    the stage for distinguishing the paper’s contributions from the current state of 
+    the art by communicating what is missing in the literature (i.e., the specific 
+    gap) and why that matters (i.e., the connection between the specific gap and the 
+    broader context that the paper opened with).
+
+    * The content (“Here we”) first describes the novel method or approach that you 
+    used to fill the gap or question. Then you present the meat—your executive 
+    summary of the results.
+
+    * Finally, the conclusion interprets the results to answer the question that was 
+    posed at the end of the context section. There is often a second part to the 
+    conclusion section that highlights how this conclusion moves the broader field 
+    forward (i.e., “broader significance”). This is particularly true for more 
+    “general” journals with a broad readership.
+
+    * The broad-narrow-broad structure allows you to communicate with a wider 
+    readership (through breadth) while maintaining the credibility of your claim (
+    which is always based on a finite or narrow set of results).
+    ```
+
+    # Output
+    Output only the Abstract. If not specified, use Markdown for formatting (if needed).
+    Do not provide any explanation.
+    """.strip(),
+    before_agent_callback=prepare_instructions,
+    # output_key="results",
+)
+
+
+async def call_abstract_agent(
+        question: str,
+        tool_context: ToolContext,
+):
+    """Tool to call the abstract_agent."""
+    section_key = ABSTRACT_KEY
+    agent_obj = abstract_agent
+
+    agent_tool = AgentTool(
+        agent=agent_obj,
+        # skip_summarization=True,
+    )
+
+    agent_output = await agent_tool.run_async(
+        # args={"request": question},
+        args={"request": "Follow your original instructions."},
+        tool_context=tool_context,
+    )
+    # save results
+    tool_context.state[section_key] = agent_output
+
+    # remove current instructions since we already applied them
+    del tool_context.state[INSTRUCTIONS_KEY][section_key]
+    tool_context.state[f"{INSTRUCTIONS_KEY}_{section_key}"] = ""
+
+    return agent_output
+
 
 introduction_agent = Agent(
     name="introduction_agent",
@@ -223,9 +369,11 @@ introduction_agent = Agent(
     You are an expert in drafting the Introduction section of a scientific manuscript.
     Your goal is to either:
     1) Draft the Introduction section from scratch: if there is no current draft of the Introduction
-    section, you will draft a Introduction section from scratch using the user's instructions below;
+    section, you will draft a Introduction section from scratch using the user's instructions below and any
+    other relevant section of the manuscript;
     2) Edit an existing Introduction section: if there is a current draft of the Introduction section,
-    you will edit it using the user's instructions below.
+    you will edit it using the user's instructions below and any
+    other relevant section of the manuscript.
     
     Below you'll find the current draft of the Introduction section (if present), a rough set of
     instructions from the user on how to draft it from scratch or edit an existing Introduction
@@ -256,8 +404,12 @@ introduction_agent = Agent(
     {instructions_introduction}
     ```
 
-    # Current draft of the Results section (might be empty)
+    # Current draft of important manuscript sections (might be empty)
     ```
+    {title}
+    
+    {abstract}
+    
     {results}
     ```
 
@@ -298,17 +450,22 @@ introduction_agent = Agent(
     ```
 
     # Output
-    Output only the Introduction section. If not specified, use Markdown. Do not provide any explanation.
+    Output only the Introduction section. If not specified, use Markdown for formatting.
+    Do not provide any explanation.
     """.strip(),
     before_agent_callback=prepare_instructions,
     # output_key="introduction",
 )
 async def call_introduction_agent(
-    question: str,
-    tool_context: ToolContext,
+        question: str,
+        tool_context: ToolContext,
 ):
+    """Tool to call the introduction_agent."""
+    section_key = INTRODUCTION_KEY
+    agent_obj = introduction_agent
+
     agent_tool = AgentTool(
-        agent=introduction_agent,
+        agent=agent_obj,
         # skip_summarization=True,
     )
 
@@ -318,23 +475,371 @@ async def call_introduction_agent(
         tool_context=tool_context,
     )
     # save results
-    tool_context.state["introduction"] = agent_output
+    tool_context.state[section_key] = agent_output
 
     # remove current instructions since we already applied them
-    del tool_context.state["instructions"]["introduction"]
-    tool_context.state["instructions_introduction"] = ""
-    
+    del tool_context.state[INSTRUCTIONS_KEY][section_key]
+    tool_context.state[f"{INSTRUCTIONS_KEY}_{section_key}"] = ""
+
     return agent_output
 
-# sequential_manuscript_builder_agent = SequentialAgent(
-#     name="scientific_article_writer",
-#     description="Writes a scientific article sequentially.",
-#     sub_agents=[
-#         request_interpreter_agent,
-#         results_agent,
-#         introduction_agent,
-#     ],
-# )
+
+results_agent = Agent(
+    name="results_agent",
+    model=LiteLlm(model=MODEL_NAME),
+    include_contents="none",
+    description="Agent expert in drafting or editing a Results section of a scientific manuscript.",
+    instruction="""
+    You are an expert in drafting or editing the Results section of a scientific manuscript.
+    Your goal is to either:
+    1) Draft the Results section from scratch: if there is no current draft of the Results
+    section, you will draft a Results section from scratch using the user's instructions below and any
+    other relevant section of the manuscript;
+    2) Edit an existing Results section: if there is a current draft of the Results section,
+    you will edit it using the user's instructions below and any
+    other relevant section of the manuscript.
+
+    Below you'll find the current draft of the Results section (if present), a rough set of
+    instructions from the user on how to draft it from scratch or edit an existing Results
+    section, the guidelines that you have to follow to correctly structure the Results section,
+    and any other parts of the manuscript that might be relevant for you (such as the current
+    draft of the Introduction section, etc).
+
+    To achieve this, follow this workflow:
+    1. Analyze the rough set of instructions and/or ideas for the Results section that the user
+    provided;
+    2. Group the instructions/ideas into a set of declarative statements that will become
+    the headers of subsections within the Results section.
+    3. For each of these subsections, you will follow the guidelines below to convert the rough set
+    of instructions/ideas, into a set of properly structured paragraphs.
+
+    # Current draft of the Results section (might be empty)
+    ```
+    {results}
+    ```
+
+    # Rough instructions from the user to draft or edit the Results section
+    ```
+    {instructions_results}
+    ```
+
+    # Current draft of important manuscript sections (might be empty)
+    ```
+    {title}
+    
+    {abstract}
+    
+    {introduction}
+    ```
+
+    # Guidelines for the Results section
+    ```
+    * The Results section should be a sequence of statements, supported by figures (if present),
+    that connect logically to support the central contribution. The results section needs
+    to convince the reader that the central claim (which should be present in Introduction)
+    is supported by data and logic.
+
+    * The first results paragraph is special in that it typically summarizes the 
+    overall approach to the problem outlined in the introduction, along with any key 
+    innovative methods that were developed. Most readers do not read the methods, 
+    so this paragraph gives them the gist of the methods that were used.
+
+    * Each subsequent paragraph in the results section starts with a sentence or two 
+    that set up the question that the paragraph answers, such as the following: “To 
+    verify that there are no artifacts…,” “What is the test-retest reliability of our 
+    measure?,” or “We next tested whether Ca2+ flux through L-type Ca2+ channels was 
+    involved.” The middle of the paragraph presents data and logic that pertain to 
+    the question, and the paragraph ends with a sentence that answers the question. 
+    For example, it may conclude that none of the potential artifacts were detected. 
+    This structure makes it easy for experienced readers to fact-check a paper. Each 
+    paragraph convinces the reader of the answer given in its last sentence. This 
+    makes it easy to find the paragraph in which a suspicious conclusion is drawn and 
+    to check the logic of that paragraph. The result of each paragraph is a logical 
+    statement, and paragraphs farther down in the text rely on the logical 
+    conclusions of previous paragraphs, much as theorems are built in mathematical 
+    literature.
+    ```
+
+    # Output
+    Output only the Results section. If not specified, use Markdown for formatting.
+    Do not provide any explanation.
+    """.strip(),
+    before_agent_callback=prepare_instructions,
+    # output_key="results",
+)
+
+
+async def call_results_agent(
+        question: str,
+        tool_context: ToolContext,
+):
+    """Tool to call the results_agent."""
+    section_key = RESULTS_KEY
+    agent_obj = results_agent
+
+    agent_tool = AgentTool(
+        agent=agent_obj,
+        # skip_summarization=True,
+    )
+
+    agent_output = await agent_tool.run_async(
+        # args={"request": question},
+        args={"request": "Follow your original instructions."},
+        tool_context=tool_context,
+    )
+    # save results
+    tool_context.state[section_key] = agent_output
+
+    # remove current instructions since we already applied them
+    del tool_context.state[INSTRUCTIONS_KEY][section_key]
+    tool_context.state[f"{INSTRUCTIONS_KEY}_{section_key}"] = ""
+
+    return agent_output
+
+
+discussion_agent = Agent(
+    name="discussion_agent",
+    model=LiteLlm(model=MODEL_NAME),
+    include_contents="none",
+    description="Agent expert in drafting or editing the Discussion section of a scientific manuscript.",
+    instruction="""
+    You are an expert in drafting or editing the Discussion section of a scientific manuscript.
+    Your goal is to either:
+    1) Draft the Discussion from scratch: if there is no current draft of the Discussion,
+    you will draft a Discussion from scratch using the user's instructions below and any
+    other relevant section of the manuscript;
+    2) Edit an existing Discussion: if there is a current draft of the Discussion,
+    you will edit it using the user's instructions below and any
+    other relevant section of the manuscript;
+
+    Below you'll find the current draft of the Discussion (if present), a rough set of
+    instructions from the user on how to draft it from scratch or edit an existing Discussion,
+    the guidelines that you have to follow to correctly structure the Discussion,
+    and any other parts of the manuscript that might be relevant for you (such as the current
+    draft of the Introduction or Results section, etc).
+
+    To achieve this, follow this workflow:
+    1. Analyze the rough set of instructions and/or ideas for the Discussion that the user
+    provided;
+    2. Analyze the current draft of the manuscript;
+    3. Draft a new Discussion or edit an existing one following the guidelines below.
+
+    # Current draft of the Discussion (might be empty)
+    ```
+    {discussion}
+    ```
+
+    # Rough instructions from the user to draft or edit the Discussion
+    ```
+    {instructions_discussion}
+    ```
+
+    # Current draft of important manuscript sections (might be empty)
+    ```
+    {title}
+    
+    {abstract}
+
+    {introduction}
+
+    {results}
+    ```
+
+    # Guidelines for the Discussion
+    ```
+    * The discussion section explains how the results have filled the gap that was 
+    identified in the introduction, provides caveats to the interpretation, 
+    and describes how the paper advances the field by providing new opportunities. 
+    This is typically done by recapitulating the results, discussing the limitations, 
+    and then revealing how the central contribution may catalyze future progress.
+    
+    * The first discussion paragraph is special in that it generally summarizes the 
+    important findings from the results section. Some readers skip over substantial 
+    parts of the results, so this paragraph at least gives them the gist of that 
+    section.
+    
+    * Each of the following paragraphs in the discussion section starts by describing 
+    an area of weakness or strength of the paper. It then evaluates the strength or 
+    weakness by linking it to the relevant literature. Discussion paragraphs often 
+    conclude by describing a clever, informal way of perceiving the contribution or 
+    by discussing future directions that can extend the contribution.
+
+    * For example, the first paragraph may summarize the results, focusing on their 
+    meaning. The second through fourth paragraphs may deal with potential weaknesses 
+    and with how the literature alleviates concerns or how future experiments can 
+    deal with these weaknesses. The fifth paragraph may then culminate in a 
+    description of how the paper moves the field forward. Step by step, the reader 
+    thus learns to put the paper’s conclusions into the right context.
+    ```
+
+    # Output
+    Output only the Discussion section. If not specified, use Markdown for formatting.
+    Do not provide any explanation.
+    """.strip(),
+    before_agent_callback=prepare_instructions,
+    # output_key="results",
+)
+
+
+async def call_discussion_agent(
+        question: str,
+        tool_context: ToolContext,
+):
+    """Tool to call the discussion_agent."""
+    section_key = DISCUSSION_KEY
+    agent_obj = discussion_agent
+
+    agent_tool = AgentTool(
+        agent=agent_obj,
+        # skip_summarization=True,
+    )
+
+    agent_output = await agent_tool.run_async(
+        # args={"request": question},
+        args={"request": "Follow your original instructions."},
+        tool_context=tool_context,
+    )
+    # save results
+    tool_context.state[section_key] = agent_output
+
+    # remove current instructions since we already applied them
+    del tool_context.state[INSTRUCTIONS_KEY][section_key]
+    tool_context.state[f"{INSTRUCTIONS_KEY}_{section_key}"] = ""
+
+    return agent_output
+
+
+methods_agent = Agent(
+    name="methods_agent",
+    model=LiteLlm(model=MODEL_NAME),
+    include_contents="none",
+    description="Agent expert in drafting or editing the Methods section of a scientific manuscript.",
+    instruction="""
+    You are an expert in drafting or editing the Methods section of a scientific manuscript.
+    Your goal is to either:
+    1) Draft the Methods from scratch: if there is no current draft of the Methods,
+    you will draft a Methods from scratch using the user's instructions below and any
+    other relevant section of the manuscript;
+    2) Edit an existing Methods: if there is a current draft of the Methods,
+    you will edit it using the user's instructions below and any
+    other relevant section of the manuscript;
+
+    Below you'll find the current draft of the Methods (if present), a rough set of
+    instructions from the user on how to draft it from scratch or edit an existing Methods,
+    the guidelines that you have to follow to correctly structure the Methods,
+    and any other parts of the manuscript that might be relevant for you (such as the current
+    draft of the Results section, etc).
+
+    To achieve this, follow this workflow:
+    1. Analyze the rough set of instructions and/or ideas for the Methods that the user
+    provided;
+    2. Analyze the current draft of the manuscript;
+    3. Draft a new Methods or edit an existing one following the guidelines below.
+
+    # Current draft of the Methods (might be empty)
+    ```
+    {methods}
+    ```
+
+    # Rough instructions from the user to draft or edit the Methods
+    ```
+    {instructions_methods}
+    ```
+
+    # Current draft of important manuscript sections (might be empty)
+    ```
+    {title}
+
+    {abstract}
+
+    {results}
+    ```
+
+    # Guidelines for the Methods
+    ```
+    * The methods section of a research paper provides the information by which a 
+    study's validity is judged. Therefore, it requires a clear and precise 
+    description of how an experiment was done, and the rationale for why specific 
+    experimental procedures were chosen. The methods section should describe what was 
+    done to answer the research question, describe how it was done, justify the 
+    experimental design, and explain how the results were analyzed.
+    
+    * The structure of the Methods section depends on the type of paper. Some potential
+    subsections are described below (but they might not be needed in all types manuscript): 
+    
+        * Overview of Study Design. Briefly state the overall approach (e.g., randomized 
+        controlled trial, observational cohort, in vitro assay). Highlight essential 
+        design elements—prospective vs. retrospective, parallel vs. crossover, controlled 
+        vs. uncontrolled.
+        
+        * Datasets, participants, samples. Population: inclusion/exclusion criteria, 
+        recruitment source. Sample size: justification or power calculation. Ethics: 
+        IRB/IACUC approval number and informed‐consent procedures. Source: vendors, 
+        catalog numbers, lot numbers. Preparation: any pre‐treatment, storage 
+        conditions, handling.
+        
+        * Equipment and Reagents. Instrumentation: make/model, software versions. 
+        Reagents: manufacturer, purity, concentrations/preparation. If multiple 
+        assays, group reagents by assay in subsections.
+        
+        * Procedures and Protocols. Structure this in chronological order or by 
+        logical grouping: Primary Intervention or Treatment (Dose, timing, 
+        administration route). Data Collection Steps (Behavioral tasks, 
+        sample collection times, imaging parameters). Quality Control (
+        Blinding/randomization methods; Calibration, validation of equipment). Use 
+        sub-headings or numbered lists so each step is clear.
+        
+        * Data Analysis. Statistical methods: specify tests (e.g., ANOVA, 
+        regression), software (e.g., R 4.2, SPSS v28). Handling of missing data: 
+        imputation methods, exclusions. Significance thresholds: alpha level, 
+        multiple comparisons correction.
+        
+        * Reproducibility and Transparency. Data availability: repositories, 
+        accession numbers. Code availability: scripts, version control links. 
+        Protocol registration: clinicaltrials.gov ID or preregistration DOI.
+        
+    * Style and Tone Tips: Past tense (e.g., “Samples were incubated…”). Precision: 
+    give exact volumes, times, and temperatures. Clarity: avoid jargon; define any 
+    uncommon abbreviation at first use. Self-contained: every reagent or piece of 
+    equipment needed to reproduce should be listed here or in a table.
+    ```
+
+    # Output
+    Output only the Methods section. If not specified, use Markdown for formatting.
+    Do not provide any explanation.
+    """.strip(),
+    before_agent_callback=prepare_instructions,
+    # output_key="results",
+)
+
+
+async def call_methods_agent(
+        question: str,
+        tool_context: ToolContext,
+):
+    """Tool to call the methods_agent."""
+    section_key = METHODS_KEY
+    agent_obj = methods_agent
+
+    agent_tool = AgentTool(
+        agent=agent_obj,
+        # skip_summarization=True,
+    )
+
+    agent_output = await agent_tool.run_async(
+        # args={"request": question},
+        args={"request": "Follow your original instructions."},
+        tool_context=tool_context,
+    )
+    # save results
+    tool_context.state[section_key] = agent_output
+
+    # remove current instructions since we already applied them
+    del tool_context.state[INSTRUCTIONS_KEY][section_key]
+    tool_context.state[f"{INSTRUCTIONS_KEY}_{section_key}"] = ""
+
+    return agent_output
+
 
 manuscript_assembler_agent = Agent(
     name="manuscript_assembler_agent",
@@ -379,16 +884,6 @@ async def call_manuscript_assembler_agent(
     # tool_context.state["introduction"] = agent_output
     return agent_output
 
-# greeting_agent = Agent(
-#     name="greeting_agent",
-#     model=LiteLlm(model=MODEL_NAME),
-#     description="Handles user requests that are not related to a scientific manuscript.",
-#     instruction="""
-#     You are the Greeting Agent. Your ONLY task is to provide a friendly and
-#     brief response to the user and ask for more specific instructions about a scientific
-#     manuscript. Do nothing else.
-#     """.strip(),
-# )
 
 manuscript_builder_coordinator_agent = Agent(
     name="manuscript_builder_coordinator_agent",
@@ -398,7 +893,7 @@ manuscript_builder_coordinator_agent = Agent(
                 "from the user.",
     instruction=f"""
     You are an expert in coordinating a team to write a scientific manuscript that is composed
-    of different sections such as Title, Keywords, Abstract, Introduction, Results, Discussion,
+    of different sections such as Title, Abstract, Introduction, Results, Discussion,
     Methods, etc.
     Your ONLY goal is to coordinate a team of agents/tools with specific skills to draft or edit a scientific
     manuscript.
@@ -412,10 +907,22 @@ manuscript_builder_coordinator_agent = Agent(
     manuscript's sections as keys and the subrequests/ideas for each section as values.
     If the value for a key/section is not empty, it means that the user has a requested changes for
     that section, and you should call a specialized agent to draft that section.
+    * 'title_agent': it helps you draft or edit the Title of the
+    manuscript. You should always call this agent if the user has
+    requested changes that impact this section.
+    * 'abstract_agent': it helps you draft or edit the Abstract of the
+    manuscript. You should always call this agent if the user has
+    requested changes that impact this section.
     * 'introduction_agent': it helps you draft or edit the Introduction section of the
     manuscript. You should always call this agent if the user has
     requested changes that impact this section.
     * 'results_agent': it helps you draft or edit the Results section of the
+    manuscript. You should always call this agent if the user has
+    requested changes that impact this section.
+    * 'discussion_agent': it helps you draft or edit the Discussion section of the
+    manuscript. You should always call this agent if the user has
+    requested changes that impact this section.
+    * 'methods_agent': it helps you draft or edit the Methods section of the
     manuscript. You should always call this agent if the user has
     requested changes that impact this section.
     * `manuscript_assembler_agent`: it helps you assemble the final manuscript with all its
@@ -445,21 +952,16 @@ manuscript_builder_coordinator_agent = Agent(
     IN ANY WAY this manuscript draft, just show it to the user.
     """.strip(),
     tools=[
-        # AgentTool(agent=request_interpreter_agent, skip_summarization=True),
         call_request_interpreter_agent,
+        call_title_agent,
+        # call_keywords_agent,
+        call_abstract_agent,
         call_introduction_agent,
         call_results_agent,
+        call_discussion_agent,
+        call_methods_agent,
         call_manuscript_assembler_agent,
-        # AgentTool(agent=introduction_agent, skip_summarization=True),
-        # AgentTool(agent=results_agent, skip_summarization=True),
-        # AgentTool(agent=manuscript_assembler_agent, skip_summarization=True),
     ],
-    # sub_agents=[
-    #     # request_interpreter_agent,
-    #     # introduction_agent,
-    #     # results_agent,
-    #     # manuscript_assembler_agent,
-    # ],
 )
 
 root_agent = manuscript_builder_coordinator_agent
