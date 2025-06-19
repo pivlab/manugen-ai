@@ -1,18 +1,28 @@
 import os
-import json
 from google.adk import Agent
 from google.adk.models.lite_llm import LiteLlm
-from google.adk.tools import ToolContext
-from google.adk.tools.agent_tool import AgentTool
 
 from manugen_ai.schema import ManuscriptStructure
 from . import prompt
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
+model_api_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
+
+if MODEL_NAME.startswith(("ollama",)):
+    MODEL_NAME = MODEL_NAME.replace("ollama", "openai")
+
+    if not model_api_base.endswith("/v1"):
+        model_api_base += "/v1"
+
+    os.environ["OPENAI_API_BASE"] = model_api_base
+    os.environ["OPENAI_API_KEY"] = "unused"
 
 request_interpreter_agent = Agent(
     name="request_interpreter_agent",
-    model=LiteLlm(model=MODEL_NAME),
+    model=LiteLlm(
+        model=MODEL_NAME,
+        response_format=ManuscriptStructure,
+    ),
     # include_contents="none",
     description="It interprets the user's input/request, extracts subrequests/ideas from it and assign them to specific sections of the scientific manuscript.",
     instruction=prompt.PROMPT,
