@@ -1,5 +1,5 @@
 """
-An agent workflow to enhance content based on 
+An agent workflow to enhance content based on
 insights from related retraction notices to the
 content supplied to the agents. We use a RAG-based
 approach, using embeddings to retrieve relevant
@@ -9,21 +9,22 @@ provided by the user.
 """
 
 from __future__ import annotations
+
 import os
 
 from google.adk.agents import Agent, LoopAgent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 from manugen_ai.agents.meta_agent import ResilientToolAgent
-from manugen_ai.tools.tools import parse_list, openalex_query
 from manugen_ai.data import search_withdrarxiv_embeddings
+from manugen_ai.tools.tools import openalex_query, parse_list
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
 LLM = LiteLlm(model=MODEL_NAME)
 
 # Tools
 parse_list_tool = FunctionTool(func=parse_list)
-openalex_tool   = FunctionTool(func=openalex_query)
+openalex_tool = FunctionTool(func=openalex_query)
 
 # RAG-specific embedding & retraction tool
 embeddings_function = FunctionTool(
@@ -85,7 +86,7 @@ You get a revised draft:
 ```
 {enhanced_draft}
 ```
-Please return *only* the enhanced_draft text without 
+Please return *only* the enhanced_draft text without
 additional commentary or markdown formatting.
 Clean it up so that we only have the draft content in a similar format to what
 was provided in the user prompt.
@@ -101,14 +102,16 @@ please remove them from the output.
 rag_loop = LoopAgent(
     name="rag_retrieval_loop",
     description="Loop to synthesize abstract and retrieve retractions",
-    sub_agents=[agent_synthesize_abstract, agent_fetch_retractions, agent_improve_draft],
+    sub_agents=[
+        agent_synthesize_abstract,
+        agent_fetch_retractions,
+        agent_improve_draft,
+    ],
     max_iterations=2,
 )
 
 root_agent = SequentialAgent(
     name="rag_retrieval_pipeline",
     description="Finalize the improved draft from `enhanced_draft`",
-    sub_agents=[rag_loop, agent_finalize_improvements]
-    )
-
-
+    sub_agents=[rag_loop, agent_finalize_improvements],
+)
