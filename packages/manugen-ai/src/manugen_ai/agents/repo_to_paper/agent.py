@@ -29,7 +29,7 @@ from manugen_ai.utils import prepare_ollama_models_for_adk_state
 # preconfigure ollama for use with google-adk
 prepare_ollama_models_for_adk_state()
 
-GENERAL_MODEL_NAME = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/llama3.2:3b")
+GENERAL_MODEL_NAME = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/command-r")
 CODE_SPECIALIST_MODEL_NAME = os.environ.get(
     "MAI_CODE_SPECIALIST_MODEL_NAME", "openai/mistral-small"
 )
