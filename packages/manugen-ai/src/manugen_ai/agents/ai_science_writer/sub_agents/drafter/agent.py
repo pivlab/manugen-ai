@@ -20,9 +20,9 @@ from ..methods import methods_agent
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class ManuscriptDrafterAgent(BaseAgent):
+class SectionDrafterAgent(BaseAgent):
     """
-    Custom agent for drafting a scientific manuscript.
+    Custom agent for drafting sections of a scientific manuscript.
 
     This agent orchestrates a sequence of LLM agents to draft the different sections
     of a scientific manuscript.
@@ -194,10 +194,10 @@ class ManuscriptDrafterAgent(BaseAgent):
         #     pass
     
         logger.info(f"[{self.name}] Workflow finished.")
-        
-        
-drafter_agent = ManuscriptDrafterAgent(
-    name="drafter_agent",
+
+
+section_drafter_agent = SectionDrafterAgent(
+    name="section_drafter_agent",
     title_agent=title_agent,
     abstract_agent=abstract_agent,
     introduction_agent=introduction_agent,
