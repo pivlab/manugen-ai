@@ -12,7 +12,6 @@ import requests
 from google.adk.agents import LoopAgent, ParallelAgent, SequentialAgent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
-
 from google.genai import types
 
 
