@@ -1,21 +1,30 @@
 # 1) Install required packages (run once in your environment)
 #    !pip install duckdb transformers FlagEmbedding polars
 
+import logging
+import pathlib
+
 import duckdb
 import numpy as np
 import pyarrow as pa
 import torch
 from FlagEmbedding import BGEM3FlagModel
-import logging
-import pathlib
+
+from manugen_ai.utils import download_file_if_not_available
 
 # avoid warnings from transformers
 logging.getLogger("transformers").setLevel(logging.ERROR)
 
 # set device and model for data work
-DEVICE = "cuda" if torch.cuda.is_available() else \
-          "mps"  if torch.backends.mps.is_available() else "cpu"
-EMBEDDING_MODEL = BGEM3FlagModel('BAAI/bge-m3', use_fp16=True, device=DEVICE)
+DEVICE = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps"
+    if torch.backends.mps.is_available()
+    else "cpu"
+)
+EMBEDDING_MODEL = BGEM3FlagModel("BAAI/bge-m3", use_fp16=True, device=DEVICE)
+
 
 def embed(text: str) -> np.ndarray:
     """
@@ -38,114 +47,122 @@ def embed(text: str) -> np.ndarray:
     return vec.astype(np.float32)
 
 
-def create_withdrarxiv_embeddings(target_db: str = "withdrarxiv_embeddings.duckdb", ) -> str:
-  """
-  Create and store vector embeddings for the withdrarxiv dataset in a
-  DuckDB database.
-
-  This function loads paper metadata from a Parquet file, filters out
-  certain categories, computes dense vector embeddings for each abstract
-  using a FlagEmbedding model, and stores the results in a DuckDB
-  database. Embeddings are computed in batches and stored in a separate
-  table for efficient retrieval and similarity search.
-
-  Args:
-      target_db (str, optional): Path to the DuckDB database where
-          embeddings will be stored. Defaults to
-          "src/manugen_ai/data/withdrarxiv_embeddings.duckdb".
-
-  Returns:
-      str: The path to the DuckDB database containing the paper metadata
-          and embeddings.
-
-  Notes:
-      - The Parquet data must be downloaded manually due to Hugging Face
-        download restrictions.
-      - Download link:
-        https://huggingface.co/datasets/darpa-scify/withdrarxiv/
-      - Only papers not in the categories 'subsumed by another
-        publication' or 'reason not specified' are included.
-      - Embeddings are computed using the BAAI/bge-m3 model with device
-        auto-detection.
-
-  Example:
-      >>> db_path = create_withdrarxiv_embeddings()
-      >>> print(f"Embeddings stored in: {db_path}")
+def create_withdrarxiv_embeddings(
+    target_db: str = "withdrarxiv_embeddings.duckdb",
+) -> str:
     """
-  # Connect to (or create) your DuckDB database
-  conn = duckdb.connect(str(pathlib.Path(__file__).parent / "data" / target_db))
+    Create and store vector embeddings for the withdrarxiv dataset in a
+    DuckDB database.
 
-  # The data are preloaded manually due to download restrictions
-  # from huggingface.
-  # Download is available from:
-  # https://huggingface.co/datasets/darpa-scify/withdrarxiv/
-  # resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet?download=true
-  parquet_path = str(pathlib.Path(__file__).parent / "data" / "withdrarxiv.parquet")
+    This function loads paper metadata from a Parquet file, filters out
+    certain categories, computes dense vector embeddings for each abstract
+    using a FlagEmbedding model, and stores the results in a DuckDB
+    database. Embeddings are computed in batches and stored in a separate
+    table for efficient retrieval and similarity search.
 
-  # Create a DuckDB table "papers" from your Parquet
-  conn.execute(f"""
-  CREATE OR REPLACE TABLE papers AS
-  SELECT
-    arxiv_id,
-    title,
-    abstract,
-    subjects,
-    scrubbed_comments,
-    category
-  FROM read_parquet('{parquet_path}')
-  WHERE category not in 
-    ('subsumed by another publication',
-    'reason not specified')
-  """)
+    Args:
+        target_db (str, optional): Path to the DuckDB database where
+            embeddings will be stored. Defaults to
+            "src/manugen_ai/data/withdrarxiv_embeddings.duckdb".
 
-  # Load the FlagEmbedding model (or swap in your own)
-  device = "cuda" if torch.cuda.is_available() else \
-          "mps"  if torch.backends.mps.is_available() else "cpu"
-  model = BGEM3FlagModel('BAAI/bge-m3', use_fp16=True, device=device)
+    Returns:
+        str: The path to the DuckDB database containing the paper metadata
+            and embeddings.
 
-  conn.execute("""
-  CREATE OR REPLACE TABLE embeddings (
-    arxiv_id VARCHAR,
-    embedding FLOAT[1024]
-  );
-  """)
+    Notes:
+        - The Parquet data must be downloaded manually due to Hugging Face
+          download restrictions.
+        - Download link:
+          https://huggingface.co/datasets/darpa-scify/withdrarxiv/
+        - Only papers not in the categories 'subsumed by another
+          publication' or 'reason not specified' are included.
+        - Embeddings are computed using the BAAI/bge-m3 model with device
+          auto-detection.
 
-  conn.create_function("embed", embed, [duckdb.typing.VARCHAR], "FLOAT[1024]")
+    Example:
+        >>> db_path = create_withdrarxiv_embeddings()
+        >>> print(f"Embeddings stored in: {db_path}")
+    """
+    # Connect to (or create) your DuckDB database
+    conn = duckdb.connect(str(pathlib.Path(__file__).parent / "data" / target_db))
 
-  # Batch-compute embeddings for every abstract
-  batch_size = 100
-  conn.cursor()
-  while True:
-    batch_table = conn.execute(f"""
+    # The data are preloaded manually due to download restrictions
+    # from huggingface.
+    # Download is available from:
+    # https://huggingface.co/datasets/darpa-scify/withdrarxiv/
+    # resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet?download=true
+    parquet_path = str(pathlib.Path(__file__).parent / "data" / "withdrarxiv.parquet")
+
+    # Create a DuckDB table "papers" from your Parquet
+    conn.execute(
+        f"""
+        CREATE OR REPLACE TABLE papers AS
+        SELECT
+          arxiv_id,
+          title,
+          abstract,
+          subjects,
+          scrubbed_comments,
+          category
+        FROM read_parquet('{parquet_path}')
+        WHERE category not in
+          ('subsumed by another publication',
+          'reason not specified')
+        """
+    )
+
+    conn.execute(
+        """
+        CREATE OR REPLACE TABLE embeddings (
+          arxiv_id VARCHAR,
+          embedding FLOAT[1024]
+        );
+        """
+    )
+
+    conn.create_function("embed", embed, [duckdb.typing.VARCHAR], "FLOAT[1024]")
+
+    # Batch-compute embeddings for every abstract
+    batch_size = 100
+    conn.cursor()
+    while True:
+        batch_table = conn.execute(
+            f"""
         SELECT arxiv_id, abstract
         FROM papers
         WHERE arxiv_id NOT IN (SELECT arxiv_id FROM embeddings)
         LIMIT {batch_size}
-    """).fetch_arrow_table()
+        """
+        ).fetch_arrow_table()
 
-    if batch_table.num_rows == 0:
-        break
+        if batch_table.num_rows == 0:
+            break
 
-    texts = batch_table['abstract'].to_pylist()
-    embs  = EMBEDDING_MODEL.encode(texts, batch_size=4)["dense_vecs"].astype(np.float32)
+        texts = batch_table["abstract"].to_pylist()
+        embs = EMBEDDING_MODEL.encode(texts, batch_size=4)["dense_vecs"].astype(
+            np.float32
+        )
 
-    embedding_column = pa.array(embs.tolist(), type=pa.list_(pa.float32()))
-    batch_with_emb = batch_table.append_column("embedding", embedding_column)
+        embedding_column = pa.array(embs.tolist(), type=pa.list_(pa.float32()))
+        batch_with_emb = batch_table.append_column("embedding", embedding_column)
 
-    # Register and insert only id + embedding
-    conn.register("batch", batch_with_emb)
-    conn.execute("""
+        # Register and insert only id + embedding
+        conn.register("batch", batch_with_emb)
+        conn.execute(
+            """
         INSERT INTO embeddings
         SELECT arxiv_id, embedding
         FROM batch
-    """)
-    conn.unregister("batch")
+        """
+        )
+        conn.unregister("batch")
 
-  # ensure we close the connection
-  conn.close()
+    # ensure we close the connection
+    conn.close()
 
-  # return the target database path
-  return target_db
+    # return the target database path
+    return target_db
+
 
 # Define a helper to search top-k papers by abstract similarity
 def search_withdrarxiv_embeddings(query: str, top_k: int = 2):
@@ -170,27 +187,47 @@ def search_withdrarxiv_embeddings(query: str, top_k: int = 2):
         >>> print(df.head())
     """
 
+    target_db = str(
+        pathlib.Path(__file__).parent / "data" / "withdrarxiv_embeddings.duckdb"
+    )
 
-    target_db = str(pathlib.Path(__file__).parent / "data" / "withdrarxiv_embeddings.duckdb")
+    # ensure we have the file available by using a remote backup
+    target_db = download_file_if_not_available(
+        local_path=target_db,
+        download_url=(
+            "https://olucdenver-my.sharepoint.com/:u:"
+            "/g/personal/dav"
+            "e_bunten_cuansc"
+            "hutz_edu/EdC8fHAME2dLm5G9A"
+            "xtVbL0B7EAf4cWF3XCXwZTPYNWa2A?download=1"
+        ),
+    )
 
     conn = duckdb.connect(target_db)
     conn.create_function("embed", embed, [duckdb.typing.VARCHAR], "FLOAT[1024]")
 
     q = {"q": query, "k": top_k}
-    df = conn.execute("""
-      WITH topk AS (
-        SELECT
-          arxiv_id,
-          array_inner_product(embedding, embed($q)) AS similarity
-        FROM embeddings
-        ORDER BY similarity DESC
-        LIMIT $k
-      )
-      SELECT
-        p.scrubbed_comments as related_retraction_reasons
-      FROM topk
-      JOIN papers p USING(arxiv_id)
-      ORDER BY similarity DESC;
-      """, q).df().to_json(orient="records")
+    df = (
+        conn.execute(
+            """
+            WITH topk AS (
+              SELECT
+                arxiv_id,
+                array_inner_product(embedding, embed($q)) AS similarity
+              FROM embeddings
+              ORDER BY similarity DESC
+              LIMIT $k
+            )
+            SELECT
+              p.scrubbed_comments as related_retraction_reasons
+            FROM topk
+            JOIN papers p USING(arxiv_id)
+            ORDER BY similarity DESC;
+            """,
+            q,
+        )
+        .df()
+        .to_json(orient="records")
+    )
     conn.close()
     return df
