@@ -16,7 +16,7 @@ introduction_agent = Agent(
     description="Agent expert in drafting or editing an Introduction section of a scientific manuscript.",
     instruction=prompt.PROMPT,
     before_agent_callback=prepare_instructions,
-    # output_key="introduction",
+    output_key="introduction",
 )
 
 
