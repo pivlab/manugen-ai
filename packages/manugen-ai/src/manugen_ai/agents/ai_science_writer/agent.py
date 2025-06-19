@@ -2,7 +2,7 @@ import os
 from google.adk.agents import SequentialAgent
 
 from .sub_agents.interpreter import request_interpreter_agent
-from .sub_agents.drafter import drafter_agent
+from .sub_agents.drafter import section_drafter_agent
 from .sub_agents.assembler import assembler_agent
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
@@ -23,7 +23,7 @@ wf_manuscript_builder_coordinator_agent = SequentialAgent(
     description="Interpret user's input, drafts manuscript, and shows it",
     sub_agents=[
         request_interpreter_agent,
-        drafter_agent,
+        section_drafter_agent,
         assembler_agent,
     ]
 )
