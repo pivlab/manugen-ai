@@ -29,3 +29,23 @@ keywords:
   - research
   - large-language-models
 license: BSD-3-Clause
+references:
+  - title: >-
+      WithdrarXiv: A Large-Scale Dataset for Retraction Study
+    type: document
+    url: https://arxiv.org/abs/2412.03775
+    authors: 
+      - family-names: Rao
+        given-names: Delip
+      - family-names: Young
+        given-names: Jonathan
+      - family-names: Dietterich
+        given-names: Thomas
+      - family-names: Callison-Burch
+        given-names: Chris
+    date-published: 2024
+    notes: >-
+      We used the WithdrarXiv dataset to help perform RAG-based
+      retraction reasons for use in AI-assisted manuscript generation.
+      Please see the following link for the dataset:
+      https://huggingface.co/datasets/darpa-scify/withdrarxiv
