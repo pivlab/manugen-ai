@@ -6,7 +6,8 @@ from google.adk.agents import LlmAgent, BaseAgent, SequentialAgent
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event
 
-from manugen_ai.utils import INSTRUCTIONS_KEY, TITLE_KEY, ABSTRACT_KEY, INTRODUCTION_KEY, RESULTS_KEY, DISCUSSION_KEY, METHODS_KEY
+from manugen_ai.schema import INSTRUCTIONS_KEY, TITLE_KEY, ABSTRACT_KEY, \
+    INTRODUCTION_KEY, RESULTS_KEY, DISCUSSION_KEY, METHODS_KEY
 
 from ..introduction import introduction_agent
 from ..results import results_agent

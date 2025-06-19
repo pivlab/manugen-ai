@@ -2,7 +2,7 @@
 
 import json
 
-from manugen_ai.utils import ManuscriptStructure
+from manugen_ai.schema import ManuscriptStructure
 
 PROMPT = f"""
 Your goal is to interpret the user's input and extract subrequests or ideas that are specific
