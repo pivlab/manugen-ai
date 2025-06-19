@@ -16,7 +16,7 @@ methods_agent = Agent(
     description="Agent expert in drafting or editing the Methods section of a scientific manuscript.",
     instruction=prompt.PROMPT,
     before_agent_callback=prepare_instructions,
-    # output_key="results",
+    output_key="methods",
 )
 
 

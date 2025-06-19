@@ -15,6 +15,7 @@ from .sub_agents.title import call_title_agent
 from .sub_agents.abstract import call_abstract_agent
 from .sub_agents.discussion import call_discussion_agent
 from .sub_agents.methods import call_methods_agent
+from .sub_agents.drafter import drafter_agent
 
 from manugen_ai.utils import ManuscriptStructure, prepare_instructions, INSTRUCTIONS_KEY, TITLE_KEY, ABSTRACT_KEY, INTRODUCTION_KEY, DISCUSSION_KEY, METHODS_KEY
 
@@ -108,24 +109,24 @@ request_interpreter_agent = Agent(
     {json.dumps(ManuscriptStructure.model_json_schema(), indent=2)}
     """.strip(),
     output_schema=ManuscriptStructure,
-    # output_key="instructions"
+    output_key="instructions"
 )
-async def call_request_interpreter_agent(
-    question: str,
-    tool_context: ToolContext,
-):
-    """Tool to call the request_interpreter_agent."""
-    agent_tool = AgentTool(
-        agent=request_interpreter_agent,
-        # skip_summarization=True,
-    )
-
-    agent_output = await agent_tool.run_async(
-        args={"request": question},
-        tool_context=tool_context
-    )
-    tool_context.state[INSTRUCTIONS_KEY] = agent_output
-    return agent_output
+# async def call_request_interpreter_agent(
+#     question: str,
+#     tool_context: ToolContext,
+# ):
+#     """Tool to call the request_interpreter_agent."""
+#     agent_tool = AgentTool(
+#         agent=request_interpreter_agent,
+#         # skip_summarization=True,
+#     )
+# 
+#     agent_output = await agent_tool.run_async(
+#         args={"request": question},
+#         tool_context=tool_context
+#     )
+#     tool_context.state[INSTRUCTIONS_KEY] = agent_output
+#     return agent_output
 
 
 
@@ -170,113 +171,108 @@ async def call_manuscript_assembler_agent(
     tool_context: ToolContext = None,
 ):
     """Tool to call the manuscript_assembler_agent."""
-    agent_tool = AgentTool(
-        agent=manuscript_assembler_agent,
-        # skip_summarization=True,
-    )
+    # agent_tool = AgentTool(
+    #     agent=manuscript_assembler_agent,
+    #     # skip_summarization=True,
+    # )
 
-    agent_output = await agent_tool.run_async(
-        # args={"request": question},
-        args={"request": "Follow your original instructions."},
-        tool_context=tool_context,
-    )
+    # agent_output = await agent_tool.run_async(
+    #     # args={"request": question},
+    #     args={"request": "Follow your original instructions."},
+    #     tool_context=tool_context,
+    # )
     # tool_context.state["introduction"] = agent_output
-    return agent_output
+    return tool_context.state.get("manuscript")
 
 
-manuscript_builder_coordinator_agent = Agent(
-    name="manuscript_builder_coordinator_agent",
-    model=LiteLlm(model=MODEL_NAME),
-    description="Agent expert in coordinating a scientific manuscript writing team to "
-                "draft from scratch or edit a scientific manuscript given instructions "
-                "from the user.",
-    instruction=f"""
-    You are an expert in coordinating a team to write a scientific manuscript that is composed
-    of different sections such as Title, Abstract, Introduction, Results, Discussion,
-    Methods, etc.
-    Your ONLY goal is to coordinate a team of agents/tools with specific skills to draft or edit a scientific
-    manuscript.
-    This is your team of agents/tools:
-    * 'request_interpreter_agent': it help you interpret the user's input and extract
-    from it the user's subrequests/ideas that are specific to each section of the manuscript.
-    Some user's requests/ideas might not be specific to one section but instead impact
-    different sections of the manuscript such as the Title, Abstract and Introduction.
-    Always forward to this agent/tool the user's message exactly as you received it (which
-    can be plain text, Markdown or LaTeX). This agent will return a JSON object with the
-    manuscript's sections as keys and the subrequests/ideas for each section as values.
-    If the value for a key/section is not empty, it means that the user has a requested changes for
-    that section, and you should call a specialized agent to draft that section.
-    * 'title_agent': it helps you draft or edit the Title of the
-    manuscript. You should always call this agent if the user has
-    requested changes that impact this section.
-    * 'abstract_agent': it helps you draft or edit the Abstract of the
-    manuscript. You should always call this agent if the user has
-    requested changes that impact this section.
-    * 'introduction_agent': it helps you draft or edit the Introduction section of the
-    manuscript. You should always call this agent if the user has
-    requested changes that impact this section.
-    * 'results_agent': it helps you draft or edit the Results section of the
-    manuscript. You should always call this agent if the user has
-    requested changes that impact this section.
-    * 'discussion_agent': it helps you draft or edit the Discussion section of the
-    manuscript. You should always call this agent if the user has
-    requested changes that impact this section.
-    * 'methods_agent': it helps you draft or edit the Methods section of the
-    manuscript. You should always call this agent if the user has
-    requested changes that impact this section.
-    * `manuscript_assembler_agent`: it helps you assemble the final manuscript with all its
-    sections after they have been drafted/edited by other agents.
-    
-    Follow this workflow:
-    1. If the user's input IS NOT related to drafting/editing a scientific manuscript, then
-    simply disregard the request politely, state what's your goal and quit. Otherwise,
-    continue.
-    2. Interpret what the user's requesting from the latest user messages. If more context
-    is lacking, try to improve the user's request by adding more context (such as which sections
-    of the manuscript might be affected by the requests).
-    3. Call the 'request_interpreter_agent' by providing what the user wants for the
-    manuscript. This agent will return a JSON object with manuscript section names
-    as keys and requests/ideas for that section as values.
-    4. Analyze this JSON object. If the value for a section is not
-    empty, it means that there are requests for that section that need to be completed, so
-    you have to call the section-specific agent to draft it (next step). If none of the sections have
-    requests, then your response is to ask the user for more specific requests/edits and quit.
-    Otherwise, continue.
-    5. For each section that has requests, call the section-specific agent that you have
-    available to draft it, such as 'introduction_agent', 'results_agent', etc. NEVER draft/edit
-    yourself, you rely on your agents/tools to write any part of the manuscript.
-    6. Once all sections (for which you have agents for) are drafted/edited,
-    you have to call the 'manuscript_assembler_agent' at the end and ALWAYS show the returned value
-    (a full manuscript draft) to the user. Please DO NOT EDIT/CHANGE
-    IN ANY WAY this manuscript draft, just show it to the user.
-    """.strip(),
-    tools=[
-        call_request_interpreter_agent,
-        call_title_agent,
-        # call_keywords_agent,
-        call_abstract_agent,
-        call_introduction_agent,
-        call_results_agent,
-        call_discussion_agent,
-        call_methods_agent,
-        call_manuscript_assembler_agent,
-    ],
-)
-
-# def exit_loop(tool_context: ToolContext):
-#   """Call this function ONLY when the critique indicates no further changes are needed, signaling the iterative process should end."""
-#   print(f"  [Tool Call] exit_loop triggered by {tool_context.agent_name}")
-#   tool_context.actions.escalate = True
-#   # Return empty dict as tools should typically return JSON-serializable output
-#   return {}
-# 
-# wf_manuscript_builder_coordinator_agent = SequentialAgent(
-#     sub_agents=[
+# manuscript_builder_coordinator_agent = Agent(
+#     name="manuscript_builder_coordinator_agent",
+#     model=LiteLlm(model=MODEL_NAME),
+#     description="Agent expert in coordinating a scientific manuscript writing team to "
+#                 "draft from scratch or edit a scientific manuscript given instructions "
+#                 "from the user.",
+#     instruction=f"""
+#     You are an expert in coordinating a team to write a scientific manuscript that is composed
+#     of different sections such as Title, Abstract, Introduction, Results, Discussion,
+#     Methods, etc.
+#     Your ONLY goal is to coordinate a team of agents/tools with specific skills to draft or edit a scientific
+#     manuscript.
+#     This is your team of agents/tools:
+#     * 'request_interpreter_agent': it help you interpret the user's input and extract
+#     from it the user's subrequests/ideas that are specific to each section of the manuscript.
+#     Some user's requests/ideas might not be specific to one section but instead impact
+#     different sections of the manuscript such as the Title, Abstract and Introduction.
+#     Always forward to this agent/tool the user's message exactly as you received it (which
+#     can be plain text, Markdown or LaTeX). This agent will return a JSON object with the
+#     manuscript's sections as keys and the subrequests/ideas for each section as values.
+#     If the value for a key/section is not empty, it means that the user has a requested changes for
+#     that section, and you should call a specialized agent to draft that section.
+#     * 'title_agent': it helps you draft or edit the Title of the
+#     manuscript. You should always call this agent if the user has
+#     requested changes that impact this section.
+#     * 'abstract_agent': it helps you draft or edit the Abstract of the
+#     manuscript. You should always call this agent if the user has
+#     requested changes that impact this section.
+#     * 'introduction_agent': it helps you draft or edit the Introduction section of the
+#     manuscript. You should always call this agent if the user has
+#     requested changes that impact this section.
+#     * 'results_agent': it helps you draft or edit the Results section of the
+#     manuscript. You should always call this agent if the user has
+#     requested changes that impact this section.
+#     * 'discussion_agent': it helps you draft or edit the Discussion section of the
+#     manuscript. You should always call this agent if the user has
+#     requested changes that impact this section.
+#     * 'methods_agent': it helps you draft or edit the Methods section of the
+#     manuscript. You should always call this agent if the user has
+#     requested changes that impact this section.
+#     * `manuscript_assembler_agent`: it helps you assemble the final manuscript with all its
+#     sections after they have been drafted/edited by other agents.
+#     
+#     Follow this workflow:
+#     1. If the user's input IS NOT related to drafting/editing a scientific manuscript, then
+#     simply disregard the request politely, state what's your goal and quit. Otherwise,
+#     continue.
+#     2. Interpret what the user's requesting from the latest user messages. If more context
+#     is lacking, try to improve the user's request by adding more context (such as which sections
+#     of the manuscript might be affected by the requests).
+#     3. Call the 'request_interpreter_agent' by providing what the user wants for the
+#     manuscript. This agent will return a JSON object with manuscript section names
+#     as keys and requests/ideas for that section as values.
+#     4. Analyze this JSON object. If the value for a section is not
+#     empty, it means that there are requests for that section that need to be completed, so
+#     you have to call the section-specific agent to draft it (next step). If none of the sections have
+#     requests, then your response is to ask the user for more specific requests/edits and quit.
+#     Otherwise, continue.
+#     5. For each section that has requests, call the section-specific agent that you have
+#     available to draft it, such as 'introduction_agent', 'results_agent', etc. NEVER draft/edit
+#     yourself, you rely on your agents/tools to write any part of the manuscript.
+#     6. Once all sections (for which you have agents for) are drafted/edited,
+#     you have to call the 'manuscript_assembler_agent' at the end and ALWAYS show the returned value
+#     (a full manuscript draft) to the user. Please DO NOT EDIT/CHANGE
+#     IN ANY WAY this manuscript draft, just show it to the user.
+#     """.strip(),
+#     tools=[
 #         call_request_interpreter_agent,
-#         call_results_agent,
+#         call_title_agent,
+#         # call_keywords_agent,
+#         call_abstract_agent,
 #         call_introduction_agent,
+#         call_results_agent,
 #         call_discussion_agent,
-#     ]
+#         call_methods_agent,
+#         call_manuscript_assembler_agent,
+#     ],
 # )
 
-root_agent = manuscript_builder_coordinator_agent
+
+wf_manuscript_builder_coordinator_agent = SequentialAgent(
+    name="wf_manuscript_builder_coordinator_agent",
+    description="Interpret user's input, drafts manuscript, and shows it",
+    sub_agents=[
+        request_interpreter_agent,
+        drafter_agent,
+        manuscript_assembler_agent,
+    ]
+)
+
+root_agent = wf_manuscript_builder_coordinator_agent
