@@ -94,7 +94,7 @@ async def test_StopChecker():
             Provide these specific suggestions concisely. Output *only* the critique text.
 
             ELSE IF there is no feedback and the document is good:
-            Respond *exactly* with the phrase: "{COMPLETION_PHRASE}" and nothing else (excluding quotes).
+            Respond *exactly* with the phrase: "{COMPLETION_PHRASE}" and nothing else (excluding quotes, using exact casing provided).
             It doesn't need to be perfect, just functionally complete for this stage.
             Avoid suggesting purely subjective stylistic preferences if the core is sound.
             """,
