@@ -1,0 +1,17 @@
+services:
+  backend:
+    ports:
+      - "8900:8000"
+    volumes:
+      # maps package, src folders to allow reloading
+      - ./packages/manugen-ai/src/:/packages/manugen-ai/src/
+      - ./packages/manugen-ai/tests/:/packages/manugen-ai/tests/
+      - ./backend/src/:/app/src/
+      - ./backend/tests/:/app/tests/
+
+  frontend:
+    ports:
+      - "8901:5173"
+    volumes:
+      # map the src folder to allow hot reloading
+      - ./frontend/src/:/app/src/

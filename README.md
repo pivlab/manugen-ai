@@ -109,6 +109,35 @@ docker compose down -v
 
 This will purge any sessions or other data that ADK stores to the database.
 
+### (Optional) Running the App in Production
+
+The app includes configuration, located in `docker-compose.prod.yml`, for running the application in production mode.
+
+To use it, ensure that you've updated `DOMAIN_NAME` in your `.env` file to the domain name under which the app will be served.
+You should also ensure that you have access to map ports 80 and 443 on the machine that will be running the production app.
+
+The production configuration differs from the development configuration in a few ways:
+
+- The frontend is built and served as static files, rather than being served by a development server.
+- Volumes are disabled, and the code for each container is baked into the image. As a result, hot-reloading is disabled for all containers.
+- It uses [Caddy](https://caddyserver.com/) as a reverse proxy to serve the frontend and backend as well as to obtain an SSL cert for your chosen domain.
+  - The backend API is served from `/api/`
+  - The frontend is served from `/`
+
+To launch the production version of the app, you can run the following command:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+```
+
+This will build the production images and start the application in detached mode.
+
+To tail the container logs, you can run:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
+```
+
 ### Command Line Interface
 
 If you'd prefer not to use the web interface, you can also run the *Manugen AI* package from the command line.
