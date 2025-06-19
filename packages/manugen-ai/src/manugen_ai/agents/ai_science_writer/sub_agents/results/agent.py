@@ -19,7 +19,7 @@ MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
 #     os.environ["OPENAI_API_KEY"] = "unused"
 
 results_agent = Agent(
-    name="results_agent",
+    name=f"{RESULTS_KEY}_agent",
     model=LiteLlm(model=MODEL_NAME),
     include_contents="none",
     description="Agent expert in drafting or editing a Results section of a scientific manuscript.",

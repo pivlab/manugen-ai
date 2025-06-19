@@ -104,13 +104,15 @@ class SectionDrafterAgent(BaseAgent):
         instructions_state = ctx.session.state.get(INSTRUCTIONS_KEY)
         
         for section_agent in self.section_agents_order:
-            if section_agent.section_key not in instructions_state or instructions_state[INTRODUCTION_KEY].strip() == "":
+            section_key = section_agent.name.split("_")[0]
+            
+            if section_key not in instructions_state or instructions_state[INTRODUCTION_KEY].strip() == "":
                 continue
                 
-            logger.info(f"[{self.name}] Running {section_agent.section_key}...")
+            logger.info(f"[{self.name}] Running {section_key}...")
 
             async for event in section_agent.run_async(ctx):
-                logger.info(f"[{self.name}] Event from {section_agent.section_key}: {event.model_dump_json(indent=2, exclude_none=True)}")
+                logger.info(f"[{self.name}] Event from {section_key}: {event.model_dump_json(indent=2, exclude_none=True)}")
                 yield event
     
         logger.info(f"[{self.name}] Workflow finished.")
