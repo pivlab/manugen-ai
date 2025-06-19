@@ -122,7 +122,7 @@ class ManuscriptDrafterAgent(BaseAgent):
         instructions_state = ctx.session.state.get(INSTRUCTIONS_KEY)
     
         # Introduction
-        if INTRODUCTION_KEY in instructions_state:
+        if INTRODUCTION_KEY in instructions_state and instructions_state[INTRODUCTION_KEY].strip() != "":
             logger.info(f"[{self.name}] Running Introduction...")
 
             async for event in self.introduction_agent.run_async(ctx):
@@ -132,7 +132,7 @@ class ManuscriptDrafterAgent(BaseAgent):
         logger.info(f"[{self.name}] Manuscript state after Introduction: {ctx.session.state.get('introduction')[:50]}")
     
         # Results
-        if RESULTS_KEY in instructions_state:
+        if RESULTS_KEY in instructions_state and instructions_state[RESULTS_KEY].strip() != "":
             logger.info(f"[{self.name}] Running Results...")
 
             async for event in self.results_agent.run_async(ctx):
@@ -142,7 +142,7 @@ class ManuscriptDrafterAgent(BaseAgent):
         logger.info(f"[{self.name}] Manuscript state after Results: {ctx.session.state.get('results')[:50]}")
 
         # Methods
-        if METHODS_KEY in instructions_state:
+        if METHODS_KEY in instructions_state and instructions_state[METHODS_KEY].strip() != "":
             logger.info(f"[{self.name}] Running Methods...")
             
             async for event in self.methods_agent.run_async(ctx):
