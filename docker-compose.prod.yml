@@ -1,0 +1,31 @@
+volumes:
+  caddy_data:
+  caddy_config:
+  frontend_dist:
+
+services:
+  backend:
+    restart: unless-stopped
+    environment:
+      - "API_ROOT_PREFIX=/api"
+
+  frontend:
+    environment:
+      - "VITE_API=https://${DOMAIN_NAME}/api"
+    command: "bun run build"
+    volumes:
+      - frontend_dist:/app/dist/
+
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./services/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - frontend_dist:/app/dist/
+      - caddy_data:/data
+      - caddy_config:/config
