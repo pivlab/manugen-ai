@@ -12,24 +12,16 @@ from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 from manugen_ai.agents.meta_agent import ResilientToolAgent
 from manugen_ai.tools.tools import openalex_query, parse_list
-from manugen_ai.utils import prepare_ollama_models_for_adk_state
 
-prepare_ollama_models_for_adk_state()
-
-TOPIC_MODEL = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/llama3.2:3b")
-SEARCH_MODEL = os.environ.get("MAI_DRAFT_MODEL_NAME", TOPIC_MODEL)
-IMPROVE_MODEL = os.environ.get("MAI_REVIEW_MODEL_NAME", TOPIC_MODEL)
-
-TOPIC_LLM = LiteLlm(model=TOPIC_MODEL)
-SEARCH_LLM = LiteLlm(model=SEARCH_MODEL)
-IMPROVE_LLM = LiteLlm(model=IMPROVE_MODEL)
+MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
+LLM = LiteLlm(model=MODEL_NAME)
 
 parse_list_tool = FunctionTool(func=parse_list)
 oa_search_tool = FunctionTool(func=openalex_query)
 
 # Extract free-text topics
 agent_extract_topics = Agent(
-    model=TOPIC_LLM,
+    model=LLM,
     name="extract_topics",
     description="Extract 3–5 key research topics from the draft; output as bullet points, one per line.",
     instruction="""
@@ -46,7 +38,7 @@ Return only those lines, no extra commentary or JSON.
 # Parse text topics into list
 agent_parse_topics = ResilientToolAgent(
     Agent(
-        model=TOPIC_LLM,
+        model=LLM,
         name="parse_topics",
         description="Convert bullet-list in `{topics_text}` into a Python list of topics.",
         instruction="""
@@ -68,7 +60,7 @@ seq_topics = SequentialAgent(
 # Search OpenAlex
 agent_search_openalex = ResilientToolAgent(
     Agent(
-        model=SEARCH_LLM,
+        model=LLM,
         name="search_open_alex",
         description="Use `openalex_query` on the list `topics` to get top paper URLs.",
         instruction="""
@@ -91,7 +83,7 @@ loop_search_and_fetch = LoopAgent(
 
 # Improve draft
 agent_improve_draft = Agent(
-    model=IMPROVE_LLM,
+    model=LLM,
     name="improve_draft",
     description="Rewrite the original draft using insights from `papers`.",
     instruction="""
