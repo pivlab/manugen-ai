@@ -4,6 +4,8 @@ from pathlib import Path
 from cyclopts import App
 from dotenv import load_dotenv
 
+# ruff: noqa: T201
+
 # load up secrets from a .env file in the first ancestor directory that contains
 # one (typically the root of the project)
 load_dotenv()

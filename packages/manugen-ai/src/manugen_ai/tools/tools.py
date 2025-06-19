@@ -4,20 +4,126 @@ Tools for agents within manugen-ai
 
 from __future__ import annotations
 
+import json
 import pathlib
 import tempfile
+from typing import Any, Dict, List
 
 import pygit2
+import requests
 from google.adk.tools.tool_context import ToolContext
+from jsonschema import ValidationError, validate
+from manugen_ai.utils import graceful_fail
+from pyalex import Works
 
 
+@graceful_fail()
+def parse_list(text: str) -> List[str]:
+    """
+    Convert newline- or bullet-separated
+    text into a list of strings.
+
+    Args:
+        text (str):
+            Text containing newline-
+            or bullet-separated lines.
+
+    Returns:
+        List[str]:
+            A list of cleaned string items,
+            with bullets or numbering removed.
+    """
+    lines = text.splitlines()
+    items = []
+    for ln in lines:
+        ln = ln.strip()
+        if not ln:
+            continue
+        # remove leading bullets or numbering
+        for prefix in ("-", "*"):
+            if ln.startswith(prefix):
+                ln = ln.lstrip(prefix).strip()
+        items.append(ln)
+    return items
+
+
+@graceful_fail()
+def openalex_query(topics: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    For each topic, search OpenAlex and return only title and abstract for open-access works.
+
+    Args:
+        topics (List[str]): List of search strings.
+
+    Returns:
+        Dict[str, List[Dict[str, Any]]]: Mapping from topic to list of dicts with
+        'title' and 'abstract'.
+    """
+    client = Works()
+    limit = 3
+
+    output: Dict[str, List[Dict[str, Any]]] = {}
+    for topic in topics:
+        works = (
+            client.search_filter(abstract=topic)
+            .filter(is_retracted=False)
+            .sort(cited_by_count="desc")
+            .get(per_page=limit)
+        )
+        output[topic] = [
+            {"title": w["title"], "abstract": w["abstract"], "doi": w["doi"]}
+            for w in works
+        ]
+
+    return output
+
+
+@graceful_fail()
 def exit_loop(tool_context: ToolContext):
-    """Call this function ONLY when the critique indicates no further changes are needed,
-    signaling the iterative process should end."""
-    print(f"  [Tool Call] exit_loop triggered by {tool_context.agent_name}")
+    """
+    Call this function ONLY when the critique
+    indicates no further changes are needed,
+    signaling the iterative process should end.
+    """
+    print(f"  [Tool Call] exit_loop triggered by {tool_context.agent_name}")  # noqa: T201
     tool_context.actions.escalate = True
     # Return empty dict as tools should typically return JSON-serializable output
     return {}
+
+
+@graceful_fail()
+def fetch_url(url: str) -> str:
+    res = requests.get(url)
+    res.raise_for_status()
+    return res.text
+
+
+@graceful_fail()
+def json_conforms_to_schema(raw: str, schema: dict) -> bool:
+    """
+    Check whether a JSON string conforms
+    to a given JSON Schema.
+
+    Parses the input string as JSON,
+    then validates it against the provided schema.
+
+    Args:
+        raw:
+            A JSON-formatted string to validate.
+        schema:
+            A JSON Schema (as a dict-like
+            mapping) that `raw` must conform to.
+
+    Returns:
+        True if `raw` is valid JSON and
+        satisfies `schema`; False otherwise.
+    """
+    try:
+        data: Any = json.loads(raw)
+        validate(instance=data, schema=schema)
+    except (json.JSONDecodeError, ValidationError):
+        return False
+    return True
 
 
 def read_path_contents(path: str) -> str:
