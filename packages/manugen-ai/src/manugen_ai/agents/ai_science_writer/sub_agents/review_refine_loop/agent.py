@@ -9,23 +9,14 @@ from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 from manugen_ai.agents.meta_agent import ResilientToolAgent
 from manugen_ai.tools.tools import exit_loop
-from manugen_ai.utils import prepare_ollama_models_for_adk_state
-
-# Preconfigure Ollama models for ADK
-prepare_ollama_models_for_adk_state()
 
 # Environment-driven model names
-GENERAL_MODEL = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/command-r")
-DRAFT_MODEL = os.environ.get("MAI_DRAFT_MODEL_NAME", GENERAL_MODEL)
-REVIEW_MODEL = os.environ.get("MAI_REVIEW_MODEL_NAME", GENERAL_MODEL)
+MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
+LLM = LiteLlm(model=MODEL_NAME)
 COMPLETION_PHRASE = "THE AGENT HAS COMPLETED THE TASK."
 
-# LLM wrappers
-DRAFT_LLM = LiteLlm(model=DRAFT_MODEL)
-REVIEW_LLM = LiteLlm(model=REVIEW_MODEL)
-
 agent_review_loop = Agent(
-    model=REVIEW_LLM,
+    model=LLM,
     name="review_and_decide",
     description="Critique full markdown and decide if it's final.",
     instruction="""
@@ -46,7 +37,7 @@ Return either:
 
 # 2) Your existing refine agent
 agent_refine = Agent(
-    model=DRAFT_LLM,
+    model=LLM,
     name="refine_manuscript",
     description="Apply feedback to revise the manuscript.",
     instruction="""

@@ -24,19 +24,13 @@ from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 
 from manugen_ai.tools.tools import clone_repository, read_path_contents
-from manugen_ai.utils import prepare_ollama_models_for_adk_state
 
-# preconfigure ollama for use with google-adk
-prepare_ollama_models_for_adk_state()
-
-GENERAL_MODEL_NAME = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/command-r")
-CODE_SPECIALIST_MODEL_NAME = os.environ.get(
-    "MAI_CODE_SPECIALIST_MODEL_NAME", "openai/mistral-small"
-)
+MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
+LLM = LiteLlm(model=MODEL_NAME)
 COMPLETION_PHRASE = "All the way finished!"
 
 agent_code_summarizer = Agent(
-    model=LiteLlm(model=CODE_SPECIALIST_MODEL_NAME),
+    model=LLM,
     name="agent_code_summarizer",
     description=("I am an intelligent and experienced research software engineer."),
     instruction="""
@@ -71,7 +65,7 @@ We need to make sure we don't hallucinate aspects that aren't in the content.
 )
 
 agent_folder_summarizer = Agent(
-    model=LiteLlm(model=GENERAL_MODEL_NAME),
+    model=LLM,
     name="agent_folder_summarizer",
     description=("I am and intelligent and experienced scientific researcher."),
     instruction="""
@@ -100,7 +94,7 @@ We need to make sure we don't hallucinate aspects that aren't in the content.
 )
 
 agent_school = Agent(
-    model=LiteLlm(model=GENERAL_MODEL_NAME),
+    model=LLM,
     name="agent_school",
     description=(
         """
@@ -126,7 +120,7 @@ Only provide guidance and don't add other extraneous content.
 )
 
 agent_writer = Agent(
-    model=LiteLlm(model=GENERAL_MODEL_NAME),
+    model=LLM,
     name="agent_writer",
     description=(
         """
@@ -179,7 +173,7 @@ Only include the markdown abstract content and not extra dialogue about what you
 )
 
 agent_editor = Agent(
-    model=LiteLlm(model=GENERAL_MODEL_NAME),
+    model=LLM,
     name="agent_editor",
     description=("You're a scientific writing editor."),
     instruction=f"""
@@ -203,7 +197,7 @@ Respond *exactly* with the phrase "{COMPLETION_PHRASE}" and nothing else. It doe
 )
 
 agent_refiner = Agent(
-    model=LiteLlm(model=GENERAL_MODEL_NAME),
+    model=LLM,
     name="agent_refiner",
     description=("You're a scientific writing expert."),
     instruction=f"""

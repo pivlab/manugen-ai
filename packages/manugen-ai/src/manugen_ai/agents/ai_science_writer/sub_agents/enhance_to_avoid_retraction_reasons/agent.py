@@ -1,3 +1,13 @@
+"""
+An agent workflow to enhance content based on 
+insights from related retraction notices to the
+content supplied to the agents. We use a RAG-based
+approach, using embeddings to retrieve relevant
+retraction reason information based on retracted
+abstracts and synthesized abstracts from the content
+provided by the user.
+"""
+
 from __future__ import annotations
 import os
 
@@ -7,17 +17,9 @@ from google.adk.tools import FunctionTool
 from manugen_ai.agents.meta_agent import ResilientToolAgent
 from manugen_ai.tools.tools import parse_list, openalex_query
 from manugen_ai.data import search_withdrarxiv_embeddings
-from manugen_ai.utils import prepare_ollama_models_for_adk_state
 
-# Initialize Ollama/OpenAI models
-prepare_ollama_models_for_adk_state()
-TOPIC_MODEL = os.environ.get("MAI_GENERAL_MODEL_NAME", "openai/llama3.2")
-SEARCH_MODEL = os.environ.get("MAI_DRAFT_MODEL_NAME", TOPIC_MODEL)
-IMPROVE_MODEL = os.environ.get("MAI_REVIEW_MODEL_NAME", TOPIC_MODEL)
-
-TOPIC_LLM = LiteLlm(model=TOPIC_MODEL)
-SEARCH_LLM = LiteLlm(model=SEARCH_MODEL)
-IMPROVE_LLM = LiteLlm(model=IMPROVE_MODEL)
+MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
+LLM = LiteLlm(model=MODEL_NAME)
 
 # Tools
 parse_list_tool = FunctionTool(func=parse_list)
@@ -30,7 +32,7 @@ embeddings_function = FunctionTool(
 
 # Synthesize a concise abstract for embedding queries
 agent_synthesize_abstract = Agent(
-    model=TOPIC_LLM,
+    model=LLM,
     name="synthesize_abstract",
     description="Generate a concise abstract from the draft for embedding retrieval.",
     instruction="""
@@ -43,7 +45,7 @@ and context. Output only the abstract text.
 # Retrieve retraction notices via embeddings
 agent_fetch_retractions = ResilientToolAgent(
     Agent(
-        model=SEARCH_LLM,
+        model=LLM,
         name="fetch_retractions",
         description=(
             "Use `search_withdrarxiv_embeddings` on the synthesized abstract to get related retraction notices."
@@ -60,7 +62,7 @@ Return the mapping as `retraction_notices` (e.g., arXiv ID → retraction reason
 
 # Improve draft using retrieved retraction insights
 agent_improve_draft = Agent(
-    model=IMPROVE_LLM,
+    model=LLM,
     name="improve_draft",
     description="Rewrite the original draft using insights from `retraction_notices`.",
     instruction="""
@@ -75,7 +77,7 @@ Output **only** the enhanced draft text without additional commentary.
 )
 
 agent_finalize_improvements = Agent(
-    model=IMPROVE_LLM,
+    model=LLM,
     name="agent_finalize_improvements",
     description="Finalize the improvements provided from `enhanced_draft`.",
     instruction="""
