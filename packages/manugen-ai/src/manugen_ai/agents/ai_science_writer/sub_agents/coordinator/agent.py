@@ -5,6 +5,10 @@ from google.adk.models.lite_llm import LiteLlm
 
 from ..manuscript_drafter import manuscript_drafter_agent
 from ..figure import figure_agent
+from ..retraction_avoidance import root_agent as retraction_avoidance_agent
+from ..citations import root_agent as citation_agent
+from ..reviewer import root_agent as review_agent
+from ..repo_to_paper import root_agent as repo_agent
 from . import prompt
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
@@ -16,9 +20,10 @@ coordinator_agent = LlmAgent(
     instruction=prompt.PROMPT,
     sub_agents=[
         manuscript_drafter_agent,
-        # reviewer_agent,
-        # citation_agent,
         figure_agent,
-        # python_agent,
+        retraction_avoidance_agent,
+        citation_agent,
+        review_agent,
+        repo_agent
     ]
 )
