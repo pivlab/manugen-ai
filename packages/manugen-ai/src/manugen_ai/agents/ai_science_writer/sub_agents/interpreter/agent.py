@@ -29,19 +29,3 @@ request_interpreter_agent = Agent(
     output_schema=ManuscriptStructure,
     output_key="instructions"
 )
-# async def call_request_interpreter_agent(
-#     question: str,
-#     tool_context: ToolContext,
-# ):
-#     """Tool to call the request_interpreter_agent."""
-#     agent_tool = AgentTool(
-#         agent=request_interpreter_agent,
-#         # skip_summarization=True,
-#     )
-# 
-#     agent_output = await agent_tool.run_async(
-#         args={"request": question},
-#         tool_context=tool_context
-#     )
-#     tool_context.state[INSTRUCTIONS_KEY] = agent_output
-#     return agent_output
