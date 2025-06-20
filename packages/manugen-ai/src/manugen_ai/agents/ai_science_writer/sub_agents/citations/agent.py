@@ -98,7 +98,7 @@ Output only the revised draft text.
 
 # Full pipeline
 root_agent = SequentialAgent(
-    name="oa_enhancement_pipeline",
+    name="citation_agent",
     description="Extract topics → search & fetch → improve draft",
     sub_agents=[
         seq_topics,

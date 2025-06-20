@@ -52,7 +52,8 @@ Revise the manuscript accordingly and return updated markdown as 'refined_md'.
 
 # 3) Wrap them in a LoopAgent
 root_agent = LoopAgent(
-    name="review_refine_loop",
+    name="refinement_agent",
+    description="Iteratively review and refine the manuscript until publication-ready.",
     # Use ResilientToolAgent so missing-tool errors auto-retry up to N times
     sub_agents=[
         ResilientToolAgent(agent_review_loop, max_retries=2),
