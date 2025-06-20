@@ -12,10 +12,8 @@ def prepare_instructions(callback_context: CallbackContext) -> Optional[types.Co
 
     for key1 in ManuscriptStructure.model_json_schema()["properties"].keys():
         # set instructions for each manuscript section
-        if INSTRUCTIONS_KEY in current_state and key1 in current_state[
-            INSTRUCTIONS_KEY]:
-            callback_context.state[f"{INSTRUCTIONS_KEY}_{key1}"] = \
-            current_state[INSTRUCTIONS_KEY][key1]
+        if INSTRUCTIONS_KEY in current_state and key1 in current_state[INSTRUCTIONS_KEY]:
+            callback_context.state[f"{INSTRUCTIONS_KEY}_{key1}"] = current_state[INSTRUCTIONS_KEY][key1]
 
         # if there is no draft for this section, assign empty string
         if key1 not in callback_context.state:
