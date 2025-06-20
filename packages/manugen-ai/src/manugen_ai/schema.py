@@ -39,3 +39,8 @@ INTRODUCTION_KEY = "introduction"
 RESULTS_KEY = "results"
 DISCUSSION_KEY = "discussion"
 METHODS_KEY = "methods"
+
+class SingleFigureDescription(BaseModel):
+    id: int = Field(default=0)
+    title: str = Field(default="")
+    description: str = Field(default="")
