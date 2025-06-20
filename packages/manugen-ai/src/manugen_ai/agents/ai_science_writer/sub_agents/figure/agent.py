@@ -13,6 +13,7 @@ from google.adk.models.lite_llm import LiteLlm
 from google.genai import types
 from google.adk.models import LlmResponse
 
+from manugen_ai.utils import get_llm
 from manugen_ai.schema import (
     CURRENT_FIGURE_KEY,
     FIGURES_KEY,
@@ -26,7 +27,7 @@ MODEL_NAME = os.environ.get(
     "MANUGENAI_FIGURE_MODEL_NAME",
     os.environ.get("MANUGENAI_MODEL_NAME"),
 )
-LLM = LiteLlm(model=MODEL_NAME)
+LLM=get_llm(MODEL_NAME)
 
 
 def process_figure_response(

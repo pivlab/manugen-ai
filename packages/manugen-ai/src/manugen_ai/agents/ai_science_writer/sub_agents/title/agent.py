@@ -5,9 +5,11 @@ from google.adk.tools import ToolContext
 from google.adk.tools.agent_tool import AgentTool
 
 from manugen_ai.schema import prepare_instructions, INSTRUCTIONS_KEY, TITLE_KEY
+from manugen_ai.utils import get_llm
 from . import prompt
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
+LLM=get_llm(MODEL_NAME)
 
 # model_api_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
 # if MODEL_NAME.startswith(("ollama",)):
@@ -20,7 +22,7 @@ MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
 
 title_agent = Agent(
     name="title_agent",
-    model=LiteLlm(model=MODEL_NAME),
+    model=LLM,
     include_contents="none",
     description="Agent expert in drafting or editing the Title of a scientific manuscript.",
     instruction=prompt.PROMPT,
