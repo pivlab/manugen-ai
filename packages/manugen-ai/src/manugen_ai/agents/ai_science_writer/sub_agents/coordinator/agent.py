@@ -4,6 +4,7 @@ from google.adk.agents import LlmAgent
 from google.adk.models.lite_llm import LiteLlm
 
 from ..manuscript_drafter import manuscript_drafter_agent
+from ..figure import figure_agent
 from . import prompt
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
@@ -17,7 +18,7 @@ coordinator_agent = LlmAgent(
         manuscript_drafter_agent,
         # reviewer_agent,
         # citation_agent,
-        # figure_agent,
+        figure_agent,
         # python_agent,
     ]
 )
