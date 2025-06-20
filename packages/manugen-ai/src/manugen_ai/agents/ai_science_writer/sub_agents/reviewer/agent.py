@@ -1,5 +1,5 @@
 """
-Agent for revising written work in a loop.
+Agent for reviewing and improving written work in a loop.
 """
 
 import os
@@ -52,7 +52,7 @@ Revise the manuscript accordingly and return updated markdown as 'refined_md'.
 
 # 3) Wrap them in a LoopAgent
 root_agent = LoopAgent(
-    name="refinement_agent",
+    name="reviewer_agent",
     description="Iteratively review and refine the manuscript until publication-ready.",
     # Use ResilientToolAgent so missing-tool errors auto-retry up to N times
     sub_agents=[
