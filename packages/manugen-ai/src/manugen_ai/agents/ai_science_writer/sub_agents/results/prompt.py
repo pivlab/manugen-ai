@@ -23,6 +23,8 @@ provided;
 the headers of subsections within the Results section.
 3. For each of these subsections, you will follow the guidelines below to convert the rough set
 of instructions/ideas, into a set of properly structured paragraphs.
+DON'T ADD a "Results" title to your output, since this will be added later;
+if you need to add subtitles, use the "##" level.
 
 # Current draft of the Results section (might be empty)
 ```
@@ -36,10 +38,13 @@ of instructions/ideas, into a set of properly structured paragraphs.
 
 # Current draft of important manuscript sections (might be empty)
 ```
+# Title
 {title}
 
+# Abstract
 {abstract}
 
+# Introduction
 {introduction}
 ```
 

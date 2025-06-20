@@ -28,28 +28,28 @@ logger = logging.getLogger(__name__)
 def manuscript_assembler(callback_context: CallbackContext) -> Optional[types.Content]:
     state = callback_context.state.to_dict()
     manuscript = f"""
-## Title
+# Title
 {state.get('title', 'none')}
 
-## Abstract
+# Abstract
 {state.get('abstract', 'none')}
 
-## Introduction
+# Introduction
 {state.get('introduction', 'none')}
 
-## Results
+# Results
 {state.get('results', 'none')}
 
-## Discussion
+# Discussion
 {state.get('discussion', 'none')}
 
-## Methods
+# Methods
 {state.get('methods', 'none')}
     """.strip()
 
     return types.Content(
         parts=[types.Part(text=manuscript)],
-        role="model"  # Assign model role to the overriding response
+        role="model",
     )
 
 
