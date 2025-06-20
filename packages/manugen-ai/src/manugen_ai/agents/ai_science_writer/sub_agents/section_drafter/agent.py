@@ -106,7 +106,7 @@ class SectionDrafterAgent(BaseAgent):
         for section_agent in self.section_agents_order:
             section_key = section_agent.name.split("_")[0]
             
-            if section_key not in instructions_state or instructions_state[INTRODUCTION_KEY].strip() == "":
+            if section_key not in instructions_state or instructions_state[section_key].strip() == "":
                 continue
                 
             logger.info(f"[{self.name}] Running {section_key}...")
