@@ -49,3 +49,18 @@ references:
       retraction reasons for use in AI-assisted manuscript generation.
       Please see the following link for the dataset:
       https://huggingface.co/datasets/darpa-scify/withdrarxiv
+  - title: >-
+      OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts
+    type: preprint
+    url: http://arxiv.org/abs/2205.01833
+    authors: 
+      - family-names: Priem
+        given-names: Jason
+      - family-names: Piwowar
+        given-names: Heather
+      - family-names: Orr
+        given-names: Richard
+    date-published: 2022-06-17
+    identifiers: 
+      - type: doi
+        value: 10.48550/arXiv.2205.01833
