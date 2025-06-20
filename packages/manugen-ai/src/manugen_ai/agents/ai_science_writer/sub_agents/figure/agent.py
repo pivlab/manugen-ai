@@ -2,7 +2,7 @@ import os
 from google.adk import Agent
 from google.adk.models.lite_llm import LiteLlm
 
-from manugen_ai.schema import prepare_instructions
+from manugen_ai.schema import prepare_instructions, SingleFigureDescription
 from . import prompt
 
 MODEL_NAME = os.environ.get(
@@ -17,5 +17,6 @@ figure_agent = Agent(
     description="Agent expert in interpreting figures of a scientific article.",
     instruction=prompt.PROMPT,
     before_agent_callback=prepare_instructions,
-    output_key="figure",
+    output_schema=SingleFigureDescription,
+    # output_key="figure",
 )
