@@ -1,10 +1,7 @@
 """
-prototyping with google-adk for an agentic workflow that
+An agentic workflow that
 is provided a file contents or a source code repository,
 generates an abstract for a paper, and then revises that content.
-
-Note: this work assumes the use of ollama/llama3.2
-which were used as background services outside of this file.
 """
 
 from __future__ import annotations
