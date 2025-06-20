@@ -1,13 +1,14 @@
 import { api, request } from "./";
 
-import { ensureSessionExists, type ADKResponse } from "./adk";
+import {
+  ensureSessionExists, extractADKText, sseRequest,
+  type ADKResponse, type ADKSessionResponse
+} from "./adk";
 
 type Response = { output: string };
 
 /** capitalizes the selected text using the capitalizer */
-export const capitalizer = async (input: string, username: string, sessionId: string) => {
-  const session = await ensureSessionExists("capitalizer", username, sessionId);
-
+export const capitalizer = async (input: string, session: ADKSessionResponse) => {
   return request<ADKResponse>(`${api}/adk_api/run`, {
     method: "POST",
     headers: {
@@ -27,23 +28,68 @@ export const capitalizer = async (input: string, username: string, sessionId: st
   });
 }
 
-/** arbitrary endpoint */
-export const endpoint1 = (input: string) =>
-  request<Response>(`${api}/endpoint1`, {
+/** dispatches to ai_science_writer for a variety of actions */
+export const aiWriter = async (input: string, session: ADKSessionResponse|null) => {
+  if (!session) {
+    console.error("No session provided for aiWriter, aborting");
+    return
+  }
+  if (session.appName !== "ai_science_writer") {
+    console.error("Session appName is not 'ai_science_writer', aborting");
+    return
+  }
+
+  return request<ADKResponse>(`${api}/adk_api/run`, {
     method: "POST",
-    body: JSON.stringify({ input }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      "appName": session.appName,
+      "userId": session.userId,
+      "sessionId": session.id,
+      "newMessage": {
+        "role": "user",
+        "parts": [{
+          "text": input,
+        }]
+      }
+    }),
+  });
+}
+
+export const aiWriterAsync = async (input: string, session: ADKSessionResponse|null) => {
+  if (!session) {
+    console.error("No session provided for aiWriter, aborting");
+    return
+  }
+  else if (session.appName !== "ai_science_writer") {
+    console.error("Session appName is not 'ai_science_writer', aborting");
+    return
+  }
+
+  // immediately returns an EventSource-like object
+  const eventLog: ADKResponse = await sseRequest(`${api}/adk_api/run_sse`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    payload: JSON.stringify({
+      "appName": session.appName,
+      "userId": session.userId,
+      "sessionId": session.id,
+      "newMessage": {
+        "role": "user",
+        "parts": [{
+          "text": input,
+        }]
+      }
+    }),
+  }, (eventLog: ADKResponse) => {
+    console.log("Received event log update:", eventLog);
   });
 
-/** arbitrary endpoint */
-export const endpoint2 = (input: string) =>
-  request<Response>(`${api}/endpoint2`, {
-    method: "POST",
-    body: JSON.stringify({ input }),
-  });
+  console.log("Final event log received:", eventLog);
 
-/** arbitrary endpoint */
-export const endpoint3 = (input: string) =>
-  request<Response>(`${api}/endpoint3`, {
-    method: "POST",
-    body: JSON.stringify({ input }),
-  });
+  return eventLog;
+}
