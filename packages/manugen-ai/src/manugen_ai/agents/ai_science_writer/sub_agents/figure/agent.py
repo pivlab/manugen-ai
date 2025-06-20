@@ -22,9 +22,10 @@ MODEL_NAME = os.environ.get(
     "MANUGENAI_FIGURE_MODEL_NAME",
     os.environ.get("MANUGENAI_MODEL_NAME"),
 )
+LLM = LiteLlm(model=MODEL_NAME)
 
 
-def postprocess_figure_metadata(
+def process_figure_response(
     callback_context: CallbackContext, llm_response: LlmResponse
 ) -> Optional[LlmResponse]:
     """TODO: update."""
@@ -32,17 +33,20 @@ def postprocess_figure_metadata(
     if not llm_response.content or not llm_response.content.parts:
         return None
 
+    # get current state
     state = callback_context.state
 
-    original_text = llm_response.content.parts[0].text
-    original_json = json.loads(original_text)
+    # get agent description about figure
+    figure_desc = llm_response.content.parts[0].text
+    figure_desc_obj = SingleFigureDescription.model_validate_json(figure_desc)
 
+    # compute figure number
     current_figure_id = 1
     if FIGURES_KEY in state:
         current_figure_id = len(state[FIGURES_KEY]) + 1
     
-    original_json["id"] = current_figure_id
-    modified_text = json.dumps(original_json)
+    figure_desc_obj.figure_number = current_figure_id
+    modified_text = figure_desc_obj.model_dump_json()
 
     # TODO: update
     # Create a NEW LlmResponse with the modified content
@@ -55,7 +59,7 @@ def postprocess_figure_metadata(
          grounding_metadata=llm_response.grounding_metadata
      )
 
-def postprocess_figure_states(
+def update_figure_state(
     callback_context: CallbackContext,
 ) -> Optional[types.Content]:
     """
@@ -67,13 +71,14 @@ def postprocess_figure_states(
         return None
 
     current_figure = state[CURRENT_FIGURE_KEY]
+    current_figure_obj = SingleFigureDescription.model_validate_json(current_figure)
 
     if FIGURES_KEY not in state:
         state[FIGURES_KEY] = {}
 
     current_figure_state = state[FIGURES_KEY]
-    current_figure_state[current_figure["id"]] = {
-        k: v for k, v in current_figure.items() if k != "id"
+    current_figure_state[current_figure_obj.figure_number] = {
+        k: v for k, v in current_figure_obj.model_fields.keys() if k != "figure_number"
     }
 
     state[FIGURES_KEY] = current_figure_state
@@ -85,13 +90,12 @@ def postprocess_figure_states(
 
 figure_agent = Agent(
     name="figure_agent",
-    model=LiteLlm(model=MODEL_NAME),
-    # include_contents="none",
+    model=LLM,
     description="Agent expert in interpreting figures of a scientific article.",
     instruction=prompt.PROMPT,
     before_agent_callback=prepare_instructions,
-    after_model_callback=postprocess_figure_metadata,
-    after_agent_callback=postprocess_figure_states,
+    after_model_callback=process_figure_response,
+    after_agent_callback=update_figure_state,
     output_schema=SingleFigureDescription,
     output_key=CURRENT_FIGURE_KEY,
 )
