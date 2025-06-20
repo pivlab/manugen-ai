@@ -1,13 +1,16 @@
 import os
-from google.adk import Agent
-from google.adk.models.lite_llm import LiteLlm
 
+from google.adk import Agent
 from manugen_ai.schema import ManuscriptStructure
 from manugen_ai.utils import get_llm
+
 from . import prompt
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
-LLM=get_llm(MODEL_NAME, response_format=ManuscriptStructure,)
+LLM = get_llm(
+    MODEL_NAME,
+    response_format=ManuscriptStructure,
+)
 model_api_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
 
 if MODEL_NAME.startswith(("ollama",)):
@@ -26,5 +29,5 @@ request_interpreter_agent = Agent(
     description="It interprets the user's input/request, extracts subrequests/ideas from it and assign them to specific sections of the scientific manuscript.",
     instruction=prompt.PROMPT,
     output_schema=ManuscriptStructure,
-    output_key="instructions"
+    output_key="instructions",
 )

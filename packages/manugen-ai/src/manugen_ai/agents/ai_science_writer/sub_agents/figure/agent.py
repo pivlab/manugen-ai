@@ -3,23 +3,20 @@ An agent to interpret scientific figures and generate descriptions.
 """
 
 import os
-import json
-from typing import Optional
 from copy import deepcopy
+from typing import Optional
 
 from google.adk import Agent
 from google.adk.agents.callback_context import CallbackContext
-from google.adk.models.lite_llm import LiteLlm
-from google.genai import types
 from google.adk.models import LlmResponse
-
-from manugen_ai.utils import get_llm
+from google.genai import types
 from manugen_ai.schema import (
     CURRENT_FIGURE_KEY,
     FIGURES_KEY,
     SingleFigureDescription,
     prepare_instructions,
 )
+from manugen_ai.utils import get_llm
 
 from . import prompt
 
@@ -27,7 +24,7 @@ MODEL_NAME = os.environ.get(
     "MANUGENAI_FIGURE_MODEL_NAME",
     os.environ.get("MANUGENAI_MODEL_NAME"),
 )
-LLM=get_llm(MODEL_NAME)
+LLM = get_llm(MODEL_NAME)
 
 
 def process_figure_response(
@@ -49,7 +46,7 @@ def process_figure_response(
     current_figure_id = 1
     if FIGURES_KEY in state:
         current_figure_id = len(state[FIGURES_KEY]) + 1
-    
+
     figure_desc_obj.figure_number = current_figure_id
     modified_text = figure_desc_obj.model_dump_json()
 
@@ -58,11 +55,12 @@ def process_figure_response(
     # Deep copy parts to avoid modifying original if other callbacks exist
     modified_parts = [deepcopy(part) for part in llm_response.content.parts]
     modified_parts[0].text = modified_text
-    
+
     return LlmResponse(
-         content=types.Content(role="model", parts=modified_parts),
-         grounding_metadata=llm_response.grounding_metadata
-     )
+        content=types.Content(role="model", parts=modified_parts),
+        grounding_metadata=llm_response.grounding_metadata,
+    )
+
 
 def update_figure_state(
     callback_context: CallbackContext,
