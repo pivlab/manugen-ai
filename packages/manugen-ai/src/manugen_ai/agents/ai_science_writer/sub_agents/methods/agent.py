@@ -18,32 +18,3 @@ methods_agent = Agent(
     before_agent_callback=prepare_instructions,
     output_key="methods",
 )
-
-
-async def call_methods_agent(
-        question: str,
-        tool_context: ToolContext,
-):
-    """Tool to call the methods_agent."""
-    section_key = METHODS_KEY
-    agent_obj = methods_agent
-
-    agent_tool = AgentTool(
-        agent=agent_obj,
-        # skip_summarization=True,
-    )
-
-    agent_output = await agent_tool.run_async(
-        # args={"request": question},
-        args={"request": "Follow your original instructions."},
-        tool_context=tool_context,
-    )
-    # save results
-    tool_context.state[section_key] = agent_output
-
-    # remove current instructions since we already applied them
-    if section_key in tool_context.state[INSTRUCTIONS_KEY]:
-        del tool_context.state[INSTRUCTIONS_KEY][section_key]
-    tool_context.state[f"{INSTRUCTIONS_KEY}_{section_key}"] = ""
-
-    return agent_output
