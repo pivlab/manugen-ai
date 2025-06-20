@@ -138,7 +138,24 @@ def read_path_contents(path: str) -> str:
     p = pathlib.Path(path).expanduser().resolve()
 
     def is_text_file(fp: pathlib.Path) -> bool:
-        return fp.stat().st_size <= 250_000
+        return fp.stat().st_size <= 250_000 and fp.suffix in {
+            ".md",
+            ".txt",
+            ".py",
+            ".java",
+            ".R",
+            ".json",
+            ".yaml",
+            ".yml",
+            ".html",
+            ".css",
+            ".js",
+            ".ts",
+            ".c",
+            ".cpp",
+            ".h",
+            ".hpp",
+        }
 
     files = []
     if p.is_file():
