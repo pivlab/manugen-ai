@@ -261,7 +261,7 @@ loop_refinement = LoopAgent(
 
 # sequence for orchestrating everything together
 root_agent = SequentialAgent(
-    name="root_agent",
+    name="repo_agent",
     sub_agents=[parallel_get_content, sequence_writer, loop_refinement],
     description="""
         Gathers content, writes an initial document,

@@ -111,7 +111,7 @@ rag_loop = LoopAgent(
 )
 
 root_agent = SequentialAgent(
-    name="rag_retrieval_pipeline",
-    description="Finalize the improved draft from `enhanced_draft`",
+    name="retraction_avoidance_agent",
+    description="You help avoid retractions by improving the draft based on related retraction notices.",
     sub_agents=[rag_loop, agent_finalize_improvements],
 )
