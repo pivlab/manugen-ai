@@ -41,12 +41,10 @@ Only use tools if they exist.
 Don't provide me with code you expect me to run.
 
 ** repository URL **
-```
-{repository_url}
-```
+See the user prompt for the repository URL.
 
 Steps:
-1. clone the repo {repository_url} provided by the user using tool: clone_repository.
+1. clone the repo provided by the user using tool: clone_repository.
 This tool will provide a temporary directory where you may find the contents.
 2. read the contents of the repo from the clone_repository output using tool: read_path_contents
 Add the most important contents of the repo to the final result for context in later steps.

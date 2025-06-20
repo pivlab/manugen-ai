@@ -20,12 +20,11 @@ agent_review_loop = Agent(
     name="review_and_decide",
     description="Critique full markdown and decide if it's final.",
     instruction="""
-You receive:
-- full_md: the full manuscript markdown in {full_md}
+You receive content from the user.
 
 Your job:
 1. Provide a concise bullet-list of any changes needed.
-2. If **no** changes are needed (manuscript is publication-ready), call the tool `exit_loop` instead of returning bullets.
+2. If **no** changes are needed (content is publication-ready), call the tool `exit_loop` instead of returning bullets.
 
 Return either:
 - A JSON list of feedback bullets,
@@ -42,10 +41,10 @@ agent_refine = Agent(
     description="Apply feedback to revise the manuscript.",
     instruction="""
 You receive:
-- full_md: the current manuscript in {full_md}
+- Content from the user.
 - feedback: a list of bullets in {feedback}
 
-Revise the manuscript accordingly and return updated markdown as 'refined_md'.
+Revise the content accordingly and return *only* updated content.
 """,
     output_key="refined_md",
 )
