@@ -1,23 +1,11 @@
 import logging
-from typing import AsyncGenerator
-from typing_extensions import override
 
-from google.adk.agents import LlmAgent, BaseAgent, SequentialAgent
-from google.adk.agents.invocation_context import InvocationContext
-from google.adk.events import Event
+from google.adk.agents import LlmAgent
 
-from manugen_ai.schema import INSTRUCTIONS_KEY, TITLE_KEY, ABSTRACT_KEY, \
-    INTRODUCTION_KEY, RESULTS_KEY, DISCUSSION_KEY, METHODS_KEY
-
-from ..introduction import introduction_agent
-from ..results import results_agent
-from ..title import title_agent
-from ..abstract import abstract_agent
-from ..discussion import discussion_agent
-from ..methods import methods_agent
+from manugen_ai.schema import INSTRUCTIONS_KEY, ManuscriptStructure
 
 from google.adk.agents.callback_context import CallbackContext
-from google.genai import types # For types.Content
+from google.genai import types
 from typing import Optional
 
 # --- Configure Logging ---
@@ -26,34 +14,28 @@ logger = logging.getLogger(__name__)
 
 
 def manuscript_assembler(callback_context: CallbackContext) -> Optional[types.Content]:
-    state = callback_context.state.to_dict()
-    manuscript = f"""
-# Title
-{state.get('title', 'none')}
-
-# Abstract
-{state.get('abstract', 'none')}
-
-# Introduction
-{state.get('introduction', 'none')}
-
-# Results
-{state.get('results', 'none')}
-
-# Discussion
-{state.get('discussion', 'none')}
-
-# Methods
-{state.get('methods', 'none')}
-    """.strip()
+    current_state = callback_context.state.to_dict()
+    
+    manuscript_content = ""
+    
+    for section_name in ManuscriptStructure.model_json_schema()["properties"].keys():
+        instructions_key = f"{INSTRUCTIONS_KEY}_{section_name}"
+        
+        if instructions_key in current_state and current_state[instructions_key].strip() != "":
+            # if there are current instructions for this section, then include that section
+            # in the assembled manuscript
+            manuscript_content += f"\n# {section_name.capitalize()}\n\n{current_state.get(section_name)}\n\n"
+            
+            # then remove the instruction key from the state
+            callback_context.state[instructions_key] = ""
 
     return types.Content(
-        parts=[types.Part(text=manuscript)],
+        parts=[types.Part(text=manuscript_content)],
         role="model",
     )
 
-
 assembler_agent = LlmAgent(
     name="assembler_agent",
+    description="This is a simple agent that assembles all manuscript section that were drafted in the last request.",
     before_agent_callback=manuscript_assembler,
 )
