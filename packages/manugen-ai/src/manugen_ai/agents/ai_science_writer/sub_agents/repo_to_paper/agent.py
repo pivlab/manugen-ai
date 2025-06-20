@@ -12,7 +12,6 @@ from google.adk.agents import (
     Agent,
     BaseAgent,
     LoopAgent,
-    ParallelAgent,
     SequentialAgent,
 )
 from google.adk.agents.invocation_context import InvocationContext
@@ -56,35 +55,6 @@ We need to make sure we don't hallucinate aspects that aren't in the content.
         FunctionTool(func=read_path_contents),
     ],
     output_key="code_summary",
-)
-
-agent_folder_summarizer = Agent(
-    model=LLM,
-    name="agent_folder_summarizer",
-    description=("I am and intelligent and experienced scientific researcher."),
-    instruction="""
-Decide when a tool call is
-needed based on the instructions provided.
-You have advanced scientific knowledge and
-research skills.
-Don't return the results until you have completed all steps.
-You will be provided a path which includes file contents to summarize.
-Only use tools if they exist.
-Don't provide me with code you expect me to run.
-
-** path to summarize **
-```
-{content_path}
-```
-
-Steps:
-1. Read the contents of {content_path} using tool: read_path_contents
-Add the most important contents of the repo to the final result for context in later steps.
-Don't make things up about the content that aren't in there, simply return the content as-is.
-We need to make sure we don't hallucinate aspects that aren't in the content.
-""",
-    tools=(FunctionTool(func=read_path_contents),),
-    output_key="content_summary",
 )
 
 agent_school = Agent(
@@ -137,10 +107,6 @@ Here are the content summaries you have to work with.
 If either of these are blank or state that there is nothing
 available you should ignore the input when writing.
 
-Content:
-```
-{content_summary}
-```
 Code:
 ```
 {code_summary}
@@ -235,12 +201,6 @@ class StopChecker(BaseAgent):
             )
 
 
-parallel_get_content = ParallelAgent(
-    name="get_content",
-    description=("I coordinate various tasks leveraging other agents in parallel."),
-    sub_agents=[agent_code_summarizer, agent_folder_summarizer],
-)
-
 # sequence for gathering and creating initial content
 sequence_writer = SequentialAgent(
     name="writer",
@@ -251,13 +211,13 @@ sequence_writer = SequentialAgent(
 loop_refinement = LoopAgent(
     name="refiner",
     sub_agents=[agent_editor, agent_refiner, StopChecker()],
-    max_iterations=5,
+    max_iterations=2,
 )
 
 # sequence for orchestrating everything together
 root_agent = SequentialAgent(
     name="repo_agent",
-    sub_agents=[parallel_get_content, sequence_writer, loop_refinement],
+    sub_agents=[agent_code_summarizer, sequence_writer, loop_refinement],
     description="""
         Gathers content, writes an initial document,
         and then iteratively refines it with critique loop.
