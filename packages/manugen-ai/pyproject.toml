@@ -29,6 +29,7 @@ dependencies = [
   "jsonschema>=4.24",
   "litellm>=1.72.1",
   "nbconvert>=7.16.6",
+  "pillow>=11.2.1",
   "poethepoet>=0.35",
   "psycopg2-binary>=2.9.10",
   "pyalex>=0.18",
