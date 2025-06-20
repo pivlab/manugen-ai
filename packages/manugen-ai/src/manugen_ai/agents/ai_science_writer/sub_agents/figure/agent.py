@@ -1,3 +1,7 @@
+"""
+An agent to interpret scientific figures and generate descriptions.
+"""
+
 import os
 import json
 from typing import Optional
