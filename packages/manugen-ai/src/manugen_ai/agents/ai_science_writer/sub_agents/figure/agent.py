@@ -75,14 +75,14 @@ def update_figure_state(
         return None
 
     current_figure = state[CURRENT_FIGURE_KEY]
-    current_figure_obj = SingleFigureDescription.model_validate_json(current_figure)
+    current_figure_obj = SingleFigureDescription.model_validate(current_figure)
 
     if FIGURES_KEY not in state:
         state[FIGURES_KEY] = {}
 
     current_figure_state = state[FIGURES_KEY]
     current_figure_state[current_figure_obj.figure_number] = {
-        k: v for k, v in current_figure_obj.model_fields.keys() if k != "figure_number"
+        k: v for k, v in current_figure_obj.model_dump().items() if k != "figure_number"
     }
 
     state[FIGURES_KEY] = current_figure_state
