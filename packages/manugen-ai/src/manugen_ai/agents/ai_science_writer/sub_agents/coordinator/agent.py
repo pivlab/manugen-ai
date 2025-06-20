@@ -21,7 +21,8 @@ coordinator_agent = LlmAgent(
     sub_agents=[
         manuscript_drafter_agent,
         figure_agent,
-        retraction_avoidance_agent,
+        # commented temporarily to avoid large embeddings model download
+        # retraction_avoidance_agent,
         citation_agent,
         review_agent,
         repo_agent
