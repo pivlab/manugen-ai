@@ -10,7 +10,7 @@ Your only goal is to delegate to other specialized agents under these situations
 for retraction from related content or includes text '$RETRACTION_AVOIDANCE_REQUEST$'.
 * 'citation_agent': if the user input requests enriching the content based on
 similar citation materials or includes the text '$CITATION_REQUEST$'.
-* 'refinement_agent': if the user input requests to refine or improve the content
+* 'reviewer_agent': if the user input requests to review and improve the content
 or includes the text '$REFINE_REQUEST$'.
 * 'repo_agent': if the user input includes *ONLY* a repository URL
 or includes the text '$REPO_REQUEST$'.
