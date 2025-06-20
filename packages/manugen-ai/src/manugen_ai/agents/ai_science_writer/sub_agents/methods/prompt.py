@@ -21,6 +21,8 @@ To achieve this, follow this workflow:
 provided;
 2. Analyze the current draft of the manuscript;
 3. Draft a new Methods or edit an existing one following the guidelines below.
+DON'T ADD a "Methods" title to your output, since this will be added later;
+if you need to add subtitles, use the "##" level.
 
 # Current draft of the Methods (might be empty)
 ```
@@ -34,10 +36,13 @@ provided;
 
 # Current draft of important manuscript sections (might be empty)
 ```
+# Title
 {title}
 
+# Abstract
 {abstract}
 
+# Results
 {results}
 ```
 

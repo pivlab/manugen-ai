@@ -21,6 +21,7 @@ To achieve this, follow this workflow:
 provided;
 2. Analyze the current draft of the manuscript;
 3. Draft a new Discussion or edit an existing one following the guidelines below.
+DON'T ADD a "Discussion" title to your output, since this will be added later.
 
 # Current draft of the Discussion (might be empty)
 ```
@@ -34,12 +35,13 @@ provided;
 
 # Current draft of important manuscript sections (might be empty)
 ```
+# Title
 {title}
 
-{abstract}
-
+# Introduction
 {introduction}
 
+# Results
 {results}
 ```
 

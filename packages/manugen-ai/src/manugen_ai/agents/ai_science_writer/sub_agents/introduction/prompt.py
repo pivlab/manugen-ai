@@ -17,12 +17,11 @@ and any other parts of the manuscript that might be relevant for you (such as th
 draft of the Results section, etc).
 
 To achieve this, follow this workflow:
-1. Analyze the rough set of instructions and/or ideas for a Introduction section that the user
+1. Analyze the rough set of instructions and/or ideas for the Introduction that the user
 provided;
-2. Group the instructions/ideas into a set of declarative statements that will become
-the headers of subsections within the Results section.
-3. For each of these subsections, you will follow the guidelines below to convert the rough set
-of instructions/ideas, into a set of properly structured paragraphs.
+2. Analyze the current draft of the manuscript;
+3. Draft a new Introduction or edit an existing one following the guidelines below.
+DON'T ADD an "Introduction" title to your output, since this will be added later.
 
 Your goal is to draft the Introduction section that communicates why the scientific manuscript matters.
 For this, you will take the rough set of instructions and/or ideas for the Introduction section,
@@ -41,10 +40,13 @@ for context.
 
 # Current draft of important manuscript sections (might be empty)
 ```
+# Title
 {title}
 
+# Abstract
 {abstract}
 
+# Results
 {results}
 ```
 
