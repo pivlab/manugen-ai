@@ -10,6 +10,11 @@
 FROM python:3.12-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+# install system dependencies, tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake build-essential pkg-config libgoogle-perftools-dev \
+    zlib1g-dev curl
+
 # Change the working directory to the `app` directory
 WORKDIR /app
 
