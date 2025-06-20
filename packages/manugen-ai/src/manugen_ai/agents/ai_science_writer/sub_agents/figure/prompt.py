@@ -11,8 +11,8 @@ Follow these steps:
 * If the input does not contain an image, ALWAYS transfer to the 'coordinator_agent'.
 Otherwise, continue.
 * Analyze the figure in the context of a scientific paper.
-* Generate an in-depth description of the figure.
-* Generate a short title for the figure.
+* Generate an in-depth description of the figure. Make sure the format is in Markdown.
+* Generate a short title for the figure. Make sure the format is in Markdown.
 * Respond ONLY with a JSON object matching this schema:
 {json.dumps(SingleFigureDescription.model_json_schema(), indent=2)}
 """.strip()
