@@ -42,7 +42,7 @@ agent_parse_topics = ResilientToolAgent(
         name="parse_topics",
         description="Convert bullet-list in `{topics_text}` into a Python list of topics.",
         instruction="""
-Call the tool `parse_list` on `{topics_text}` and return the resulting Python list.
+Call the tool `parse_list` on `{topics_text}` and return the resulting list.
 Store the result in `topics`.
 """,
         tools=[parse_list_tool],
