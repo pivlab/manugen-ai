@@ -324,56 +324,33 @@ const action =
       .run();
   };
 
-/** actions available to run in editor */
-const actions = [
-  // {
-  //   /** icon to show popup */
-  //   icon: Feather,
-  //   /** label to show in popup */
-  //   label: "Action 1",
-  //   action: action(
-  //     ["gemini"],
-  //     async ({ full }) =>
-  //       /** run actual work on backend */
-  //       (await endpoint1(full)).output
-  //   ),
-  //   /** whether action appears when text selected, or just single cursor position */
-  //   type: "selection",
-  // },
-  // {
-  //   icon: Paperclip,
-  //   label: "Action 2",
-  //   action: action(
-  //     ["gemini", "chatgpt"],
-  //     async ({ sel }) => (await endpoint2(sel)).output
-  //   ),
-  //   type: "cursor",
-  // },
-  {
-    icon: Send,
-    label: "Send",
+const aiWriterSelectAction = (label: string, icon: any, prefix: string = "", agent: AgentId = "aiWriter") => {
+  return {
+    icon: icon,
+    label: label,
     action: action(
-      ["aiWriter"],
-      async ({ full }) => extractADKText(await aiWriterAsync(full, sessionData.value))
-    ),
-    selection: true,
-    type: "cursor",
-  },
-  {
-    icon: Feather,
-    label: "Draft",
-    action: action(
-      ["aiWriter"],
+      [agent],
       async ({ sel }) => {
-        console.log("Drafting with selection:", sel);
-
         return extractADKText(
-          await aiWriterAsync(sel, sessionData.value)
+          await aiWriterAsync(`${prefix}${sel}`, sessionData.value)
         )
       }
     ),
     type: "selection",
-  },
+  }
+}
+
+/** actions available to run in editor */
+const actions = [
+  aiWriterSelectAction("Draft", Feather),
+  aiWriterSelectAction("Refine", Sparkles, "$REFINE_REQUEST$ "),
+  aiWriterSelectAction("Retracts", BookX, "$RETRACTION_AVOIDANCE_REQUEST$ "),
+  aiWriterSelectAction("Cites", LibraryBig, "$CITATION_REQUEST$ "),
+  aiWriterSelectAction("Repos", FolderGit2, "$REPO_REQUEST$ "),
+  // "* 'retraction_avoidance_agent': if the user input includes text '$RETRACTION_AVOIDANCE_REQUEST$'."
+  // "* 'citation_agent': if the user input includes text '$CITATION_REQUEST$'."
+  // "* 'reviewer_agent': if the user input includes text '$REFINE_REQUEST$'."
+  // "* 'repo_agent': if the user input includes text '$REPO_REQUEST$'."
 ] as const;
 
 /** replace text content of entire editor */
