@@ -1,8 +1,10 @@
+import { toast, type ToastOptions } from 'vue3-toastify';
+
 import { api, request } from "./";
 
 import {
   ensureSessionExists, extractADKText, sseRequest,
-  type ADKResponse, type ADKSessionResponse
+  type ADKResponse, type ADKResponsePart, type ADKSessionResponse
 } from "./adk";
 
 type Response = { output: string };
@@ -85,8 +87,30 @@ export const aiWriterAsync = async (input: string, session: ADKSessionResponse|n
         }]
       }
     }),
-  }, (eventLog: ADKResponse) => {
-    console.log("Received event log update:", eventLog);
+  }, (event: ADKResponsePart) => {
+    console.log("Received event:", event);
+
+    let msg = null; // `Action by ${event?.author}`;
+
+    if (event) {
+      // inspect the event to see how to format it
+      if (event.actions?.transferToAgent) {
+        msg = `<b>${event.author}</b> =><br /> ${event.actions.transferToAgent}`
+      }
+      else if (event.content?.parts[0]?.text) {
+        msg = `<b>${event.author}</b><br />produced text`
+      }
+
+      if (msg) {
+        toast(msg, {
+          position: "bottom-left",
+          autoClose: 6000,
+          hideProgressBar: true,
+          type: "info",
+          transition: "bounce",
+        } as ToastOptions);
+      }
+    }
   });
 
   console.log("Final event log received:", eventLog);
