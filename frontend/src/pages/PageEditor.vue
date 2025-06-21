@@ -201,11 +201,11 @@ const editor = useEditor({
   parseOptions: { preserveWhitespace: "full" },
   extensions: [
     StarterKit.configure({
-      /** disable all default extensions */
+      /** disable most default extensions */
       codeBlock: false,
       blockquote: false,
       horizontalRule: false,
-      hardBreak: false,
+      // hardBreak: false,
       heading: false,
       italic: false,
       bold: false,
@@ -223,6 +223,23 @@ const editor = useEditor({
     },
   },
 });
+
+const paragraphize = (text: string) => {
+  /** split text into paragraphs by newlines */
+  const paragraphs = text.split('\n\n').filter(line => line.trim() !== '');
+  /** wrap each paragraph in a <p> tag */
+  return paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
+};
+
+const paragraphizeToJSON = (text: string) => {
+  return text
+    .split('\n\n')
+    .filter(line => line.trim() !== '')
+    .map(line => ({
+      type: 'paragraph',
+      content: [{ type: 'text', text: line.trim() }],
+    }));
+};
 
 /** get info about state of document and selection */
 const getContext = () => {
@@ -333,11 +350,7 @@ const action =
         from: portalNode.pos,
         to: portalNode.pos + portalNode.node.nodeSize,
       })
-      /** insert response in its place */
-      .insertContentAt(portalNode.pos, {
-        type: "paragraph",
-        content: [{ type: "text", text: result }],
-      })
+      .insertContentAt(portalNode.pos,  paragraphizeToJSON(result))
       .run();
   };
 
@@ -380,7 +393,7 @@ const selectionActions = ref(
 
 /** replace text content of entire editor */
 const overwrite = (text = "") =>
-  editor.value?.commands.setContent(text, true, { preserveWhitespace: "full" });
+  editor.value?.commands.setContent(paragraphize(text), true, { preserveWhitespace: "full" });
 
 /** upload file types */
 const accept = [
