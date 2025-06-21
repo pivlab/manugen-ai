@@ -72,13 +72,13 @@
     />
 
     <FloatingMenu
-      v-if="editor"
+      v-if="editor && cursorActions?.length > 0"
       :editor="editor"
       class="menu"
       :tippy-options="tippyOptions"
     >
       <template
-        v-for="({ icon, label, action, type }, index) in actions"
+        v-for="({ icon, label, action, type }, index) in cursorActions"
         :key="index"
       >
         <button v-if="type === 'cursor'" class="menu-button" @click="action">
@@ -88,13 +88,13 @@
     </FloatingMenu>
 
     <BubbleMenu
-      v-if="editor"
+      v-if="editor && selectionActions?.length > 0"
       :editor="editor"
       class="menu"
       :tippy-options="tippyOptions"
     >
       <template
-        v-for="({ icon, label, action, type }, index) in actions"
+        v-for="({ icon, label, action, type }, index) in selectionActions"
         :key="index"
       >
         <button v-if="type === 'selection'" class="menu-button" @click="action">
@@ -355,6 +355,14 @@ const actions = [
   // "* 'reviewer_agent': if the user input includes text '$REFINE_REQUEST$'."
   // "* 'repo_agent': if the user input includes text '$REPO_REQUEST$'."
 ] as const;
+
+// computed properties for cursor and selection actions
+const cursorActions = ref(
+  actions.filter((a) => a.type === "cursor")
+);
+const selectionActions = ref(
+  actions.filter((a) => a.type === "selection")
+);
 
 /** replace text content of entire editor */
 const overwrite = (text = "") =>
