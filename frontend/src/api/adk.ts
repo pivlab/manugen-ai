@@ -21,7 +21,10 @@ export type ADKSessionResponse = {
 /**
  *  ensures that a session exists for the current user
  */
-export const ensureSessionExists = async (appName: string, userId: string, sessionId : string|null) => {
+export const ensureSessionExists = async (
+  appName: string, userId: string, sessionId : string|null,
+  maxRetries: number = 50, sleepBetweenRetriesMs: number = 1000
+) => {
   // perform GET for the session
   try {
     const result = await fetch(`${api}/adk_api/apps/${appName}/users/${userId}/sessions/${sessionId}`)
@@ -35,21 +38,31 @@ export const ensureSessionExists = async (appName: string, userId: string, sessi
   }
   catch (e) {
     // if it fails, create a new session
-    const createResponse = await fetch(`${api}/adk_api/apps/${appName}/users/${userId}/sessions/${sessionId}`, {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "state": {}
-      }),
-    });
+    let retries = maxRetries;
 
-    if (!createResponse.ok) {
-      throw new Error(`Failed to create session for app ${appName} and user ${userId}`);
+    while (retries >= 0) {
+      const createResponse = await fetch(`${api}/adk_api/apps/${appName}/users/${userId}/sessions/${sessionId}`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "state": {}
+        }),
+      });
+
+      if (!createResponse.ok) {
+        if (retries == 0) {
+          throw new Error(`Failed to create session for app ${appName} and user ${userId}`);
+        }
+        retries -= 1;
+        // sleep for sleepBetweenRetries before retrying
+        await new Promise(resolve => setTimeout(resolve, sleepBetweenRetriesMs));
+        continue;
+      }
+
+      return await createResponse.json() as ADKSessionResponse;
     }
-
-    return await createResponse.json() as ADKSessionResponse;
   }
 }
 
