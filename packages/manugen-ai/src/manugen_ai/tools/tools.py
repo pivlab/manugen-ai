@@ -66,12 +66,17 @@ def openalex_query(topics: str) -> Dict[str, List[Dict[str, Any]]]:
     limit = 3
 
     works = (
+        # search by abstracts with topics
         client.search_filter(abstract=topics)
+        # filter retractions
         .filter(is_retracted=False)
+        # sort descending by citation count
         .sort(cited_by_count="desc")
+        # set a limit to our results
         .get(per_page=limit)
     )
     output = [
+        # return only title, abstract, and DOI
         {"title": w["title"], "abstract": w["abstract"], "doi": w["doi"]}
         for w in works
     ]
