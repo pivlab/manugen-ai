@@ -23,7 +23,7 @@ export type ADKSessionResponse = {
  */
 export const ensureSessionExists = async (
   appName: string, userId: string, sessionId : string|null,
-  maxRetries: number = 50, sleepBetweenRetriesMs: number = 1000
+  maxRetries: number = 120, sleepBetweenRetriesMs: number = 1000
 ) => {
   // perform GET for the session
   try {
@@ -41,27 +41,42 @@ export const ensureSessionExists = async (
     let retries = maxRetries;
 
     while (retries >= 0) {
-      const createResponse = await fetch(`${api}/adk_api/apps/${appName}/users/${userId}/sessions/${sessionId}`, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          "state": {}
-        }),
-      });
+      try {
+        const createResponse = await fetch(`${api}/adk_api/apps/${appName}/users/${userId}/sessions/${sessionId}`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            "state": {}
+          }),
+        });
 
-      if (!createResponse.ok) {
-        if (retries == 0) {
+        if (!createResponse.ok) {
           throw new Error(`Failed to create session for app ${appName} and user ${userId}`);
         }
+
+        return await createResponse.json() as ADKSessionResponse;
+      }
+      catch (internalError) {
+        // this can come either from the fetch failing due to the backend being down,
+        // or from the response not being 200 OK
+        // since we don't want to overwhelm the user with errors, we'll skip
+        // reporting unless it's our last retry
+
+        // console.error(`Error creating session for app ${appName} and user ${userId}:`, internalError);
+
+        // if retries are exhausted, throw the error
+        if (retries == 0) {
+          throw internalError;
+        }
+
+        // otherwise, give it another shot in sleepBetweenRetriesMs milliseconds
         retries -= 1;
         // sleep for sleepBetweenRetries before retrying
         await new Promise(resolve => setTimeout(resolve, sleepBetweenRetriesMs));
         continue;
       }
-
-      return await createResponse.json() as ADKSessionResponse;
     }
   }
 }
