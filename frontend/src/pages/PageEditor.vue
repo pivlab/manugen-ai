@@ -118,7 +118,6 @@ import {
 } from "@tiptap/vue-3";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
-import { Markdown } from 'tiptap-markdown';
 import AppUpload from "@/components/AppUpload.vue";
 import AppButton from "@/components/AppButton.vue";
 import AppAgents from "@/components/AppAgents.vue";
@@ -200,7 +199,22 @@ const placeholder =
 const editor = useEditor({
   content: "",
   parseOptions: { preserveWhitespace: "full" },
-  extensions: [StarterKit, Placeholder.configure({ placeholder }), Portal],
+  extensions: [
+    StarterKit.configure({
+      /** disable all default extensions */
+      codeBlock: false,
+      blockquote: false,
+      horizontalRule: false,
+      hardBreak: false,
+      heading: false,
+      italic: false,
+      bold: false,
+      strike: false,
+      bulletList: false,
+      orderedList: false,
+      listItem: false,
+    }), Placeholder.configure({ placeholder }), Portal
+  ],
   editorProps: {
     attributes: {
       /** style of immediate child of editor root element (EditorContent) */
