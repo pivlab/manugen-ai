@@ -138,7 +138,8 @@ export type ADKResponsePart = {
             [key:string]: string
         },
         "artifactDelta": object,
-        "requestedAuthConfigs": object
+        "requestedAuthConfigs": object,
+        "transferToAgent": string|undefined
     },
     "id": string,
     "timestamp": number
@@ -159,7 +160,7 @@ export type ADKResponse = ADKResponsePart[]
 export const sseRequest = async (
   url: string,
   options: object = {},
-  msgCallback?: (eventLog: ADKResponse) => void,
+  msgCallback?: (event: ADKResponsePart, log: ADKResponse) => void,
 ) => {
   /**
    * start request, listen for events and execute msgCallback if provided
@@ -182,7 +183,7 @@ export const sseRequest = async (
     const eventData = JSON.parse(event.data);
     eventLog.push(eventData)
     if (msgCallback) {
-      msgCallback(eventLog);
+      msgCallback(eventData, eventLog);
     }
   })
 
