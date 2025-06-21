@@ -33,6 +33,7 @@ for agent in [
     review_agent,
     repo_agent,
 ]:
-    _, png = build_mermaid(agent)
+    
+    _, png = build_mermaid(agent, orientation= "LR" if agent.name != "coordinator_agent" else "TB")
     with open(str(pathlib.Path(__file__).parent / f"{agent.name}.png"), "wb") as f:
         f.write(png)

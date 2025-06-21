@@ -64,3 +64,35 @@ references:
     identifiers: 
       - type: doi
         value: 10.48550/arXiv.2205.01833
+  - title: >-
+      Retrieval-augmented generation for knowledge-intensive NLP tasks
+    type: conferencePaper
+    collection-title: Proceedings of the 34th International Conference on Neural Information Processing Systems
+    editors-series: NIPS '20
+    isbn: 978-1-7138-2954-6
+    authors: 
+      - family-names: Lewis
+        given-names: Patrick
+      - family-names: Perez
+        given-names: Ethan
+      - family-names: Piktus
+        given-names: Aleksandra
+      - family-names: Petroni
+        given-names: Fabio
+      - family-names: Karpukhin
+        given-names: Vladimir
+      - family-names: Goyal
+        given-names: Naman
+      - family-names: Küttler
+        given-names: Heinrich
+      - family-names: Lewis
+        given-names: Mike
+      - family-names: Yih
+        given-names: Wen-tau
+      - family-names: Rocktäschel
+        given-names: Tim
+      - family-names: Riedel
+        given-names: Sebastian
+      - family-names: Kiela
+        given-names: Douwe
+    date-published: 2020
