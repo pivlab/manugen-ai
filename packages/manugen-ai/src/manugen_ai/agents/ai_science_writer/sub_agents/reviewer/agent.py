@@ -45,6 +45,8 @@ You receive:
 - feedback: a list of bullets in {feedback}
 
 Revise the content accordingly and return *only* updated content.
+Do NOT return additional commentary, JSON, or metadata.
+ONLY return the revised content.
 """,
     output_key="refined_md",
 )
