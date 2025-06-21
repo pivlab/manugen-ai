@@ -2,7 +2,7 @@
   <header
     class="flex gap-1 items-center flex-wrap p-3 sticky top-0 bg-white shadow z-10"
   >
-    <AppButton v-tooltip="'Toggle Attachments'" @click="toggleAttachments">
+    <AppButton v-tooltip="'Toggle Attachments'" @click="toggleAttachments" :is-active="isAttachmentsOpen">
       <Paperclip />
     </AppButton>
     <AppButton v-tooltip="'Undo'" @click="editor?.commands.undo()">
@@ -32,7 +32,7 @@
     >
       <Download />
     </AppButton>
-    <AppButton v-tooltip="'Toggle Preview'" @click="togglePreview">
+    <AppButton v-tooltip="'Toggle Preview'" @click="togglePreview" :is-active="isPreviewOpen">
       <Eye />
     </AppButton>
   </header>
