@@ -131,8 +131,11 @@ import {
   Paperclip,
   Eye,
   Redo,
-  Send,
+  Sparkles,
+  BookX,
   Undo,
+  LibraryBig,
+  FolderGit2,
 } from "lucide-vue-next";
 import { downloadTxt } from "@/util/download";
 import { uniqueId } from "lodash";
