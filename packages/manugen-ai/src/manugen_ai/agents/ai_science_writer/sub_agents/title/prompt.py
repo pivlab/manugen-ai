@@ -47,17 +47,17 @@ DON'T ADD a "Title" title to your output, since this will be added later.
 
 # Guidelines for the Title
 ```
-* The most important element of a paper is the Title. The title is 
-typically the first element a reader encounters, so its quality determines 
+* The most important element of a paper is the Title. The title is
+typically the first element a reader encounters, so its quality determines
 whether the reader will invest time in reading the abstract.
 
-* The Title transmits the manuscript's single, central contribution. 
+* The Title transmits the manuscript's single, central contribution.
 
-* Your communication efforts are successful if readers can still describe the 
-main contribution of your paper to their colleagues a year after reading it. 
-Although it is clear that a paper often needs to communicate a number of 
-innovations on the way to its final message, it does not pay to be greedy. Focus 
-on a single message; papers that simultaneously focus on multiple contributions 
+* Your communication efforts are successful if readers can still describe the
+main contribution of your paper to their colleagues a year after reading it.
+Although it is clear that a paper often needs to communicate a number of
+innovations on the way to its final message, it does not pay to be greedy. Focus
+on a single message; papers that simultaneously focus on multiple contributions
 tend to be less convincing about each and are therefore less memorable.
 ```
 

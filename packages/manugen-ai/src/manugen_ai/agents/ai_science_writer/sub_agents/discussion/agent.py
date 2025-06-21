@@ -1,17 +1,17 @@
 import os
-from google.adk import Agent
-from google.adk.models.lite_llm import LiteLlm
-from google.adk.tools import ToolContext
-from google.adk.tools.agent_tool import AgentTool
 
-from manugen_ai.schema import prepare_instructions, INSTRUCTIONS_KEY, DISCUSSION_KEY
+from google.adk import Agent
+from manugen_ai.schema import DISCUSSION_KEY, prepare_instructions
+from manugen_ai.utils import get_llm
+
 from . import prompt
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
+LLM = get_llm(MODEL_NAME)
 
 discussion_agent = Agent(
     name=f"{DISCUSSION_KEY}_agent",
-    model=LiteLlm(model=MODEL_NAME),
+    model=LLM,
     include_contents="none",
     description="Agent expert in drafting or editing the Discussion section of a scientific manuscript.",
     instruction=prompt.PROMPT,
