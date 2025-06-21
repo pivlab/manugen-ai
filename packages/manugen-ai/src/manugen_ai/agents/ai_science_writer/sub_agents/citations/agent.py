@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import os
 
-from google.adk.agents import Agent, LoopAgent, SequentialAgent
+from google.adk.agents import Agent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 from manugen_ai.agents.meta_agent import ResilientToolAgent
@@ -31,29 +31,7 @@ topic one, topic two, ...
 Return only the topics, no extra commentary or JSON.
 Do NOT comment on the topics or provide explanations.
 """,
-    output_key="topics_text",
-)
-
-# Parse text topics into list
-agent_parse_topics = ResilientToolAgent(
-    Agent(
-        model=LLM,
-        name="parse_topics",
-        description="Convert bullet-list in `{topics_text}` into a Python list of topics.",
-        instruction="""
-Call the tool `parse_list` on `{topics_text}` and return the resulting list.
-Store the result in `topics`.
-""",
-        tools=[parse_list_tool],
-        output_key="topics",
-    ),
-    max_retries=3,
-)
-
-seq_topics = SequentialAgent(
-    name="get_topics_list",
-    description="Extract and structure topics list from draft",
-    sub_agents=[agent_extract_topics, agent_parse_topics],
+    output_key="topics",
 )
 
 # Search OpenAlex
@@ -71,13 +49,6 @@ Do NOT provide code to perform this action - you must do it by invoking the tool
         output_key="search_results",
     ),
     max_retries=3,
-)
-
-loop_search_and_fetch = LoopAgent(
-    name="gather_oa_data",
-    description="Search & fetch loop",
-    sub_agents=[agent_search_openalex],
-    max_iterations=3,
 )
 
 # Improve draft
@@ -100,8 +71,8 @@ root_agent = SequentialAgent(
     name="citation_agent",
     description="Extract topics → search & fetch → improve draft",
     sub_agents=[
-        seq_topics,
-        loop_search_and_fetch,
+        agent_extract_topics,
+        agent_search_openalex,
         agent_improve_draft,
     ],
 )
