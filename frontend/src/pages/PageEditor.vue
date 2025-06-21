@@ -407,6 +407,9 @@ const tippyOptions: TippyOptions = { placement: "bottom" };
   pointer-events: none;
 }
 
+/* force the box to be wider, since we need to accommodate more actions */
+.tippy-box { max-width: 600px !important;}
+
 @reference "@/styles.css";
 
 .menu {
