@@ -37,7 +37,24 @@
     </AppButton>
   </header>
 
-  <main class="flex-grow-1 flex items-stretch gap-5 p-10">
+
+  <main class="flex-grow-1 flex items-stretch gap-5 p-10 relative">
+    <!-- blocks interactions until a session is established -->
+    <transition name="fade">
+      <div v-if="!sessionData" class="overlay">
+        <div class="flex flex-col items-center p-5 justify-center h-full">
+          <div class="text-white">
+            <h2 class="text-xl font-semibold mb-2">Establishing Session...</h2>
+            <p v-if="!sessionError">Please wait while we set up your session.</p>
+            <p v-else class="text-slate-300">
+              Error establishing session: {{ sessionError }}<br /><br />
+              Please try refreshing the page or ask your administrator for help.
+            </p>
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <AppArtifacts v-if="isAttachmentsOpen"
       class="w-md max-w-1xl flex flex-col gap-2"
       :session="sessionData"
@@ -136,6 +153,8 @@ const adkSessionId = ref<string|null>(null)
 
 /** ADK session data for the established session */
 const sessionData = ref<ADKSessionResponse|null>(null);
+/** error message if session creation fails */
+const sessionError = ref<string|null>(null);
 
 // ensure that a session exists when the page is accessed
 onMounted(() => {
@@ -153,6 +172,7 @@ onMounted(() => {
     console.log("ADK session created:", data);
   }).catch((error) => {
     console.error("Error creating ADK session:", error);
+    sessionError.value = error.message || "Unknown error";
   });
 })
 
@@ -380,6 +400,28 @@ const tippyOptions: TippyOptions = { placement: "bottom" };
 </script>
 
 <style>
+/* Full-page overlay, to block interaction until a session is established */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* or any semi-transparent shade */
+  z-index: 9999;
+  pointer-events: all;
+}
+/* Fade transition styles */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-to, .fade-leave-from {
+  opacity: 1;
+}
+
 .tiptap p.is-editor-empty:first-child::before {
   color: #adb5bd;
   content: attr(data-placeholder);
