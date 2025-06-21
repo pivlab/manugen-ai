@@ -2,7 +2,13 @@
 
 ## What Inspired Us
 
-From the outset, we were captivated by the promise of autonomous AI agents collaborating to tackle complex, multidisciplinary tasks. The Agent Development Kit Hackathon with Google Cloud challenged participants to “build autonomous multi-agent AI systems” capable of content creation, among other applications. Recognizing that writing a rigorous scientific manuscript involves navigating vast literature, synthesizing nuanced insights, and maintaining a coherent narrative, we saw an opportunity to apply multi-agent orchestration to streamline and elevate the research-writing process. The hackathon’s emphasis on orchestrated agent interactions inspired us to ask: what if specialized agents—each expert in retrieval, summarization, drafting, and revision—could work in concert to produce a high-quality scientific paper?
+![](media/manuscript_deadlines.png)
+
+From the outset, we were captivated by the promise of autonomous AI agents collaborating to tackle complex, multidisciplinary tasks. The Agent Development Kit Hackathon with Google Cloud challenged participants to “build autonomous multi-agent AI systems” capable of content creation, among other applications.
+
+![](media/ai_assisted_writing.png)
+
+Recognizing that writing a rigorous scientific manuscript involves navigating vast literature, synthesizing nuanced insights, and maintaining a coherent narrative, we saw an opportunity to apply multi-agent orchestration to streamline and elevate the research-writing process. The hackathon’s emphasis on orchestrated agent interactions inspired us to ask: what if specialized agents—each expert in retrieval, summarization, drafting, and revision—could work in concert to produce a high-quality scientific paper?
 
 ## What We Learned
 
