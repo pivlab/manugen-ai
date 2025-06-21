@@ -182,7 +182,7 @@ ONLY return the improved or existing abstract content.
 ELSE (the critique contains actionable feedback):
 Carefully apply the suggestions to improve the 'Current Document'.
 Output *only* the refined document text.
-Do not add explanations.
+Do not add explanations of your changes, just return the improved content.
 """,
     output_key="abstract",
 )
