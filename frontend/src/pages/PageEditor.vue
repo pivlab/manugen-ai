@@ -2,6 +2,9 @@
   <header
     class="flex gap-1 items-center flex-wrap p-3 sticky top-0 bg-white shadow z-10"
   >
+    <AppButton v-tooltip="'Toggle Attachments'" @click="toggleAttachments">
+      <Paperclip />
+    </AppButton>
     <AppButton v-tooltip="'Undo'" @click="editor?.commands.undo()">
       <Undo />
     </AppButton>
@@ -29,12 +32,26 @@
     >
       <Download />
     </AppButton>
+    <AppButton v-tooltip="'Toggle Preview'" @click="togglePreview">
+      <Eye />
+    </AppButton>
   </header>
 
-  <main class="flex-grow-1 flex flex-col items-center gap-5 p-10">
+  <main class="flex-grow-1 flex items-stretch gap-5 p-10">
+    <AppArtifacts v-if="isAttachmentsOpen"
+      class="w-md max-w-1xl flex flex-col gap-2"
+      :session="sessionData"
+    />
+
     <EditorContent
       :editor="editor"
-      class="flex-grow-1 flex flex-col justify-stretch w-full max-w-4xl bg-slate-50 rounded-lg ring-1 ring-slate-500 focus-within:ring-4 focus-within:ring-indigo-500 leading-8 tracking-wide transition-all"
+      class="flex-grow-1 flex flex-col justify-stretch w-full bg-slate-50 rounded-lg ring-1 ring-slate-500 focus-within:ring-4 focus-within:ring-indigo-500 leading-8 tracking-wide transition-all"
+    />
+
+    <AppPreview
+      v-if="editor && isPreviewOpen"
+      :content="editor?.getText()"
+      class="prose prose-sm w-full max-w-2xl flex flex-col gap-2 bg-white rounded-lg ring-1 ring-slate-500 focus-within:ring-4 focus-within:ring-indigo-500 p-5"
     />
 
     <FloatingMenu
@@ -84,15 +101,18 @@ import {
 } from "@tiptap/vue-3";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
+import { Markdown } from 'tiptap-markdown';
 import AppUpload from "@/components/AppUpload.vue";
 import AppButton from "@/components/AppButton.vue";
 import AppAgents from "@/components/AppAgents.vue";
+import AppArtifacts from "@/components/AppArtifacts.vue";
+import AppPreview from "@/components/AppPreview.vue";
 import {
   Download,
   Feather,
   Lightbulb,
   Paperclip,
-  Type,
+  Eye,
   Redo,
   Send,
   Undo,
@@ -102,22 +122,53 @@ import { uniqueId } from "lodash";
 import Portal from "./portal";
 import { agentsWorking } from "@/components/AppAgents.vue";
 import type { AgentId } from "@/api/agents";
-import { endpoint1, endpoint2, endpoint3, capitalizer } from "@/api/endpoints";
-import { extractADKText } from "@/api/adk";
+import {  aiWriter, aiWriterAsync } from "@/api/endpoints";
+import { type ADKSessionResponse, ensureSessionExists, extractADKText } from "@/api/adk";
 import example from "./example.txt?raw";
 
 /** app info */
 const { VITE_TITLE: title } = import.meta.env;
 
-/** random variable used to initialize ADK session for this browser session */
+/** ADK session init params for the current browser session */
+const adkAppName = ref("ai_science_writer")
 const adkUsername = ref("test-user")
-const adkSessionid = ref(null)
+const adkSessionId = ref<string|null>(null)
 
+/** ADK session data for the established session */
+const sessionData = ref<ADKSessionResponse|null>(null);
+
+// ensure that a session exists when the page is accessed
 onMounted(() => {
   // use the unix timestamp as a unique session id
   const date = Math.floor(Date.now() / 1000);
-  adkSessionid.value = `session-${date}`;
+  adkSessionId.value = `session-${date}`;
+
+  // create a session in ADK and persist it in sessionData
+  ensureSessionExists(
+    adkAppName.value,
+    adkUsername.value,
+    adkSessionId.value
+  ).then((data) => {
+    sessionData.value = data;
+    console.log("ADK session created:", data);
+  }).catch((error) => {
+    console.error("Error creating ADK session:", error);
+  });
 })
+
+// whether the attachments panel is open
+const isAttachmentsOpen = ref(false);
+
+const toggleAttachments = () => {
+  isAttachmentsOpen.value = !isAttachmentsOpen.value;
+};
+
+// whether the preview panel is open
+const isPreviewOpen = ref(true);
+
+const togglePreview = () => {
+  isPreviewOpen.value = !isPreviewOpen.value;
+};
 
 const placeholder =
   "Start writing your manuscript.\n\nSelect some text or start a new paragraph to see AI-assisted actions that can help you generate or revise your content.";
@@ -255,47 +306,51 @@ const action =
 
 /** actions available to run in editor */
 const actions = [
-  {
-    /** icon to show popup */
-    icon: Feather,
-    /** label to show in popup */
-    label: "Action 1",
-    action: action(
-      ["gemini"],
-      async ({ full }) =>
-        /** run actual work on backend */
-        (await endpoint1(full)).output
-    ),
-    /** whether action appears when text selected, or just single cursor position */
-    type: "selection",
-  },
-  {
-    icon: Paperclip,
-    label: "Action 2",
-    action: action(
-      ["gemini", "chatgpt"],
-      async ({ sel }) => (await endpoint2(sel)).output
-    ),
-    type: "cursor",
-  },
+  // {
+  //   /** icon to show popup */
+  //   icon: Feather,
+  //   /** label to show in popup */
+  //   label: "Action 1",
+  //   action: action(
+  //     ["gemini"],
+  //     async ({ full }) =>
+  //       /** run actual work on backend */
+  //       (await endpoint1(full)).output
+  //   ),
+  //   /** whether action appears when text selected, or just single cursor position */
+  //   type: "selection",
+  // },
+  // {
+  //   icon: Paperclip,
+  //   label: "Action 2",
+  //   action: action(
+  //     ["gemini", "chatgpt"],
+  //     async ({ sel }) => (await endpoint2(sel)).output
+  //   ),
+  //   type: "cursor",
+  // },
   {
     icon: Send,
-    label: "Action 3",
+    label: "Send",
     action: action(
-      ["claude"],
-      async ({ pBefore }) => (await endpoint3(pBefore)).output
+      ["aiWriter"],
+      async ({ full }) => extractADKText(await aiWriterAsync(full, sessionData.value))
     ),
     selection: true,
     type: "cursor",
   },
   {
-    icon: Type,
-    label: "Capitalize",
+    icon: Feather,
+    label: "Draft",
     action: action(
-      ["capitalizer"],
-      async ({ sel }) => extractADKText(
-        await capitalizer(sel,  adkUsername.value, adkSessionid.value)
-      )
+      ["aiWriter"],
+      async ({ sel }) => {
+        console.log("Drafting with selection:", sel);
+
+        return extractADKText(
+          await aiWriterAsync(sel, sessionData.value)
+        )
+      }
     ),
     type: "selection",
   },
