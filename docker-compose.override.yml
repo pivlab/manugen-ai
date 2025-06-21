@@ -8,6 +8,8 @@ services:
       - ./packages/manugen-ai/tests/:/packages/manugen-ai/tests/
       - ./backend/src/:/app/src/
       - ./backend/tests/:/app/tests/
+    environment:
+      - HOT_RELOAD_BACKEND=1
 
   frontend:
     ports:
