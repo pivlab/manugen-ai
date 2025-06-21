@@ -1,6 +1,3 @@
-import { random } from "lodash";
-import { sleep } from "@/util/misc";
-
 /** api base url */
 export const api = import.meta.env.VITE_API;
 
@@ -14,10 +11,6 @@ export const request = async <Response>(
 
   /** create request */
   const request = new Request(url, options);
-
-  // /** for testing, before real api hooked up */
-  // await sleep(random(1000, 3000));
-  // return { output: `${url.pathname} response` } as Response;
 
   /** make request */
   const response = await fetch(request);

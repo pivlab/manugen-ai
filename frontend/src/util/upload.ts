@@ -19,3 +19,12 @@ export const parsePdf = async (buffer: ArrayBuffer) => {
         .join(" ") + "\n";
   return text;
 };
+
+/** type of file returned by AppUpload */
+
+export type UploadedFile = {
+  text: string,
+  filename: string,
+  description: string,
+  mimetype: string
+}

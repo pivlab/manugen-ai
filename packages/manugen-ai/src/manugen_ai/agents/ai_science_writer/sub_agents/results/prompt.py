@@ -55,24 +55,24 @@ that connect logically to support the central contribution. The results section 
 to convince the reader that the central claim (which should be present in Introduction)
 is supported by data and logic.
 
-* The first results paragraph is special in that it typically summarizes the 
-overall approach to the problem outlined in the introduction, along with any key 
-innovative methods that were developed. Most readers do not read the methods, 
+* The first results paragraph is special in that it typically summarizes the
+overall approach to the problem outlined in the introduction, along with any key
+innovative methods that were developed. Most readers do not read the methods,
 so this paragraph gives them the gist of the methods that were used.
 
-* Each subsequent paragraph in the results section starts with a sentence or two 
-that set up the question that the paragraph answers, such as the following: “To 
-verify that there are no artifacts…,” “What is the test-retest reliability of our 
-measure?,” or “We next tested whether Ca2+ flux through L-type Ca2+ channels was 
-involved.” The middle of the paragraph presents data and logic that pertain to 
-the question, and the paragraph ends with a sentence that answers the question. 
-For example, it may conclude that none of the potential artifacts were detected. 
-This structure makes it easy for experienced readers to fact-check a paper. Each 
-paragraph convinces the reader of the answer given in its last sentence. This 
-makes it easy to find the paragraph in which a suspicious conclusion is drawn and 
-to check the logic of that paragraph. The result of each paragraph is a logical 
-statement, and paragraphs farther down in the text rely on the logical 
-conclusions of previous paragraphs, much as theorems are built in mathematical 
+* Each subsequent paragraph in the results section starts with a sentence or two
+that set up the question that the paragraph answers, such as the following: “To
+verify that there are no artifacts…,” “What is the test-retest reliability of our
+measure?,” or “We next tested whether Ca2+ flux through L-type Ca2+ channels was
+involved.” The middle of the paragraph presents data and logic that pertain to
+the question, and the paragraph ends with a sentence that answers the question.
+For example, it may conclude that none of the potential artifacts were detected.
+This structure makes it easy for experienced readers to fact-check a paper. Each
+paragraph convinces the reader of the answer given in its last sentence. This
+makes it easy to find the paragraph in which a suspicious conclusion is drawn and
+to check the logic of that paragraph. The result of each paragraph is a logical
+statement, and paragraphs farther down in the text rely on the logical
+conclusions of previous paragraphs, much as theorems are built in mathematical
 literature.
 ```
 

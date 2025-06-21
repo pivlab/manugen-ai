@@ -2,6 +2,9 @@
   <header
     class="flex gap-1 items-center flex-wrap p-3 sticky top-0 bg-white shadow z-10"
   >
+    <AppButton v-tooltip="'Toggle Attachments'" @click="toggleAttachments">
+      <Paperclip />
+    </AppButton>
     <AppButton v-tooltip="'Undo'" @click="editor?.commands.undo()">
       <Undo />
     </AppButton>
@@ -29,22 +32,53 @@
     >
       <Download />
     </AppButton>
+    <AppButton v-tooltip="'Toggle Preview'" @click="togglePreview">
+      <Eye />
+    </AppButton>
   </header>
 
-  <main class="flex-grow-1 flex flex-col items-center gap-5 p-10">
+
+  <main class="flex-grow-1 flex items-stretch gap-5 p-10 relative">
+    <!-- blocks interactions until a session is established -->
+    <transition name="fade">
+      <div v-if="!sessionData" class="overlay">
+        <div class="flex flex-col items-center p-5 justify-center h-full">
+          <div class="text-white">
+            <h2 class="text-xl font-semibold mb-2">Establishing Session...</h2>
+            <p v-if="!sessionError">Please wait while we set up your session.</p>
+            <p v-else class="text-slate-300">
+              Error establishing session: {{ sessionError }}<br /><br />
+              Please try refreshing the page or ask your administrator for help.
+            </p>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <AppArtifacts v-if="isAttachmentsOpen"
+      class="w-md max-w-1xl flex flex-col gap-2"
+      :session="sessionData"
+    />
+
     <EditorContent
       :editor="editor"
-      class="flex-grow-1 flex flex-col justify-stretch w-full max-w-4xl bg-slate-50 rounded-lg ring-1 ring-slate-500 focus-within:ring-4 focus-within:ring-indigo-500 leading-8 tracking-wide transition-all"
+      class="flex-grow-1 flex flex-col justify-stretch w-full bg-slate-50 rounded-lg ring-1 ring-slate-500 focus-within:ring-4 focus-within:ring-indigo-500 leading-8 tracking-wide transition-all"
+    />
+
+    <AppPreview
+      v-if="editor && isPreviewOpen"
+      :content="editor?.getText()"
+      class="prose prose-sm w-full max-w-2xl flex flex-col gap-2 bg-white rounded-lg ring-1 ring-slate-500 focus-within:ring-4 focus-within:ring-indigo-500 p-5"
     />
 
     <FloatingMenu
-      v-if="editor"
+      v-if="editor && cursorActions?.length > 0"
       :editor="editor"
       class="menu"
       :tippy-options="tippyOptions"
     >
       <template
-        v-for="({ icon, label, action, type }, index) in actions"
+        v-for="({ icon, label, action, type }, index) in cursorActions"
         :key="index"
       >
         <button v-if="type === 'cursor'" class="menu-button" @click="action">
@@ -54,13 +88,13 @@
     </FloatingMenu>
 
     <BubbleMenu
-      v-if="editor"
+      v-if="editor && selectionActions?.length > 0"
       :editor="editor"
       class="menu"
       :tippy-options="tippyOptions"
     >
       <template
-        v-for="({ icon, label, action, type }, index) in actions"
+        v-for="({ icon, label, action, type }, index) in selectionActions"
         :key="index"
       >
         <button v-if="type === 'selection'" class="menu-button" @click="action">
@@ -87,37 +121,76 @@ import StarterKit from "@tiptap/starter-kit";
 import AppUpload from "@/components/AppUpload.vue";
 import AppButton from "@/components/AppButton.vue";
 import AppAgents from "@/components/AppAgents.vue";
+import AppArtifacts from "@/components/AppArtifacts.vue";
+import AppPreview from "@/components/AppPreview.vue";
 import {
   Download,
   Feather,
   Lightbulb,
   Paperclip,
-  Type,
+  Eye,
   Redo,
-  Send,
+  Sparkles,
+  BookX,
   Undo,
+  LibraryBig,
+  FolderGit2,
 } from "lucide-vue-next";
 import { downloadTxt } from "@/util/download";
 import { uniqueId } from "lodash";
 import Portal from "./portal";
 import { agentsWorking } from "@/components/AppAgents.vue";
 import type { AgentId } from "@/api/agents";
-import { endpoint1, endpoint2, endpoint3, capitalizer } from "@/api/endpoints";
-import { extractADKText } from "@/api/adk";
+import {  aiWriter, aiWriterAsync } from "@/api/endpoints";
+import { type ADKSessionResponse, ensureSessionExists, extractADKText } from "@/api/adk";
 import example from "./example.txt?raw";
 
 /** app info */
 const { VITE_TITLE: title } = import.meta.env;
 
-/** random variable used to initialize ADK session for this browser session */
+/** ADK session init params for the current browser session */
+const adkAppName = ref("ai_science_writer")
 const adkUsername = ref("test-user")
-const adkSessionid = ref(null)
+const adkSessionId = ref<string|null>(null)
 
+/** ADK session data for the established session */
+const sessionData = ref<ADKSessionResponse|null>(null);
+/** error message if session creation fails */
+const sessionError = ref<string|null>(null);
+
+// ensure that a session exists when the page is accessed
 onMounted(() => {
   // use the unix timestamp as a unique session id
   const date = Math.floor(Date.now() / 1000);
-  adkSessionid.value = `session-${date}`;
+  adkSessionId.value = `session-${date}`;
+
+  // create a session in ADK and persist it in sessionData
+  ensureSessionExists(
+    adkAppName.value,
+    adkUsername.value,
+    adkSessionId.value
+  ).then((data) => {
+    sessionData.value = data;
+    console.log("ADK session created:", data);
+  }).catch((error) => {
+    console.error("Error creating ADK session:", error);
+    sessionError.value = error.message || "Unknown error";
+  });
 })
+
+// whether the attachments panel is open
+const isAttachmentsOpen = ref(false);
+
+const toggleAttachments = () => {
+  isAttachmentsOpen.value = !isAttachmentsOpen.value;
+};
+
+// whether the preview panel is open
+const isPreviewOpen = ref(true);
+
+const togglePreview = () => {
+  isPreviewOpen.value = !isPreviewOpen.value;
+};
 
 const placeholder =
   "Start writing your manuscript.\n\nSelect some text or start a new paragraph to see AI-assisted actions that can help you generate or revise your content.";
@@ -126,7 +199,22 @@ const placeholder =
 const editor = useEditor({
   content: "",
   parseOptions: { preserveWhitespace: "full" },
-  extensions: [StarterKit, Placeholder.configure({ placeholder }), Portal],
+  extensions: [
+    StarterKit.configure({
+      /** disable all default extensions */
+      codeBlock: false,
+      blockquote: false,
+      horizontalRule: false,
+      hardBreak: false,
+      heading: false,
+      italic: false,
+      bold: false,
+      strike: false,
+      bulletList: false,
+      orderedList: false,
+      listItem: false,
+    }), Placeholder.configure({ placeholder }), Portal
+  ],
   editorProps: {
     attributes: {
       /** style of immediate child of editor root element (EditorContent) */
@@ -253,53 +341,42 @@ const action =
       .run();
   };
 
+const aiWriterSelectAction = (label: string, icon: any, prefix: string = "", agent: AgentId = "aiWriter") => {
+  return {
+    icon: icon,
+    label: label,
+    action: action(
+      [agent],
+      async ({ sel }) => {
+        return extractADKText(
+          await aiWriterAsync(`${prefix}${sel}`, sessionData.value)
+        )
+      }
+    ),
+    type: "selection",
+  }
+}
+
 /** actions available to run in editor */
 const actions = [
-  {
-    /** icon to show popup */
-    icon: Feather,
-    /** label to show in popup */
-    label: "Action 1",
-    action: action(
-      ["gemini"],
-      async ({ full }) =>
-        /** run actual work on backend */
-        (await endpoint1(full)).output
-    ),
-    /** whether action appears when text selected, or just single cursor position */
-    type: "selection",
-  },
-  {
-    icon: Paperclip,
-    label: "Action 2",
-    action: action(
-      ["gemini", "chatgpt"],
-      async ({ sel }) => (await endpoint2(sel)).output
-    ),
-    type: "cursor",
-  },
-  {
-    icon: Send,
-    label: "Action 3",
-    action: action(
-      ["claude"],
-      async ({ pBefore }) => (await endpoint3(pBefore)).output
-    ),
-    selection: true,
-    type: "cursor",
-  },
-  {
-    icon: Type,
-    label: "Capitalize",
-    action: action(
-      ["capitalizer"],
-      async ({ sel }) => extractADKText(
-        await capitalizer(sel,  adkUsername.value, adkSessionid.value)
-      )
-    ),
-    type: "selection",
-  },
+  aiWriterSelectAction("Draft", Feather),
+  // * 'reviewer_agent': if the user input includes text '$REFINE_REQUEST$'.
+  aiWriterSelectAction("Refine", Sparkles, "$REFINE_REQUEST$ "),
+  // * 'retraction_avoidance_agent': if the user input includes text '$RETRACTION_AVOIDANCE_REQUEST$'.
+  aiWriterSelectAction("Retracts", BookX, "$RETRACTION_AVOIDANCE_REQUEST$ "),
+  // * 'citation_agent': if the user input includes text '$CITATION_REQUEST$'.
+  aiWriterSelectAction("Cites", LibraryBig, "$CITATION_REQUEST$ "),
+  // * 'repo_agent': if the user input includes text '$REPO_REQUEST$'.
+  aiWriterSelectAction("Repos", FolderGit2, "$REPO_REQUEST$ "),
 ] as const;
+
+// computed properties for cursor and selection actions
+const cursorActions = ref(
+  actions.filter((a) => a.type === "cursor")
+);
+const selectionActions = ref(
+  actions.filter((a) => a.type === "selection")
+);
 
 /** replace text content of entire editor */
 const overwrite = (text = "") =>
@@ -325,6 +402,28 @@ const tippyOptions: TippyOptions = { placement: "bottom" };
 </script>
 
 <style>
+/* Full-page overlay, to block interaction until a session is established */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* or any semi-transparent shade */
+  z-index: 9999;
+  pointer-events: all;
+}
+/* Fade transition styles */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-to, .fade-leave-from {
+  opacity: 1;
+}
+
 .tiptap p.is-editor-empty:first-child::before {
   color: #adb5bd;
   content: attr(data-placeholder);
@@ -332,6 +431,9 @@ const tippyOptions: TippyOptions = { placement: "bottom" };
   height: 0;
   pointer-events: none;
 }
+
+/* force the box to be wider, since we need to accommodate more actions */
+.tippy-box { max-width: 600px !important;}
 
 @reference "@/styles.css";
 

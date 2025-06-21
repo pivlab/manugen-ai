@@ -60,6 +60,19 @@ def graceful_fail():
     return decorator
 
 
+def get_llm(model_name: str, **kwargs):
+    from google.adk.models.lite_llm import LiteLlm
+
+    if model_name.startswith(("openai/", "anthropic/", "ollama/")):
+        # kwargs are interpreted as additional arguments to LiteLlm, such as
+        # "response_format=ManuscriptStructure"
+        return LiteLlm(model=model_name, **kwargs)
+    elif model_name.startswith("gemini-"):
+        return model_name
+
+    raise ValueError(f"Unknown model name: {model_name}")
+
+
 def prepare_ollama_models_for_adk_state() -> None:
     """
     Prepares Ollama models for use with
