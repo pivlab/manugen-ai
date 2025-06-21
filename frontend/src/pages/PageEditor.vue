@@ -360,14 +360,14 @@ const aiWriterSelectAction = (label: string, icon: any, prefix: string = "", age
 /** actions available to run in editor */
 const actions = [
   aiWriterSelectAction("Draft", Feather),
+  // * 'reviewer_agent': if the user input includes text '$REFINE_REQUEST$'.
   aiWriterSelectAction("Refine", Sparkles, "$REFINE_REQUEST$ "),
+  // * 'retraction_avoidance_agent': if the user input includes text '$RETRACTION_AVOIDANCE_REQUEST$'.
   aiWriterSelectAction("Retracts", BookX, "$RETRACTION_AVOIDANCE_REQUEST$ "),
+  // * 'citation_agent': if the user input includes text '$CITATION_REQUEST$'.
   aiWriterSelectAction("Cites", LibraryBig, "$CITATION_REQUEST$ "),
+  // * 'repo_agent': if the user input includes text '$REPO_REQUEST$'.
   aiWriterSelectAction("Repos", FolderGit2, "$REPO_REQUEST$ "),
-  // "* 'retraction_avoidance_agent': if the user input includes text '$RETRACTION_AVOIDANCE_REQUEST$'."
-  // "* 'citation_agent': if the user input includes text '$CITATION_REQUEST$'."
-  // "* 'reviewer_agent': if the user input includes text '$REFINE_REQUEST$'."
-  // "* 'repo_agent': if the user input includes text '$REPO_REQUEST$'."
 ] as const;
 
 // computed properties for cursor and selection actions
