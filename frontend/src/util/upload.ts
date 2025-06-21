@@ -25,6 +25,7 @@ export const parsePdf = async (buffer: ArrayBuffer) => {
 export type UploadedFile = {
   text: string,
   filename: string,
-  description: string,
+  title: string,
+  description?: string,
   mimetype: string
 }

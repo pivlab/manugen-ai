@@ -94,7 +94,8 @@ const acceptFiles = async (files: any[]) => {
 
           // add it to the list of artifacts
           artifacts.value.push({
-            filename: `Figure ${desc.id}`,
+            filename: `Figure ${desc.figure_number}`,
+            title: desc.title,
             description: desc.description,
             mimetype: file.mimetype,
             text: file.text
