@@ -62,10 +62,14 @@ include = [ "src/manugen_ai" ]
 "src/manugen_ai" = "manugen_ai"
 
 [tool.poe.tasks]
-# note: quarto commands below expect quarto installed on the local system.
-# see here for more information: https://quarto.org/docs/download/
+# create withdrarxiv_embeddings database
 create_withdrarxiv_embeddings.shell = """
 python -c \
 "from manugen_ai.data import create_withdrarxiv_embeddings; \
 create_withdrarxiv_embeddings()"
+"""
+# gnerates diagrams for agent architecture
+# under docs/media
+generate_agent_diagrams.shell = """
+python docs/media/generate_diagrams.py
 """
