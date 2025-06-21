@@ -28,25 +28,22 @@ def test_parse_list_basic() -> None:
 @pytest.mark.parametrize(
     "topics",
     [
-        (["Correlation Analysis"]),
-        (["Gene Expression"]),
+        ("Correlation Analysis"),
+        ("Gene Expression"),
     ],
 )
 def test_openalex_query_live(topics):
+    """
+    Test openalex_query with real topics.
+    """
+    
     result = openalex_query(topics)
 
-    # the returned structure must be a dict of exactly our topics
-    assert set(result.keys()) == set(topics)
-
-    for topic in topics:
-        works = result[topic]
-        # we asked for `limit` papers
-        assert isinstance(works, list)
-        for w in works:
-            # field checks
-            assert "title" in w and isinstance(w["title"], str)
-            assert "abstract" in w  # may be empty or None
-            assert "doi" in w and (isinstance(w["doi"], str) or w["doi"] is None)
+    for w in result:
+        # field checks
+        assert "title" in w and isinstance(w["title"], str)
+        assert "abstract" in w  # may be empty or None
+        assert "doi" in w and (isinstance(w["doi"], str) or w["doi"] is None)
 
 
 def test_fetch_url_real() -> None:

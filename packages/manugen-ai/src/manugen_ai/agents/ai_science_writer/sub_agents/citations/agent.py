@@ -26,11 +26,10 @@ agent_extract_topics = Agent(
     description="Extract 3–5 key research topics from the draft; output as bullet points, one per line.",
     instruction="""
 You get the user’s draft text in the user prompt.
-List the 3–5 most relevant research topics as bullet points:
-- topic one
-- topic two
-- ...
-Return only those lines, no extra commentary or JSON.
+List the 3–5 most relevant research topics as a comman-separated bullet list like this:
+topic one, topic two, ...
+Return only the topics, no extra commentary or JSON.
+Do NOT comment on the topics or provide explanations.
 """,
     output_key="topics_text",
 )
