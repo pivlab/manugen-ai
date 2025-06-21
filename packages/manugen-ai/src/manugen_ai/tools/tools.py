@@ -48,32 +48,33 @@ def parse_list(text: str) -> List[str]:
 
 
 @graceful_fail()
-def openalex_query(topics: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+def openalex_query(topics: str) -> Dict[str, List[Dict[str, Any]]]:
     """
-    For each topic, search OpenAlex and return only title and abstract for open-access works.
+    For each topic, search OpenAlex and return only
+    title and abstract for open-access works.
 
     Args:
-        topics (List[str]): List of search strings.
+        topics (str): 
+            Topics to search for, as a string.
 
     Returns:
-        Dict[str, List[Dict[str, Any]]]: Mapping from topic to list of dicts with
-        'title' and 'abstract'.
+        Dict[str, List[Dict[str, Any]]]:
+            Mapping from topic to list of dicts with
+            'title' and 'abstract'.
     """
     client = Works()
     limit = 3
 
-    output: Dict[str, List[Dict[str, Any]]] = {}
-    for topic in topics:
-        works = (
-            client.search_filter(abstract=topic)
-            .filter(is_retracted=False)
-            .sort(cited_by_count="desc")
-            .get(per_page=limit)
-        )
-        output[topic] = [
-            {"title": w["title"], "abstract": w["abstract"], "doi": w["doi"]}
-            for w in works
-        ]
+    works = (
+        client.search_filter(abstract=topics)
+        .filter(is_retracted=False)
+        .sort(cited_by_count="desc")
+        .get(per_page=limit)
+    )
+    output = [
+        {"title": w["title"], "abstract": w["abstract"], "doi": w["doi"]}
+        for w in works
+    ]
 
     return output
 
