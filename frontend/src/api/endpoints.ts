@@ -115,5 +115,13 @@ export const aiWriterAsync = async (input: string, session: ADKSessionResponse|n
 
   console.log("Final event log received:", eventLog);
 
+  toast("Done!", {
+    position: "bottom-left",
+    autoClose: 6000,
+    hideProgressBar: true,
+    type: "success",
+    transition: "bounce",
+  } as ToastOptions);
+
   return eventLog;
 }
