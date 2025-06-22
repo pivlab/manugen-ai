@@ -1,6 +1,6 @@
 import os
 
-from google.adk import Agent
+from google.adk.agents import LlmAgent
 from manugen_ai.schema import ABSTRACT_KEY, prepare_instructions
 from manugen_ai.utils import get_llm
 
@@ -9,7 +9,7 @@ from . import prompt
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
 LLM = get_llm(MODEL_NAME)
 
-abstract_agent = Agent(
+abstract_agent = LlmAgent(
     name=f"{ABSTRACT_KEY}_agent",
     model=LLM,
     include_contents="none",

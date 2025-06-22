@@ -6,7 +6,7 @@ import os
 from copy import deepcopy
 from typing import Optional
 
-from google.adk import Agent
+from google.adk.agents import LlmAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models import LlmResponse
 from google.genai import types
@@ -91,7 +91,7 @@ def update_figure_state(
     return None
 
 
-figure_agent = Agent(
+figure_agent = LlmAgent(
     name="figure_agent",
     model=LLM,
     description="Interprets figures of a scientific article by providing a title and description.",

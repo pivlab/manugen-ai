@@ -1,6 +1,6 @@
 import os
 
-from google.adk import Agent
+from google.adk.agents import LlmAgent
 from manugen_ai.schema import ManuscriptStructure
 from manugen_ai.utils import get_llm
 
@@ -22,7 +22,7 @@ if MODEL_NAME.startswith(("ollama",)):
     os.environ["OPENAI_API_BASE"] = model_api_base
     os.environ["OPENAI_API_KEY"] = "unused"
 
-request_interpreter_agent = Agent(
+request_interpreter_agent = LlmAgent(
     name="request_interpreter_agent",
     model=LLM,
     # include_contents="none",

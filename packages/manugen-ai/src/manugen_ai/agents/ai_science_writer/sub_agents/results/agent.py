@@ -1,6 +1,6 @@
 import os
 
-from google.adk import Agent
+from google.adk.agents import LlmAgent
 from manugen_ai.schema import RESULTS_KEY, prepare_instructions
 from manugen_ai.utils import get_llm
 
@@ -18,7 +18,7 @@ LLM = get_llm(MODEL_NAME)
 #     os.environ["OPENAI_API_BASE"] = model_api_base
 #     os.environ["OPENAI_API_KEY"] = "unused"
 
-results_agent = Agent(
+results_agent = LlmAgent(
     name=f"{RESULTS_KEY}_agent",
     model=LLM,
     include_contents="none",
