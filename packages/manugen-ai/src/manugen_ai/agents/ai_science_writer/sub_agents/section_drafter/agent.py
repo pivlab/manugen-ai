@@ -123,11 +123,11 @@ class SectionDrafterAgent(ManugenAIBaseAgent):
                     f"[{self.name}] Event from {section_key}: {event.model_dump_json(indent=2, exclude_none=True)}"
                 )
                 yield event
-                
-                # we only run one section per request
-                agent_was_run = True
-                
-                break
+
+            agent_was_run = True
+
+            # we only run one section per request
+            break
 
         logger.info(f"[{self.name}] Workflow finished.")
 
