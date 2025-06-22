@@ -94,7 +94,7 @@ def update_figure_state(
 figure_agent = Agent(
     name="figure_agent",
     model=LLM,
-    description="Agent expert in interpreting figures of a scientific article.",
+    description="Interprets figures of a scientific article by providing a title and description.",
     instruction=prompt.PROMPT,
     before_agent_callback=prepare_instructions,
     after_model_callback=process_figure_response,
