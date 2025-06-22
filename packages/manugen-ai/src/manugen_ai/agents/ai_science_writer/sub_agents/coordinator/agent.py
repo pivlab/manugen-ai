@@ -8,6 +8,7 @@ from ..figure import figure_agent
 from ..manuscript_drafter import manuscript_drafter_agent
 from ..repo_to_paper import root_agent as repo_agent
 from ..reviewer import root_agent as review_agent
+from ..retraction_avoidance import root_agent as retraction_avoidance_agent
 from . import prompt
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
@@ -21,8 +22,7 @@ coordinator_agent = LlmAgent(
     sub_agents=[
         manuscript_drafter_agent,
         figure_agent,
-        # commented temporarily to avoid large embeddings model download
-        # retraction_avoidance_agent,
+        retraction_avoidance_agent,
         citation_agent,
         review_agent,
         repo_agent,
