@@ -42,10 +42,15 @@ While it caught many structural issues, nuanced scientific arguments still requi
 
 ## How We Built Our Project
 
-<span style="color:red">\<Screenshot of interface goes here!\></span>
+![](media/manugen-ai-frontend.png)
 
 1. **User Interface.**  
-   A simple web dashboard (hosted on App Engine) let users specify topics, view intermediate outputs from each agent, and download the final compiled manuscript as a LaTeX or Word document.
+We created a web interface which helps users write their paper content with the help of AI‐assistant actions.
+Under the hood, we used FastAPI to provide an API service layer to a Vue.js front‐end.
+This streamlined interface means that users can quickly get input on their work directly in a browser.
+It offers an intuitive writing environment that offers agentic input in the form of specific actions.
+Users can leverage one of many options which described in detail below.
+Once agents have taken actions on the content, users may analyze the results and make iterative improvements on the content.
 
 ![](media/coordinator_agent.png)
 
