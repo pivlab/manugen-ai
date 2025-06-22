@@ -1,7 +1,7 @@
 """
 An agentic workflow that
 is provided a file contents or a source code repository,
-generates an abstract for a paper, and then revises that content.
+generates content for a paper, and then revises that content.
 """
 
 from __future__ import annotations
@@ -95,7 +95,7 @@ agent_writer = Agent(
     instruction="""
 You are a helpful assistant.
 Use the information provided by the getter_agent to write an
-abstract for a scientific paper covering the content
+content for a scientific paper covering the content
 we've investigated earlier.
 Only use tools if they exist.
 
@@ -114,92 +114,23 @@ Code:
 
 Steps:
 1. Once you have read the summary of the content, provide me an scientific
-paper abstract for this project.
-The content must be an abstract and not feedback on the code or repository.
-The abstract content must be in markdown format!
-I'm looking for a scientific paper abstract, not a code or content review.
+paper content for this project.
+The content must be content and not feedback on the code or repository.
+The content must be in markdown format!
+I'm looking for a scientific paper content, not a code or content review.
 The audience of the new content are people who don't yet know about the focus.
-Because it's a scientific paper we need to focus on making the abstract
+Because it's a scientific paper we need to focus on making the content
 clear, accurate, and truthful to what the content represents.
 For example, don't state that the project does things that it doesn't do
 (don't guess! make your writing be related about what the code actually does).
 To that point, please do not hallucinate aspects or foci which don't exist in the content.
-Also, don't try to execute any code or run it, just provide an abstract.
+Also, don't try to execute any code or run it, just provide content.
 Don't make queries for code outside of the URL provided by the user.
 Please please please don't provide me with code or nit-picky content review.
-Only include the markdown abstract content and not extra dialogue about what you're doing or why.
+Only include the markdown content and not extra dialogue about what you're doing or why.
 """,
-    output_key="abstract",
+    output_key="content",
 )
-
-agent_editor = Agent(
-    model=LLM,
-    name="agent_editor",
-    description=("You're a scientific writing editor."),
-    instruction=f"""
-You are a helpful scientific writing editor who has been
-given an abstract to review.
-If you exit, please tell me why.
-Only use tools if they exist.
-
-**Document to Review:**
-```
-{{abstract}}
-```
-
-Identify 1-2 *clear and actionable* ways the document could be improved to better capture the topic or enhance reader engagement (e.g., "Needs a stronger opening sentence", "Clarify the character's goal"):
-Provide these specific suggestions concisely. Output *only* the critique text.
-
-ELSE IF there is no feedback and the document is coherent, addresses the topic adequately for its length, and has no glaring errors or obvious omissions:
-Respond *exactly* with the phrase "{COMPLETION_PHRASE}" and nothing else. It doesn't need to be perfect, just functionally complete for this stage. Avoid suggesting purely subjective stylistic preferences if the core is sound.
-""",
-    output_key="critique",
-)
-
-agent_refiner = Agent(
-    model=LLM,
-    name="agent_refiner",
-    description=("You're a scientific writing expert."),
-    instruction=f"""
-You are a helpful scientific writing expert.
-You have advanced scientific knowledge and
-research software engineering skills.
-Only use tools if they exist.
-
-**Current Document:**
-```
-{{abstract}}
-```
-**Critique/Suggestions:**
-```
-{{critique}}
-```
-
-**Task:**
-Analyze the 'Critique/Suggestions'.
-IF the critique is *exactly* "{COMPLETION_PHRASE}":
-ONLY return the improved or existing abstract content.
-ELSE (the critique contains actionable feedback):
-Carefully apply the suggestions to improve the 'Current Document'.
-Output *only* the refined document text.
-Do not add explanations of your changes, just return the improved content.
-""",
-    output_key="abstract",
-)
-
-
-class StopChecker(BaseAgent):
-    name: str = "stop_checker"
-    description: str = "Stops when the editor signals completion"
-
-    async def _run_async_impl(self, ctx: InvocationContext):
-        critique = ctx.session.state.get("critique", "")
-        if critique.strip() == COMPLETION_PHRASE:
-            yield Event(
-                author=self.name,
-                actions=EventActions(escalate=True),
-            )
-
 
 # sequence for gathering and creating initial content
 sequence_writer = SequentialAgent(
@@ -207,17 +138,10 @@ sequence_writer = SequentialAgent(
     sub_agents=[agent_school, agent_writer],
 )
 
-# loop for refining the initial content
-loop_refinement = LoopAgent(
-    name="refiner",
-    sub_agents=[agent_editor, agent_refiner, StopChecker()],
-    max_iterations=2,
-)
-
 # sequence for orchestrating everything together
 root_agent = SequentialAgent(
     name="repo_agent",
-    sub_agents=[agent_code_summarizer, sequence_writer, loop_refinement],
+    sub_agents=[agent_code_summarizer, sequence_writer],
     description="""
         Gathers content, writes an initial document,
         and then iteratively refines it with critique loop.
