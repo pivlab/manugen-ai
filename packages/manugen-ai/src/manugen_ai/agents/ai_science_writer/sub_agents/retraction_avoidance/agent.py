@@ -18,9 +18,10 @@ from google.adk.tools import FunctionTool
 from manugen_ai.agents.meta_agent import ResilientToolAgent
 from manugen_ai.data import search_withdrarxiv_embeddings
 from manugen_ai.tools.tools import openalex_query, parse_list
+from manugen_ai.utils import get_llm
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
-LLM = LiteLlm(model=MODEL_NAME)
+LLM = get_llm(MODEL_NAME)
 
 # Tools
 parse_list_tool = FunctionTool(func=parse_list)
