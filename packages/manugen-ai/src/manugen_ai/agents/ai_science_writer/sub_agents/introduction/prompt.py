@@ -21,7 +21,7 @@ To achieve this, follow this workflow:
 provided;
 2. Analyze the current draft of the manuscript;
 3. Draft a new Introduction or edit an existing one following the guidelines below.
-DON'T ADD an "Introduction" title to your output, since this will be added later.
+ALWAYS ADD an "Introduction" title to your output.
 
 Your goal is to draft the Introduction section that communicates why the scientific manuscript matters.
 For this, you will take the rough set of instructions and/or ideas for the Introduction section,

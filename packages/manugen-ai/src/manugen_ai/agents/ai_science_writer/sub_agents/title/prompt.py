@@ -21,7 +21,7 @@ To achieve this, follow this workflow:
 provided;
 2. Analyze the current draft of the manuscript;
 3. Draft a new Title or edit an existing one following the guidelines below.
-DON'T ADD a "Title" title to your output, since this will be added later.
+ALWAYS ADD a "Title" title to your output.
 
 # Current draft of the Title (might be empty)
 ```
