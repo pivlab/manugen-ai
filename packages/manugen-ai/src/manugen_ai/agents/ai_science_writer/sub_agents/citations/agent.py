@@ -8,13 +8,13 @@ from __future__ import annotations
 import os
 
 from google.adk.agents import Agent, SequentialAgent
-from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 from manugen_ai.agents.meta_agent import ResilientToolAgent
 from manugen_ai.tools.tools import openalex_query, parse_list
+from manugen_ai.utils import get_llm
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
-LLM = LiteLlm(model=MODEL_NAME)
+LLM = get_llm(MODEL_NAME)
 
 parse_list_tool = FunctionTool(func=parse_list)
 oa_search_tool = FunctionTool(func=openalex_query)

@@ -16,12 +16,12 @@ from google.adk.agents import (
 )
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event, EventActions
-from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 from manugen_ai.tools.tools import clone_repository, read_path_contents
+from manugen_ai.utils import get_llm
 
 MODEL_NAME = os.environ.get("MANUGENAI_MODEL_NAME")
-LLM = LiteLlm(model=MODEL_NAME)
+LLM = get_llm(MODEL_NAME)
 COMPLETION_PHRASE = "All the way finished!"
 
 agent_code_summarizer = Agent(
