@@ -1,9 +1,10 @@
 import logging
 from typing import AsyncGenerator
 
-from google.adk.agents import BaseAgent, LlmAgent
+from google.adk.agents import LlmAgent
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event
+from manugen_ai.adk import ManugenAIBaseAgent
 from manugen_ai.schema import (
     INSTRUCTIONS_KEY,
 )
@@ -15,8 +16,6 @@ from ..introduction import introduction_agent
 from ..methods import methods_agent
 from ..results import results_agent
 from ..title import title_agent
-
-from manugen_ai.adk import ManugenAIBaseAgent
 
 # --- Configure Logging ---
 logging.basicConfig(level=logging.INFO)
@@ -133,7 +132,9 @@ class SectionDrafterAgent(ManugenAIBaseAgent):
         logger.info(f"[{self.name}] Workflow finished.")
 
         if not agent_was_run:
-            yield self.error_message(ctx, "No section-specific agent was found for request.")
+            yield self.error_message(
+                ctx, "No section-specific agent was found for request."
+            )
 
 
 section_drafter_agent = SectionDrafterAgent(
