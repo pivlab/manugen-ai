@@ -25,7 +25,7 @@ if MODEL_NAME.startswith(("ollama",)):
 request_interpreter_agent = LlmAgent(
     name="request_interpreter_agent",
     model=LLM,
-    # include_contents="none",
+    include_contents="none",
     description="Interprets the user's input/request, extracts subrequests/ideas from it and assign them to specific sections of the scientific manuscript.",
     instruction=prompt.PROMPT,
     output_schema=ManuscriptStructure,

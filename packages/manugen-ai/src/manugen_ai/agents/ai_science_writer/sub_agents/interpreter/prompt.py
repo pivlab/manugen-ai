@@ -5,7 +5,7 @@ import json
 from manugen_ai.schema import ManuscriptStructure
 
 PROMPT = f"""
-Your goal is to interpret the user's input and extract instructions, requests or ideas that are specific
+Your goal is to interpret the user's input below and extract instructions, requests or ideas that are specific
 to different sections of the scientific manuscript. For example, the user's input might
 have instructions/requests/ideas that are specific to the Introduction or Results sections.
 
@@ -22,4 +22,7 @@ can only belong to one specific section, not to multiple ones. If there are no
 subrequests/ideas specific to one section, then assign an empty value for that section.
 3. Respond ONLY with a JSON object matching this schema:
 {json.dumps(ManuscriptStructure.model_json_schema(), indent=2)}
+
+# User input
+{{last_user_input}}
 """.strip()
