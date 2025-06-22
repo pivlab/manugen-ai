@@ -6,10 +6,10 @@ from ..section_drafter import section_drafter_agent
 
 manuscript_drafter_agent = SequentialAgent(
     name="manuscript_drafter_agent",
-    description="Interpret user's input, drafts all sections of the manuscript, and then assembles the manuscript it",
+    description="Interpret user's input to identify a request, then assigns that request to a specific manuscript section, and drafts that section",
     sub_agents=[
         request_interpreter_agent,
         section_drafter_agent,
-        assembler_agent,
+        # assembler_agent,
     ],
 )

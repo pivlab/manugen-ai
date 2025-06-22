@@ -16,12 +16,14 @@ from ..methods import methods_agent
 from ..results import results_agent
 from ..title import title_agent
 
+from manugen_ai.adk import ManugenAIBaseAgent
+
 # --- Configure Logging ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class SectionDrafterAgent(BaseAgent):
+class SectionDrafterAgent(ManugenAIBaseAgent):
     """
     Custom agent for drafting sections of a scientific manuscript.
 
@@ -48,7 +50,6 @@ class SectionDrafterAgent(BaseAgent):
 
     def __init__(
         self,
-        name: str,
         title_agent: LlmAgent,
         abstract_agent: LlmAgent,
         introduction_agent: LlmAgent,
@@ -79,7 +80,8 @@ class SectionDrafterAgent(BaseAgent):
 
         # Pydantic will validate and assign them based on the class annotations.
         super().__init__(
-            name=name,
+            name="section_drafter_agent",
+            description="Drafts a section of a scientific manuscript that the user requested.",
             title_agent=title_agent,
             abstract_agent=abstract_agent,
             introduction_agent=introduction_agent,
@@ -104,6 +106,8 @@ class SectionDrafterAgent(BaseAgent):
 
         instructions_state = ctx.session.state.get(INSTRUCTIONS_KEY)
 
+        agent_was_run = False
+
         for section_agent in self.section_agents_order:
             section_key = section_agent.name.split("_")[0]
 
@@ -120,12 +124,19 @@ class SectionDrafterAgent(BaseAgent):
                     f"[{self.name}] Event from {section_key}: {event.model_dump_json(indent=2, exclude_none=True)}"
                 )
                 yield event
+                
+                # we only run one section per request
+                agent_was_run = True
+                
+                break
 
         logger.info(f"[{self.name}] Workflow finished.")
 
+        if not agent_was_run:
+            yield self.error_message(ctx, "No section-specific agent was found for request.")
+
 
 section_drafter_agent = SectionDrafterAgent(
-    name="section_drafter_agent",
     title_agent=title_agent,
     abstract_agent=abstract_agent,
     introduction_agent=introduction_agent,
