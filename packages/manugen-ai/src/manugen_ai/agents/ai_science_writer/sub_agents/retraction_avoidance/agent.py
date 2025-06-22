@@ -64,7 +64,7 @@ Return the mapping as `retraction_notices` (e.g., arXiv ID → retraction reason
 # Improve draft using retrieved retraction insights
 agent_improve_draft = Agent(
     model=LLM,
-    name="improve_draft",
+    name="agent_improve_draft",
     description="Rewrite the original draft using insights from `retraction_notices`.",
     instruction="""
 You get:
