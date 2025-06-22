@@ -5,14 +5,16 @@ from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event, EventActions
 from google.genai import types
 
+
 class ManugenAIBaseAgent(BaseAgent, metaclass=ABCMeta):
     """
     TODO: add docs
     """
+
     def error_message(self, ctx: InvocationContext, error_msg: str) -> Event:
         if not error_msg.startswith("ERROR:"):
             error_msg = f"ERROR: {error_msg}"
-        
+
         return Event(
             author=self.name,
             invocation_id=ctx.invocation_id,
@@ -24,7 +26,9 @@ class ManugenAIBaseAgent(BaseAgent, metaclass=ABCMeta):
             ),
         )
 
-    def get_transfer_to_agent_event(self, ctx: InvocationContext, agent: BaseAgent) -> Event:
+    def get_transfer_to_agent_event(
+        self, ctx: InvocationContext, agent: BaseAgent
+    ) -> Event:
         return Event(
             author=self.name,
             invocation_id=ctx.invocation_id,
@@ -35,7 +39,7 @@ class ManugenAIBaseAgent(BaseAgent, metaclass=ABCMeta):
                         function_response=types.FunctionResponse(
                             id="empty",
                             name="transfer_to_agent",
-                            response={"result": None}
+                            response={"result": None},
                         )
                     ),
                 ],

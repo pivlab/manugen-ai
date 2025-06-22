@@ -1,23 +1,18 @@
 import logging
-from typing import AsyncGenerator, Callable, Iterable
+from typing import AsyncGenerator, Callable
 
-from google.adk.agents import BaseAgent, LlmAgent, SequentialAgent
+from google.adk.agents import BaseAgent
 from google.adk.agents.invocation_context import InvocationContext
-from google.adk.events import Event, EventActions
-from google.genai import types 
-from manugen_ai.schema import (
-    INSTRUCTIONS_KEY,
-)
+from google.adk.events import Event
+from manugen_ai.adk import ManugenAIBaseAgent
 from typing_extensions import override
 
-from ..repo_to_paper import root_agent as repo_agent
-from ..reviewer import root_agent as review_agent
-from ..retraction_avoidance import root_agent as retraction_avoidance_agent
 from ..citations import root_agent as citation_agent
-from ..manuscript_drafter import manuscript_drafter_agent
 from ..figure import figure_agent
-
-from manugen_ai.adk import ManugenAIBaseAgent
+from ..manuscript_drafter import manuscript_drafter_agent
+from ..repo_to_paper import root_agent as repo_agent
+from ..retraction_avoidance import root_agent as retraction_avoidance_agent
+from ..reviewer import root_agent as review_agent
 
 # --- Configure Logging ---
 logging.basicConfig(level=logging.INFO)
@@ -51,7 +46,7 @@ class CoordinatorAgent(ManugenAIBaseAgent):
     ):
         """
         TODO: update
-        
+
         Initializes the StoryFlowAgent.
 
         Args:
@@ -64,7 +59,7 @@ class CoordinatorAgent(ManugenAIBaseAgent):
             name="coordinator_agent",
             # manuscript_drafter_agent=manuscript_drafter_agent,
             # figure_agent=figure_agent,
-            sub_agents_cond=sub_agents_cond
+            sub_agents_cond=sub_agents_cond,
         )
 
     @override
@@ -76,12 +71,12 @@ class CoordinatorAgent(ManugenAIBaseAgent):
         """
         logger.info(f"[{self.name}] Starting Coordinator workflow.")
         logger.info(ctx.user_content)
-        
+
         # FIXME: workaround to test in adk web
         last_user_input = ctx.user_content.parts[0]
         if last_user_input.text is not None and last_user_input.text.strip() == "fig":
             last_user_input = ctx.user_content.parts[1]
-        
+
         agent_was_run = False
         
         for agent, agent_condition in self.sub_agents_cond:
@@ -100,12 +95,12 @@ class CoordinatorAgent(ManugenAIBaseAgent):
             # call agent
             async for event in agent.run_async(ctx):
                 yield event
-            
+
             agent_was_run = True
-            
+
             # we only run one agent per request
             break
-        
+
         if not agent_was_run:
             yield self.error_message(ctx, "No agent was found for request.")
 
@@ -113,31 +108,33 @@ coordinator_agent = CoordinatorAgent(
     sub_agents_cond=[
         (
             figure_agent,
-            lambda user_input: user_input.inline_data is not None and user_input.inline_data.mime_type is not None and user_input.inline_data.mime_type.startswith("image/"),
+            lambda user_input: user_input.inline_data is not None
+            and user_input.inline_data.mime_type is not None
+            and user_input.inline_data.mime_type.startswith("image/"),
+        ),
+        (
+            retraction_avoidance_agent,
+            lambda user_input: user_input.text is not None
+            and "$RETRACTION_AVOIDANCE_REQUEST$" in user_input.text,
+        ),
+        (
+            citation_agent,
+            lambda user_input: user_input.text is not None
+            and "$CITATION_REQUEST$" in user_input.text,
+        ),
+        (
+            review_agent,
+            lambda user_input: user_input.text is not None
+            and "$REFINE_REQUEST$" in user_input.text,
+        ),
+        (
+            repo_agent,
+            lambda user_input: user_input.text is not None
+            and "$REPO_REQUEST$" in user_input.text,
         ),
         (
             manuscript_drafter_agent,
             lambda user_input: user_input.text is not None and user_input.text != "",
-        ),
-        (
-            retraction_avoidance_agent,
-            lambda user_input: user_input.text is not None and "$RETRACTION_AVOIDANCE_REQUEST$" in user_input.text,
-        ),
-        (
-            citation_agent,
-            lambda user_input: user_input.text is not None and "$CITATION_REQUEST$" in user_input.text,
-        ),
-        (
-            review_agent,
-            lambda user_input: user_input.text is not None and "$REFINE_REQUEST$" in user_input.text,
-        ),
-        (
-            repo_agent,
-            lambda user_input: user_input.text is not None and "$REPO_REQUEST$" in user_input.text,
-        ),
-        (
-            manuscript_drafter_agent,
-            lambda user_input: user_input.text is not None and user_input.text != ""
         ),
     ],
 )
