@@ -32,7 +32,7 @@ The steps to test the system are the same as described in the "Demo" section abo
 
 TODO: add link to video
 
-TODO: add link to blog post
+Link to our blog post: https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html
 * Include language that says you created the content for the purposes of entering this hackathon.
 * For any social media posts, include the hashtag #adkhackathon.
 * ADD THIS: A contribution to the Agent Development Kit open source repository - Show your commits, pull requests, issues opened, and code reviews by linking to your GitHub profile or the repository's contribution history.
