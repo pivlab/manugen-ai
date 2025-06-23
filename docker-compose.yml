@@ -23,9 +23,3 @@ services:
     environment:
       - "VITE_API=http://localhost:8900"
       - "VITE_TITLE=Manugen AI"
-
-  # session database for ADK
-  db:
-    image: postgres:16
-    env_file:
-      - .env
