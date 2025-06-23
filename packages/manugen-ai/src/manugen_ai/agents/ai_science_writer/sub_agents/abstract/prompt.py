@@ -83,6 +83,6 @@ which is always based on a finite or narrow set of results).
 ```
 
 # Output
-Output only the Abstract. If not specified, use Markdown for formatting (if needed).
+Output only the Abstract. If not specified, use Markdown for formatting.
 Do not provide any explanation.
 """.strip()

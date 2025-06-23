@@ -68,6 +68,6 @@ tend to be less convincing about each and are therefore less memorable.
 ```
 
 # Output
-Output only the Title. If not specified, use Markdown for formatting (if needed).
+Output only the Title. If not specified, use Markdown for formatting.
 Do not provide any explanation.
 """.strip()
