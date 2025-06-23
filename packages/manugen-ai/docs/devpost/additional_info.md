@@ -22,7 +22,7 @@ To test Manugen-AI, you can either use our hosted demo ([see below](#hosted-demo
 
 1. Clone our GitHub repository: https://github.com/pivlab/manugen-ai
 2. Follow the instructions in the `README.md`, under section [Installation](https://github.com/pivlab/manugen-ai#installation).
-3. Once it's ready, you'll use the URL link to access the frontend locally (such as http://localhost:8900/) and start testing the system.
+3. Once it's ready, you'll use the URL link to access the frontend locally (such as http://localhost:8900/) and start interacting with the system.
 
 The steps to test the system are the same as described in the "Demo" section above.
 
