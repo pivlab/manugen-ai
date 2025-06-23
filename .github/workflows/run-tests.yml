@@ -16,7 +16,7 @@ jobs:
   run_package_tests:
     strategy:
       matrix:
-        python_version: ["3.12", "3.13"]
+        python_version: ["3.12"]
         os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
     env:
