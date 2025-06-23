@@ -23,7 +23,7 @@ else
 fi
 
 # Run the FastAPI server using uvicorn
-if [ "HOT_RELOAD_BACKEND" = "1" ]; then
+if [ "${HOT_RELOAD_BACKEND}" = "1" ]; then
     # run in debug mode, with hot reloading
     exec uv run uvicorn src.main:app \
         --host 0.0.0.0 \
