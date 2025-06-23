@@ -8,7 +8,7 @@ First, we encourage you to watch our short video about Manugen-AI here: 1. TODO:
 
 To test Manugen-AI, you can either use our hosted demo ([see below](#hosted-demo)) or test it locally from your computer.
 
-## Demo
+## Hosted demo
 
 1. Open the following link in a web browser: https://manugen-ai.cu-dbmi.dev/
 2. Click on the lightbulb to load the Markdown example we used in the video.
