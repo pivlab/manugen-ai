@@ -22,20 +22,6 @@ services:
       - "VITE_API=http://localhost:8900"
       - "VITE_TITLE=Manugen AI"
 
-  # service that's invoked explicitly to run the manugen-ai command
-  manugen:
-    profiles:
-      - cli
-    build:
-      context: ./packages/
-    env_file:
-      - .env
-    environment:
-      - "OLLAMA_API_BASE=http://host.docker.internal:11434"
-    command: "uv run manugen /content/"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
   # session database for ADK
   db:
     image: postgres:16
