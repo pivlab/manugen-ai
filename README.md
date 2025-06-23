@@ -1,6 +1,8 @@
-# ADK Hackathon 2025
+# Manugen AI
 
-This repo holds our submission for the 2025 [Agent Development Kit Hackathon with Google Cloud](https://googlecloudmultiagents.devpost.com/).
+<img src="packages/manugen-ai/docs/media/manugen-ai-logo.png" alt="Project Logo" width="300px"/>
+
+This repo holds our submission for the 2025 [Agent Development Kit Hackathon with Google Cloud](https://googlecloudmultiagents.devpost.com/) - Manugen AI.
 
 The project consists of a web-based frontend, backend, and additional services.
 It includes Docker Compose configuration to run the application stack locally.
