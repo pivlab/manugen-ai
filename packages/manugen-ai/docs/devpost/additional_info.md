@@ -13,7 +13,7 @@ To test Manugen-AI, you can either use our hosted demo ([see below](#hosted-demo
 1. Open the following link in a web browser: https://manugen-ai.cu-dbmi.dev/
 2. Click on the lightbulb to load the Markdown example we used in the video.
 3. To draft the manuscript, highlight one section at a time (for example, "Introduction", "Results", etc) by selecting the entire section content and click on the "Draft" action, and wait for the text to come back.
-4. You can also edit an already drafted section by adding instructions in the middle of the text, selecting the entire section, and clicking on "Draft".
+4. Drafted sections may be further enhanced by adding instructions to the text, selecting the entire section, and clicking on "Draft".
    The system will edit the existing draft by following your instructions.
 5. You can also upload figures (it works with PNG format) by clicking on the "Toggle Attachments" button at the top left. If you want to download figures for the example, you can get them from [here](https://github.com/pivlab/manugen-ai/tree/main/frontend/public/example).
 6. Once a figure is uploaded, you'll see it gets a figure number like "Figure 1", a title and a description. You can then reference this figure using its figure number (like "Figure 1") in the Results section, and the system will use the Figure title and description.
