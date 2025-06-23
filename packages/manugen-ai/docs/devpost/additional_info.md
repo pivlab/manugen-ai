@@ -4,7 +4,9 @@ I've added the agent architecture diagram.
 
 # Testing Instructions for application
 
-First, we encourage you to watch our short video about Manugen-AI here: 1. TODO: add video link
+## Intro
+
+First, we encourage you to watch our short video about Manugen-AI [here](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE).
 
 To test Manugen-AI, you can either use our hosted demo ([see below](#hosted-demo)) or test it locally from your computer.
 
@@ -22,7 +24,7 @@ To test Manugen-AI, you can either use our hosted demo ([see below](#hosted-demo
 
 1. Clone our GitHub repository: https://github.com/pivlab/manugen-ai
 2. Follow the instructions in the `README.md`, under section [Installation](https://github.com/pivlab/manugen-ai#installation).
-3. Once it's ready, you'll use the URL link to access the frontend locally (such as http://localhost:8900/) and start interacting with the system.
+3. Once it's ready, you'll use the URL link to access the frontend locally (such as http://localhost:8901/) and start interacting with the system.
 
 The steps to test the system are the same as described in the "Demo" section above.
 
@@ -30,13 +32,7 @@ The steps to test the system are the same as described in the "Demo" section abo
 
 ## A link to your published blog post, video, or podcast
 
-TODO: add link to video
-
 Link to our blog post: https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html
-* Include language that says you created the content for the purposes of entering this hackathon.
-* For any social media posts, include the hashtag #adkhackathon.
-* ADD THIS: A contribution to the Agent Development Kit open source repository - Show your commits, pull requests, issues opened, and code reviews by linking to your GitHub profile or the repository's contribution history.
-
 ## A link to your contribution to the Agent Development Kit open source repository
 
 https://github.com/pivlab/manugen-ai/issues/11
