@@ -18,7 +18,7 @@ To test Manugen-AI, you can either use our hosted demo ([see below](#hosted-demo
 5. Figures may be uploaded (it works with PNG format) by clicking on the "Toggle Attachments" button at the top left. If you want to download figures for the example, please see [here](https://github.com/pivlab/manugen-ai/tree/main/frontend/public/example).
 6. Once a figure is uploaded, you'll see it gets a figure number like "Figure 1", a title and a description. You can then reference this figure using its figure number (like "Figure 1") in the Results section, and the system will use the Figure title and description.
 
-## Local test
+## Local demo
 
 1. Clone our GitHub repository: https://github.com/pivlab/manugen-ai
 2. Follow the instructions in the `README.md`, under section [Installation](https://github.com/pivlab/manugen-ai#installation).
