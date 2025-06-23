@@ -68,7 +68,7 @@ python -c \
 "from manugen_ai.data import create_withdrarxiv_embeddings; \
 create_withdrarxiv_embeddings()"
 """
-# gnerates diagrams for agent architecture
+# generates diagrams for agent architecture
 # under docs/media
 generate_agent_diagrams.shell = """
 python docs/media/generate_diagrams.py

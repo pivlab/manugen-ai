@@ -32,7 +32,7 @@ license: BSD-3-Clause
 references:
   - title: >-
       WithdrarXiv: A Large-Scale Dataset for Retraction Study
-    type: document
+    type: report
     url: https://arxiv.org/abs/2412.03775
     authors:
       - family-names: Rao
@@ -43,7 +43,7 @@ references:
         given-names: Thomas
       - family-names: Callison-Burch
         given-names: Chris
-    date-published: 2024
+    date-published: 2024-12-04
     notes: >-
       We used the WithdrarXiv dataset to help perform RAG-based
       retraction reasons for use in AI-assisted manuscript generation.
@@ -51,7 +51,7 @@ references:
       https://huggingface.co/datasets/darpa-scify/withdrarxiv
   - title: >-
       OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts
-    type: preprint
+    type: conference-paper
     url: http://arxiv.org/abs/2205.01833
     authors:
       - family-names: Priem
@@ -66,9 +66,8 @@ references:
         value: 10.48550/arXiv.2205.01833
   - title: >-
       Retrieval-augmented generation for knowledge-intensive NLP tasks
-    type: conferencePaper
+    type: conference-paper
     collection-title: Proceedings of the 34th International Conference on Neural Information Processing Systems
-    editors-series: NIPS '20
     isbn: 978-1-7138-2954-6
     authors:
       - family-names: Lewis
@@ -95,4 +94,4 @@ references:
         given-names: Sebastian
       - family-names: Kiela
         given-names: Douwe
-    date-published: 2020
+    date-published: 2020-04-12
