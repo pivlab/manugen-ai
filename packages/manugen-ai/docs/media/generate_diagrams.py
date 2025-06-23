@@ -7,7 +7,9 @@ import pathlib
 from manugen_ai.agents.ai_science_writer.sub_agents.citations import (
     root_agent as citation_agent,
 )
-from manugen_ai.agents.ai_science_writer.sub_agents.coordinator.agent import coordinator_agent
+from manugen_ai.agents.ai_science_writer.sub_agents.coordinator.agent import (
+    coordinator_agent,
+)
 from manugen_ai.agents.ai_science_writer.sub_agents.figure import figure_agent
 from manugen_ai.agents.ai_science_writer.sub_agents.manuscript_drafter import (
     manuscript_drafter_agent,
@@ -36,16 +38,16 @@ for agent in [
     # special handling for the coordinator agent
     if agent.name == "coordinator_agent":
         # all coordinator agents:
-        _, png = build_mermaid(
-            agent, orientation="LR"
-        )
-        with open(str(pathlib.Path(__file__).parent / f"{agent.name}_all_lr.png"), "wb") as f:
+        _, png = build_mermaid(agent, orientation="LR")
+        with open(
+            str(pathlib.Path(__file__).parent / f"{agent.name}_all_lr.png"), "wb"
+        ) as f:
             f.write(png)
 
-        _, png = build_mermaid(
-            agent, orientation="TB"
-        )
-        with open(str(pathlib.Path(__file__).parent / f"{agent.name}_all_tb.png"), "wb") as f:
+        _, png = build_mermaid(agent, orientation="TB")
+        with open(
+            str(pathlib.Path(__file__).parent / f"{agent.name}_all_tb.png"), "wb"
+        ) as f:
             f.write(png)
 
         # manugen-ai core:
@@ -54,16 +56,16 @@ for agent in [
             review_agent,
             figure_agent,
         ]
-        _, png = build_mermaid(
-            agent, orientation="LR"
-        )
-        with open(str(pathlib.Path(__file__).parent / f"{agent.name}_core_lr.png"), "wb") as f:
+        _, png = build_mermaid(agent, orientation="LR")
+        with open(
+            str(pathlib.Path(__file__).parent / f"{agent.name}_core_lr.png"), "wb"
+        ) as f:
             f.write(png)
 
-        _, png = build_mermaid(
-            agent, orientation="TB"
-        )
-        with open(str(pathlib.Path(__file__).parent / f"{agent.name}_core_tb.png"), "wb") as f:
+        _, png = build_mermaid(agent, orientation="TB")
+        with open(
+            str(pathlib.Path(__file__).parent / f"{agent.name}_core_tb.png"), "wb"
+        ) as f:
             f.write(png)
 
         # manugen-ai extensions:
@@ -72,24 +74,19 @@ for agent in [
             citation_agent,
             repo_agent,
         ]
-        _, png = build_mermaid(
-            agent, orientation="LR"
-        )
-        with open(str(pathlib.Path(__file__).parent / f"{agent.name}_extensions_lr.png"), "wb") as f:
+        _, png = build_mermaid(agent, orientation="LR")
+        with open(
+            str(pathlib.Path(__file__).parent / f"{agent.name}_extensions_lr.png"), "wb"
+        ) as f:
             f.write(png)
 
-        _, png = build_mermaid(
-            agent, orientation="TB"
-        )
-        with open(str(pathlib.Path(__file__).parent / f"{agent.name}_extensions_tb.png"), "wb") as f:
+        _, png = build_mermaid(agent, orientation="TB")
+        with open(
+            str(pathlib.Path(__file__).parent / f"{agent.name}_extensions_tb.png"), "wb"
+        ) as f:
             f.write(png)
 
     else:
-        _, png = build_mermaid(
-                agent, orientation="LR"
-            )
+        _, png = build_mermaid(agent, orientation="LR")
         with open(str(pathlib.Path(__file__).parent / f"{agent.name}.png"), "wb") as f:
             f.write(png)
-
-    
-
