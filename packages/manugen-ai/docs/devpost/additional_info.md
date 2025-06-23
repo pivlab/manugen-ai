@@ -10,7 +10,7 @@ To test Manugen-AI, you can either use our hosted demo ([see below](#hosted-demo
 
 ## Demo
 
-1. Go to: https://manugen-ai.cu-dbmi.dev/
+1. Open the following link in a web browser: https://manugen-ai.cu-dbmi.dev/
 2. Click on the lightbulb to load the Markdown example we used in the video.
 3. To draft the manuscript, you have to go one section at a time (Introduction, Results, etc) by selecting the entire section content and click on the "Draft" action, and wait for the text to come back.
 4. You can also edit an already drafted section by adding instructions in the middle of the text, selecting the entire section, and clicking on "Draft".
