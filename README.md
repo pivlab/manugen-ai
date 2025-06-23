@@ -53,8 +53,9 @@ tail -f ~/.ollama/logs/server.log
 ## Usage
 
 First, copy `.env.TEMPLATE` in the root of the project to a file named `.env`, then fill in any missing values.
-You can use whatever values for the password you like, but try to use a long, random value.
-(Note that some values specified in `.env` are overridden in the `docker-compose.yml` file, under the service's `environment` key.)
+You will likely want to change `POSTGRES_PASSWORD` from its default value to a random one.
+You'll also want to fill out API keys for services you're using.
+Currently, the project uses Google's Gemini, so you'll need a valid API key value for the `GOOGLE_API_KEY` entry
 
 To run the project, clone the repository and run:
 
@@ -137,25 +138,6 @@ To tail the container logs, you can run:
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
 ```
-
-### Command Line Interface
-
-If you'd prefer not to use the web interface, you can also run the *Manugen AI* package from the command line.
-
-You can use the package directly for this (see the package docs), but if you'd prefer to run it from within a Docker container, you can use the following command:
-
-```bash
-# first, build the image if you haven't already, or if you've made changes to the package
-docker compose --profile cli build manugen
-
-# then, execute it, replacing './content/' with the path to your content files
-docker compose --profile cli run --build --rm \
-    -v ./content/:/content/ \
-    manugen
-```
-
-Currently the command runs the *Manugen AI* package's `cli` module with the `--content-dir` option set to `/content/`, which is the directory where the content files are mounted in the Docker container.
-*TBC: add where the output files are saved, once that's implemented.*
 
 ## Other Resources
 
