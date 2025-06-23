@@ -99,6 +99,15 @@ def exit_loop(tool_context: ToolContext):
 
 @graceful_fail()
 def fetch_url(url: str) -> str:
+    """
+    Fetch the text content of a web resource.
+    
+    Args:
+        url: URL to retrieve.
+
+    Returns:
+        str: Content of the URL.
+    """
     res = requests.get(url)
     res.raise_for_status()
     return res.text
