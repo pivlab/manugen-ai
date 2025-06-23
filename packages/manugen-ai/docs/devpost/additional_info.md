@@ -6,7 +6,7 @@ I've added the agent architecture diagram.
 
 First, we encourage you to watch our short video about Manugen-AI here: 1. TODO: add video link
 
-To test Manugen-AI, you can either use our hosted demo or test it locally in your computer.
+To test Manugen-AI, you can either use our hosted demo ([see below](#hosted-demo)) or test it locally from your computer.
 
 ## Demo
 
