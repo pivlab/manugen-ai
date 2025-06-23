@@ -29,9 +29,5 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # copy backend contents into working dir
 COPY --exclude=.venv ./backend/ .
 
-# initialize embeddings model by running an
-# import from the manugen_ai.data module.
-RUN uv run python -c "import manugen_ai.data"
-
 # for now, simply run the ADK test webserver
 CMD ["/app/start_api_server.sh"]
