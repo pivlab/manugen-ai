@@ -1,5 +1,5 @@
-from typing import AsyncGenerator
 import logging
+from typing import AsyncGenerator
 
 from google.adk.agents import SequentialAgent
 from google.adk.agents.invocation_context import InvocationContext
@@ -9,7 +9,6 @@ from typing_extensions import override
 
 from ..interpreter import request_interpreter_agent
 from ..section_drafter import section_drafter_agent
-
 
 # --- Configure Logging ---
 logging.basicConfig(level=logging.INFO)
@@ -31,7 +30,7 @@ class InputCopyAgent(ManugenAIBaseAgent):
     ) -> AsyncGenerator[Event, None]:
         # FIXME: workaround to test in adk web
         # logger.info(f"User content: {ctx.user_content}")
-        
+
         last_user_input = ctx.user_content.parts[0]
         if last_user_input.text is not None and last_user_input.text.strip() == "fig":
             last_user_input = ctx.user_content.parts[1]
@@ -40,7 +39,7 @@ class InputCopyAgent(ManugenAIBaseAgent):
 
         if False:
             yield
-        
+
         return
 
 

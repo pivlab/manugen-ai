@@ -18,5 +18,5 @@ methods_agent = LlmAgent(
     instruction=prompt.PROMPT,
     before_agent_callback=prepare_instructions,
     output_key="methods",
-    tools=[fetch_url]
+    tools=[fetch_url],
 )

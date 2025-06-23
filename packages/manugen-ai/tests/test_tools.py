@@ -36,7 +36,7 @@ def test_openalex_query_live(topics):
     """
     Test openalex_query with real topics.
     """
-    
+
     result = openalex_query(topics)
 
     for w in result:

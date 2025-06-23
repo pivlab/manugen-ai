@@ -54,7 +54,7 @@ def openalex_query(topics: str) -> Dict[str, List[Dict[str, Any]]]:
     title and abstract for open-access works.
 
     Args:
-        topics (str): 
+        topics (str):
             Topics to search for, as a string.
 
     Returns:
@@ -101,7 +101,7 @@ def exit_loop(tool_context: ToolContext):
 def fetch_url(url: str) -> str:
     """
     Fetch the text content of a web resource.
-    
+
     Args:
         url: URL to retrieve.
 
