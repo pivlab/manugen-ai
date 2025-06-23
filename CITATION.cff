@@ -29,3 +29,69 @@ keywords:
   - research
   - large-language-models
 license: BSD-3-Clause
+references:
+  - title: >-
+      WithdrarXiv: A Large-Scale Dataset for Retraction Study
+    type: report
+    url: https://arxiv.org/abs/2412.03775
+    authors:
+      - family-names: Rao
+        given-names: Delip
+      - family-names: Young
+        given-names: Jonathan
+      - family-names: Dietterich
+        given-names: Thomas
+      - family-names: Callison-Burch
+        given-names: Chris
+    date-published: 2024-12-04
+    notes: >-
+      We used the WithdrarXiv dataset to help perform RAG-based
+      retraction reasons for use in AI-assisted manuscript generation.
+      Please see the following link for the dataset:
+      https://huggingface.co/datasets/darpa-scify/withdrarxiv
+  - title: >-
+      OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts
+    type: conference-paper
+    url: http://arxiv.org/abs/2205.01833
+    authors:
+      - family-names: Priem
+        given-names: Jason
+      - family-names: Piwowar
+        given-names: Heather
+      - family-names: Orr
+        given-names: Richard
+    date-published: 2022-06-17
+    identifiers:
+      - type: doi
+        value: 10.48550/arXiv.2205.01833
+  - title: >-
+      Retrieval-augmented generation for knowledge-intensive NLP tasks
+    type: conference-paper
+    collection-title: Proceedings of the 34th International Conference on Neural Information Processing Systems
+    isbn: 978-1-7138-2954-6
+    authors:
+      - family-names: Lewis
+        given-names: Patrick
+      - family-names: Perez
+        given-names: Ethan
+      - family-names: Piktus
+        given-names: Aleksandra
+      - family-names: Petroni
+        given-names: Fabio
+      - family-names: Karpukhin
+        given-names: Vladimir
+      - family-names: Goyal
+        given-names: Naman
+      - family-names: Küttler
+        given-names: Heinrich
+      - family-names: Lewis
+        given-names: Mike
+      - family-names: Yih
+        given-names: Wen-tau
+      - family-names: Rocktäschel
+        given-names: Tim
+      - family-names: Riedel
+        given-names: Sebastian
+      - family-names: Kiela
+        given-names: Douwe
+    date-published: 2020-04-12

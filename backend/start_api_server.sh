@@ -15,8 +15,18 @@ echo ""
 cd "$(dirname "$0")"
 
 # Run the FastAPI server using uvicorn
-exec uv run uvicorn src.main:app \
-    --host 0.0.0.0 \
-    --port ${MANUGEN_API_PORT} \
-    --reload \
-    --log-level info
+if [ "HOT_RELOAD_BACKEND" = "1" ]; then
+    # run in debug mode, with hot reloading
+    exec uv run uvicorn src.main:app \
+        --host 0.0.0.0 \
+        --port ${MANUGEN_API_PORT} \
+        --reload \
+        --log-level info
+else
+    # run in production mode
+    exec uv run uvicorn src.main:app \
+        --host 0.0.0.0 \
+        --port ${MANUGEN_API_PORT} \
+        --workers ${WEB_CONCURRENCY:-8} \
+        --log-level warning
+fi

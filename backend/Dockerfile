@@ -10,6 +10,11 @@
 FROM python:3.12-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+# install system dependencies, tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake build-essential pkg-config libgoogle-perftools-dev \
+    zlib1g-dev curl
+
 # Change the working directory to the `app` directory
 WORKDIR /app
 
@@ -23,6 +28,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # copy backend contents into working dir
 COPY --exclude=.venv ./backend/ .
+
+# initialize embeddings model by running an
+# import from the manugen_ai.data module.
+RUN uv run python -c "import manugen_ai.data"
 
 # for now, simply run the ADK test webserver
 CMD ["/app/start_api_server.sh"]
