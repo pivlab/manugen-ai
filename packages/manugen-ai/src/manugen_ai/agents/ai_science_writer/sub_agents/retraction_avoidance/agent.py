@@ -13,7 +13,6 @@ from __future__ import annotations
 import os
 
 from google.adk.agents import Agent, LoopAgent, SequentialAgent
-from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools import FunctionTool
 from manugen_ai.agents.meta_agent import ResilientToolAgent
 from manugen_ai.data import search_withdrarxiv_embeddings

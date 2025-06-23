@@ -8,7 +8,7 @@ import functools
 import itertools
 import os
 import pathlib
-from typing import Any, Callable, Tuple, TypeVar, Literal
+from typing import Any, Callable, Literal, Tuple, TypeVar
 
 import requests
 from google.adk.agents import LoopAgent, ParallelAgent, SequentialAgent
@@ -219,7 +219,9 @@ async def run_agent_workflow(
 
 
 # --- Visualization Helper ---
-def build_mermaid(root: Any, orientation: Literal["TB", "TD", "BT", "RL", "LR"] = "LR" ) -> Tuple[str, bytes]:
+def build_mermaid(
+    root: Any, orientation: Literal["TB", "TD", "BT", "RL", "LR"] = "LR"
+) -> Tuple[str, bytes]:
     """
     Generates a Mermaid 'flowchart LR' diagram for a google-adk
     agent tree and returns both the Mermaid source and a PNG
@@ -325,7 +327,9 @@ def build_mermaid(root: Any, orientation: Literal["TB", "TD", "BT", "RL", "LR"] 
             edges.append(f"{root.name} --> {c.name}")
 
     # Assemble graph
-    graph = [f"flowchart {orientation}", f'{root.name}["{root.name}"]'] + clusters + edges
+    graph = (
+        [f"flowchart {orientation}", f'{root.name}["{root.name}"]'] + clusters + edges
+    )
     mermaid_src = "\n".join(graph)
     # Render via Kroki
     png = requests.post(

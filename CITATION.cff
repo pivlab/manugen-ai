@@ -34,7 +34,7 @@ references:
       WithdrarXiv: A Large-Scale Dataset for Retraction Study
     type: document
     url: https://arxiv.org/abs/2412.03775
-    authors: 
+    authors:
       - family-names: Rao
         given-names: Delip
       - family-names: Young
@@ -53,7 +53,7 @@ references:
       OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts
     type: preprint
     url: http://arxiv.org/abs/2205.01833
-    authors: 
+    authors:
       - family-names: Priem
         given-names: Jason
       - family-names: Piwowar
@@ -61,7 +61,7 @@ references:
       - family-names: Orr
         given-names: Richard
     date-published: 2022-06-17
-    identifiers: 
+    identifiers:
       - type: doi
         value: 10.48550/arXiv.2205.01833
   - title: >-
@@ -70,7 +70,7 @@ references:
     collection-title: Proceedings of the 34th International Conference on Neural Information Processing Systems
     editors-series: NIPS '20
     isbn: 978-1-7138-2954-6
-    authors: 
+    authors:
       - family-names: Lewis
         given-names: Patrick
       - family-names: Perez
