@@ -9,9 +9,11 @@ services:
       - "OLLAMA_API_BASE=http://host.docker.internal:11434"
       - "POSTGRES_HOST=db"
       - "POSTGRES_DB=manugen"
-      - "SESSION_DB_CONN_STRING=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
-    depends_on:
-      - db
+      - "FLAGEMBEDDING_CACHE_DIR=/opt/model_cache/"
+    volumes:
+      # in case we're using FlagEmbedding models,
+      # we'll want to cache them on the host
+      - ./model_cache/:/opt/model_cache/
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
