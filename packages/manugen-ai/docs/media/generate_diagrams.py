@@ -3,10 +3,8 @@ Generates Mermaid diagrams from the provided agents.
 """
 
 import pathlib
-import os
 
 from google.adk.agents import Agent, ParallelAgent, SequentialAgent
-
 from manugen_ai.agents.ai_science_writer.sub_agents.citations import (
     root_agent as citation_agent,
 )
@@ -29,12 +27,24 @@ from manugen_ai.agents.ai_science_writer.sub_agents.reviewer import (
 from manugen_ai.utils import build_mermaid
 
 # create a custom agent for diagramming the section_writer_agent, which is a custom agent
-manuscript_agent_for_diagramming = SequentialAgent(name="manuscript_drafter_agent", sub_agents=[Agent(name="simple_copy_agent"),Agent(name="request_interpreter_agent"), ParallelAgent(name="section_drafter", sub_agents=[Agent(name="title_agent"),
-    Agent(name="abstract_agent"),
-    Agent(name="introduction_agent"),
-    Agent(name="results_agent"),
-    Agent(name="discussion_agent"),
-    Agent(name="methods_agent")])])
+manuscript_agent_for_diagramming = SequentialAgent(
+    name="manuscript_drafter_agent",
+    sub_agents=[
+        Agent(name="simple_copy_agent"),
+        Agent(name="request_interpreter_agent"),
+        ParallelAgent(
+            name="section_drafter",
+            sub_agents=[
+                Agent(name="title_agent"),
+                Agent(name="abstract_agent"),
+                Agent(name="introduction_agent"),
+                Agent(name="results_agent"),
+                Agent(name="discussion_agent"),
+                Agent(name="methods_agent"),
+            ],
+        ),
+    ],
+)
 
 
 # for each agent, generate a diagram and save it as a PNG file
@@ -52,7 +62,6 @@ for agent in [
 
     # special handling for the coordinator agent
     if agent.name == "coordinator_agent":
-        
         agent.sub_agents = [
             manuscript_agent_for_diagramming,
             figure_agent,
