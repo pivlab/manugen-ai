@@ -15,5 +15,5 @@ export const getUrl = (data: BlobPart, type: string) =>
     : window.URL.createObjectURL(new Blob([data], { type }));
 
 /** download text data */
-export const downloadTxt = (data: string, filename: string) =>
-  download(getUrl(data, "text/plain;charset=utf-8"), filename, "txt");
+export const downloadMd = (data: string, filename: string) =>
+  download(getUrl(data, "text/markdown;charset=utf-8"), filename, "md");
