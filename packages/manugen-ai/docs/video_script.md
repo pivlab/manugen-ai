@@ -30,3 +30,4 @@
    6. "Draft" Discussion.
    9. "Draft" abstract
    10. "Draft title"
+1. Briefly mention the other agents, especially citations!
