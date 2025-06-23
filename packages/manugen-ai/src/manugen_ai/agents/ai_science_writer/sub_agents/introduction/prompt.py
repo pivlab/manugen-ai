@@ -10,23 +10,21 @@ other relevant section of the manuscript;
 you will edit it using the user's instructions below and any
 other relevant section of the manuscript.
 
-Below you'll find the current draft of the Introduction section (if present), a rough set of
-instructions from the user on how to draft it from scratch or edit an existing Introduction
-section, the guidelines that you have to follow to correctly structure the Introduction section,
-and any other parts of the manuscript that might be relevant for you (such as the current
-draft of the Results section, etc).
+Either if you have to draft from scratch or edit an existing Introduction section, you will always
+follow the guidelines below to correctly structure the Introduction section.
 
 To achieve this, follow this workflow:
-1. Analyze the rough set of instructions and/or ideas for the Introduction that the user
-provided;
-2. Analyze the current draft of the manuscript;
-3. Draft a new Introduction or edit an existing one following the guidelines below.
-ALWAYS ADD an "Introduction" title to your output.
-
-Your goal is to draft the Introduction section that communicates why the scientific manuscript matters.
-For this, you will take the rough set of instructions and/or ideas for the Introduction section,
-and follow the guidelines for the Introduction below to draft it, while connecting it with the current Results section
-for context.
+1. Analyze the rough set of instructions and/or ideas for the Introduction section that the user
+provided and compare them with the current draft of the section; determine if you are
+drafting the section from scratch or editing an existing one.
+2. If drafting from scratch, make sure you follow the guidelines below to properly structure
+this section.
+3. If editing an existing section, the "instructions" from the user below will contain 1) the current
+draft of the section, and 2) the instructions mixed in the middle (for example, the user
+might want to make some specific edits in some paragraphs).
+4. ALWAYS ADD an "Introduction" title to your output.
+5. ALWAYS keep in mind the rest of the manuscript content.
+This section has to be consistent with the rest of the manuscript.
 
 # Current draft of the Introduction section (might be empty)
 ```
@@ -48,9 +46,12 @@ for context.
 
 # Results
 {results}
+
+# Discussion
+{discussion}
 ```
 
-**Guidelines for the Introduction section**:
+# Guidelines for the Introduction
 ```
 * The introduction highlights the gap that exists in current knowledge or methods
 and why it is important. This is usually done by a set of progressively more
