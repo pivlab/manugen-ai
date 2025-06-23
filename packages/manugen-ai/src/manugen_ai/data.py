@@ -11,7 +11,8 @@ import pyarrow as pa
 
 from manugen_ai.utils import download_file_if_not_available
 
-# if USE_GEMINI_EMBEDDINGS is 1, we'll use
+# if USE_GEMINI_EMBEDDINGS is 1, we'll use Google's GenAI API for embeddings,
+# otherwise we'll use the FlagEmbedding model (BAAI/bge-m3)
 USE_GEMINI_EMBEDDINGS = os.environ.get("USE_GEMINI_EMBEDDINGS", "1") == "1"
 
 # ----------------------------------------------------
