@@ -27,38 +27,20 @@ class CoordinatorAgent(ManugenAIBaseAgent):
     of a scientific manuscript.
     """
 
-    # --- Field Declarations for Pydantic ---
-    # Declare the agents passed during initialization as class attributes with type hints
-    # manuscript_drafter_agent: SequentialAgent
-    # figure_agent: LlmAgent
-
     sub_agents_cond: list[tuple[BaseAgent, Callable]]
+    """Sub agents and their conditions to be run. If conditions are met, the agent is run.
+    Conditions are tested in the same order in the list.
+    """
 
-    # model_config allows setting Pydantic configurations if needed, e.g., arbitrary_types_allowed
     model_config = {"arbitrary_types_allowed": True}
+    """The pydantic model config."""
 
     def __init__(
         self,
-        # name: str,
-        # manuscript_drafter_agent: SequentialAgent,
-        # figure_agent: LlmAgent,
         sub_agents_cond: list[tuple[BaseAgent, Callable]],
     ):
-        """
-        TODO: update
-
-        Initializes the StoryFlowAgent.
-
-        Args:
-            sub_agents_cond (list[tuple[BaseAgent, Callable]]): ordered list of agents to call
-            TODO: add more
-        """
-
-        # Pydantic will validate and assign them based on the class annotations.
         super().__init__(
             name="coordinator_agent",
-            # manuscript_drafter_agent=manuscript_drafter_agent,
-            # figure_agent=figure_agent,
             sub_agents_cond=sub_agents_cond,
         )
 
@@ -67,31 +49,36 @@ class CoordinatorAgent(ManugenAIBaseAgent):
         self, ctx: InvocationContext
     ) -> AsyncGenerator[Event, None]:
         """
-        TODO: update
+        Implements own core agent logic. The coordinator agent runs only one agent per
+        request.
         """
         logger.info(f"[{self.name}] Starting Coordinator workflow.")
         logger.info(ctx.user_content)
 
-        # FIXME: workaround to test in adk web
+        # get the latest user's message
         last_user_input = ctx.user_content.parts[0]
+
+        # FIXME: workaround to test in adk web
+        #  skip latest user message if it has text "fig"
+        #  adk web forces to send a text message as well, which should be always "fig"
+        #  for it to work here.
         if last_user_input.text is not None and last_user_input.text.strip() == "fig":
             last_user_input = ctx.user_content.parts[1]
 
         agent_was_run = False
-        
+
+        # iterate over the list of subagents and their conditions to run
         for agent, agent_condition in self.sub_agents_cond:
             if not agent_condition(last_user_input):
                 continue
 
+            # simulate an event that there was a transfer of agent
             yield self.get_transfer_to_agent_event(ctx, agent)
-            
+
+            # remove "display_name" since adk does not support it
             if last_user_input.inline_data is not None:
-                # adk does not support 'display_name' in the request for images
                 last_user_input.inline_data.display_name = None
 
-            # TODO: check if changing the InvocationContext like this is a good idea
-            ctx.user_content.parts = [last_user_input]
-            
             # call agent
             async for event in agent.run_async(ctx):
                 yield event
@@ -103,6 +90,7 @@ class CoordinatorAgent(ManugenAIBaseAgent):
 
         if not agent_was_run:
             yield self.error_message(ctx, "No agent was found for request.")
+
 
 coordinator_agent = CoordinatorAgent(
     sub_agents_cond=[
