@@ -24,6 +24,15 @@ def prepare_instructions(callback_context: CallbackContext) -> Optional[types.Co
         if key1 not in callback_context.state:
             callback_context.state[key1] = ""
 
+    # add figures descriptions
+    figure_descriptions = ""
+    if FIGURES_KEY in current_state:
+        current_figure_state = current_state[FIGURES_KEY]
+        for figure_number, figure_data in current_figure_state.items():
+            figure_descriptions += f"Figure {figure_number}: {figure_data['title']}\n{figure_data['description']}\n\n"
+
+    callback_context.state[FIGURES_DESCRIPTIONS_KEY] = figure_descriptions.strip()
+
 
 class ManuscriptStructure(BaseModel):
     title: str = Field(default="")
@@ -52,3 +61,4 @@ class SingleFigureDescription(BaseModel):
 
 CURRENT_FIGURE_KEY = "current_figure"
 FIGURES_KEY = "figures"
+FIGURES_DESCRIPTIONS_KEY = "figures_descriptions"

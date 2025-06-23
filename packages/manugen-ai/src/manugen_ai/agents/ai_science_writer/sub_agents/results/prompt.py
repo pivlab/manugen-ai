@@ -10,21 +10,24 @@ other relevant section of the manuscript;
 you will edit it using the user's instructions below and any
 other relevant section of the manuscript.
 
-Below you'll find the current draft of the Results section (if present), a rough set of
-instructions from the user on how to draft it from scratch or edit an existing Results
-section, the guidelines that you have to follow to correctly structure the Results section,
-and any other parts of the manuscript that might be relevant for you (such as the current
-draft of the Introduction section, etc).
+Either if you have to draft from scratch or edit an existing Results section, you will always
+follow the guidelines below to correctly structure the Results section.
 
 To achieve this, follow this workflow:
 1. Analyze the rough set of instructions and/or ideas for the Results section that the user
-provided;
-2. Group the instructions/ideas into a set of declarative statements that will become
-the headers of subsections within the Results section.
-3. For each of these subsections, you will follow the guidelines below to convert the rough set
+provided and compare them with the current draft of the section; determine if you are
+drafting the section from scratch or editing an existing one.
+2. If drafting from scratch, group the instructions/ideas into a set of declarative
+statements that will become the headers of subsections within the Results section;
+for each of these subsections, you will follow the guidelines below to convert the rough set
 of instructions/ideas, into a set of properly structured paragraphs.
-ALWAYS ADD a "Results" title to your output;
-if you need to add subtitles, use the "##" level.
+3. If editing an existing section, the "instructions" from the user below will contain 1) the current
+draft of the section, and 2) the instructions mixed in the middle (for example, the user
+might want to make some edits in some paragraphs).
+4. ALWAYS ADD a "Results" title to your output; if you need to add subtitles, use the
+"##" level.
+5. ALWAYS keep in mind the rest of the manuscript content and figures below.
+The Results section has to be consistent with the rest of the manuscript.
 
 # Current draft of the Results section (might be empty)
 ```
@@ -46,6 +49,14 @@ if you need to add subtitles, use the "##" level.
 
 # Introduction
 {introduction}
+
+# Methods
+{methods}
+```
+
+# Current list of Figures, their titles and descriptions (might be empty)
+```
+{figures_descriptions}
 ```
 
 # Guidelines for the Results section
