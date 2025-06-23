@@ -1,11 +1,9 @@
 # Title
-A new correlation coefficient for gene expression analysis
-
-# Keywords
-* correlation analysis
-* gene expression
+* new correlation coefficient
+* transcriptomics or gene expression data
 
 # Abstract
+* add an abstract
 
 # Introduction
 * intro about correlation analysis and how important it is in the context of gene expression
@@ -17,19 +15,19 @@ A new correlation coefficient for gene expression analysis
 # Results
 
 ## Overview of CCC
-* brief summary of how CCC works; the main source code is in this file: https://github.com/greenelab/ccc/blob/main/libs/ccc/coef/impl.py
-* Figure 1: include the following figure, and add a caption: https://github.com/greenelab/ccc-manuscript/blob/main/content/images/intro/relationships.svg
-* then explain the different panels in the figure; it’s all synthetic data, with panels a) and b) having numerical variable pairs only, and panel c) a mix of numerical and categorical
+* brief summary of how CCC works
+* add "Figure 1"
+* and then explain the different panels in "Figure 1"; the figure shows synthetic data, with panels a) and b) having numerical variable pairs only, and panel c) a mix of numerical and categorical
 
 ## CCC captures nonlinear patterns in GTEx
 * we compared CCC with Pearson and Spearman in GTEx
-* Figure 2: the main results comparing distribution of coefficients are in this figure: https://greenelab.github.io/ccc-manuscript/images/coefs_comp/gtex_whole_blood/dist-main.svg
-* add a caption of Figure 2 and a few paragraphs explaining the differences between the three algorithms
-* Figure 3: add the following figure and generate a caption: https://greenelab.github.io/ccc-manuscript/images/coefs_comp/gtex_whole_blood/upsetplot-main.svg
+* add "Figure 2", which has the main results comparing distribution of coefficients
+* add a few paragraphs explaining the differences between the three algorithms
+* add "Figure 3"
 * add a paragraph describing the results of Figure 3, one paragraph for panel a) and one paragraph for panel b)
 
 # Discussion
 * add discussion
 
 # Methods
-* add a more in-detail description of the CCC algorithm implemented here: https://github.com/greenelab/ccc/blob/main/libs/ccc/coef/impl.py
+* add a more in-detail description of the CCC algorithm implemented here: https://raw.githubusercontent.com/greenelab/ccc/refs/heads/main/libs/ccc/coef/impl.py
