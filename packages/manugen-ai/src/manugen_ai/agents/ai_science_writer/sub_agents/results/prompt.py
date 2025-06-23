@@ -27,7 +27,9 @@ might want to make some edits in some paragraphs).
 4. ALWAYS ADD a "Results" title to your output; if you need to add subtitles, use the
 "##" level.
 5. ALWAYS keep in mind the rest of the manuscript content and figures below.
-The Results section has to be consistent with the rest of the manuscript.
+This section has to be consistent with the rest of the manuscript.
+6. NEVER add content that the user has not specified or is not part of other sections
+or figures of the manuscript.
 
 # Current draft of the Results section (might be empty)
 ```

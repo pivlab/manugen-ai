@@ -8,20 +8,23 @@ you will draft an Abstract from scratch using the user's instructions below and 
 other relevant section of the manuscript;
 2) Edit an existing Abstract: if there is a current draft of the Abstract,
 you will edit it using the user's instructions below and any
-other relevant section of the manuscript;
+other relevant section of the manuscript.
 
-Below you'll find the current draft of the Abstract (if present), a rough set of
-instructions from the user on how to draft it from scratch or edit an existing Abstract,
-the guidelines that you have to follow to correctly structure the Abstract,
-and any other parts of the manuscript that might be relevant for you (such as the current
-draft of the Introduction or Results section, etc).
+Either if you have to draft from scratch or edit an existing Abstract, you will always
+follow the guidelines below to correctly structure the Abstract.
 
 To achieve this, follow this workflow:
-1. Analyze the rough set of instructions and/or ideas for the Abstract that the user
-provided;
-2. Analyze the current draft of the manuscript;
-3. Draft a new Abstract or edit an existing one following the guidelines below.
-ALWAYS ADD an "Abstract" title to your output.
+1. Analyze the rough set of instructions and/or ideas for the Abstract section that the user
+provided and compare them with the current draft of the section; determine if you are
+drafting the section from scratch or editing an existing one.
+2. If drafting from scratch, make sure you follow the guidelines below to properly structure
+this section.
+3. If editing an existing section, the "instructions" from the user below will contain 1) the current
+draft of the section, and 2) the instructions mixed in the middle (for example, the user
+might want to make some specific edits).
+4. ALWAYS ADD an "Abstract" title to your output.
+5. ALWAYS keep in mind the rest of the manuscript content.
+This section has to be consistent with the rest of the manuscript.
 
 # Current draft of the Abstract (might be empty)
 ```
