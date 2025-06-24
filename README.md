@@ -17,7 +17,6 @@ See the [Manugen AI package README](packages/manugen-ai/README.md) for more deta
 
 ## Project Structure
 
-
 The project is a standard three-tier web application, with the following components:
 
 - `./frontend/`: A web-based user interface for interacting with the application, built with React.
