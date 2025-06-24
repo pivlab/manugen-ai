@@ -74,4 +74,5 @@ We used the Python version of ADK to define each agent’s behavior and orchestr
 ## What's next for Academic Manuscript Generation from Assets and Guidance
 
 We believe Manugen-AI is a promising tool to speed up manuscript drafting in a automated and responsible way.
-We plan to apply for funding to continue its development by adding more features and do more testing.
+Looking ahead, we’re excited to iterate on this foundation: refining prompt strategies to further reduce factual errors, experimenting with additional sub-agents (e.g., for data analysis or ethical bias checks), and exploring integrations with more diverse data sources.
+By continuously benchmarking against human-authored papers and expanding our agent toolkit, we aim to uncover the full potential of Google-ADK for research writing.
