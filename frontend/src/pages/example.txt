@@ -15,7 +15,7 @@
 # Results
 
 ## Overview of CCC
-* brief summary of how CCC works
+* brief summary of how the Clustermatch Correlation Coefficient (CCC) works
 * add "Figure 1"
 * and then explain the different panels in "Figure 1"; the figure shows synthetic data, with panels a) and b) having numerical variable pairs only, and panel c) a mix of numerical and categorical
 
