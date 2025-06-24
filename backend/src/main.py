@@ -38,11 +38,12 @@ app.add_middleware(
 @app.get("/")
 async def root():
     """Root endpoint returning basic API information."""
+    root_path = os.environ.get("API_ROOT_PREFIX", "")
     return {
         "message": "Welcome to Manugen AI Backend",
         "version": MANUGEN_VERSION,
-        "docs": "/docs",
-        "adk_api_docs": "/adk_api/docs",
+        "docs": f"{root_path}/docs",
+        "adk_api_docs": f"{root_path}/adk_api/docs",
     }
 
 

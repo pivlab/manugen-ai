@@ -46,7 +46,7 @@ adk_app = get_fast_api_app(
     agents_dir=os.environ.get(
         "MANUGEN_AGENTS_DIR", "/packages/manugen-ai/src/manugen_ai/agents/"
     ),
-    session_service_uri=os.environ["SESSION_DB_CONN_STRING"],
+    session_service_uri=os.environ.get("SESSION_DB_CONN_STRING"),
     # artifact_service_uri= ,
     # memory_service_uri= ,
     allow_origins=["*"],

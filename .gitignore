@@ -196,3 +196,6 @@ cython_debug/
 withdrarxiv.parquet
 retraction_watch.csv
 withdrarxiv_embeddings.duckdb
+
+# gitignore the model cache directory
+model_cache/

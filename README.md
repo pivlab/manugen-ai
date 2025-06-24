@@ -19,7 +19,7 @@ The project is a standard three-tier web application, with the following compone
 - `./packages/manugen-ai/`: The *Manugen AI* package, which is used to generate academic manuscripts from content files.
   The backend relies on this package to perform the actual manuscript generation.
 
-The project includes a PostgreSQL database that ADK uses to store session data.
+The project includes an optional PostgreSQL database that, if available, ADK will use to persist session data between stack runs.
 
 ## Installation
 
@@ -55,7 +55,6 @@ tail -f ~/.ollama/logs/server.log
 ## Usage
 
 First, copy `.env.TEMPLATE` in the root of the project to a file named `.env`, then fill in any missing values.
-You will likely want to change `POSTGRES_PASSWORD` from its default value to a random one.
 You'll also want to fill out API keys for services you're using.
 Currently, the project uses Google's Gemini, so you'll need a valid API key value for the `GOOGLE_API_KEY` entry
 
