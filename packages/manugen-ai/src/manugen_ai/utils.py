@@ -356,6 +356,9 @@ def download_file_if_not_available(local_path: str, download_url: str):
     if pathlib.Path(local_path).is_file():
         return local_path
 
+    # ensure the directory exists
+    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
     # Stream download to avoid loading the entire file into memory
     with requests.get(download_url, stream=True) as response:
         response.raise_for_status()
