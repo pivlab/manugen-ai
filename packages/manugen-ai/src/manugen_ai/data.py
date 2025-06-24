@@ -346,7 +346,7 @@ def search_withdrarxiv_embeddings(query: str, top_k: int = 2):
     model_name = get_model_name()
 
     if model_name == "text-embedding-004":
-        src_url = "https://olucdenver-my.sharepoint.com/:u:/g/personal/dave_bunten_cuanschutz_edu/EUxMDRvp-zZInkE5NqNYz0ABIkKtOO-5DFIrkBeVbi_p_A?download=1"
+        src_url = os.environ["WITHDRARXIV_EMBEDDINGS_URL__TEXT_EMBEDDING_004"]
     elif model_name == "bge-m3":
         src_url = (
             "https://olucdenver-my.sharepoint.com/:u:"
