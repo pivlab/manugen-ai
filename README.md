@@ -1,6 +1,6 @@
 # Manugen AI
 
-<img align="left" src="packages/manugen-ai/docs/media/manugen-ai-logo.png" alt="Project Logo" width="300px" style="clear: both;" />
+<img align="left" src="packages/manugen-ai/docs/media/manugen-ai-logo.png" alt="Project Logo" width="300px" />
 
 This repo holds our submission for the 2025 [Agent Development Kit Hackathon with Google Cloud](https://googlecloudmultiagents.devpost.com/) - Manugen AI.
 
@@ -13,7 +13,10 @@ See the [Manugen AI package README](packages/manugen-ai/README.md) for more deta
 - 🎥 Watch our demo [YouTube video](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE)
 - 🔖 Read our [blog post](https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html)
 
+<div style="clear: both;">&nbsp;</div>
+
 ## Project Structure
+
 
 The project is a standard three-tier web application, with the following components:
 
