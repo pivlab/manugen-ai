@@ -1,4 +1,5 @@
 ## Inspiration
+
 Researchers today navigate an increasingly complex landscape: from securing funding and navigating ethical approvals to designing robust methodologies and managing ever-growing datasets, the path from hypothesis to discovery is fraught with logistical, technical, and interpersonal hurdles.
 Yet even once experiments conclude and results are compelling, a new challenge emerges—translating months, or sometimes years, of work into a concise, coherent, and publishable manuscript.
 Crafting such a paper demands mastery not only of scientific rigor but also of narrative flow, clarity of argument, and precise language, all under the pressure of journal deadlines and peer review.
@@ -29,7 +30,7 @@ The user can use Manugen-AI to go from results, figures and rough instructions, 
    Users can leverage one of many options which described in detail below.
    Once agents have taken actions on the content, users may analyze the results and make iterative improvements on the content.
 
-2. **Agent Roles & Pipeline:**
+1. **Agent Roles & Pipeline:**
 
 We used the Python version of ADK to define each agent’s behavior and orchestrate the workflow, tapping into its built-in support for asynchronous execution and state management.
 
@@ -53,11 +54,11 @@ We used the Python version of ADK to define each agent’s behavior and orchestr
 
 ## Accomplishments that we're proud of
 
-* In a short amount of time, we could spin up retrieval, summarization, drafting, and revision agents, wire them together through ADK’s built-in state management, and immediately observe how small prompt tweaks or workflow adjustments affected overall output quality.
-* Manugen-AI is fully functional system, comprised of several specialized agents that work together to draft a full scientific manuscript and thus speed up science communication. We learned a lot about agentic systems design.
-* We combined previous human knowledge on how to structure sections of a scientific article with AI automation, with section-specific agents that can draft a full section in the proper format.
-* We tried Manugen-AI on a real set of results and results are very promising.
-* We worked together as a team in a very short period of time to come up with the basic idea and fully-functional implementation.
+- In a short amount of time, we could spin up retrieval, summarization, drafting, and revision agents, wire them together through ADK’s built-in state management, and immediately observe how small prompt tweaks or workflow adjustments affected overall output quality.
+- Manugen-AI is fully functional system, comprised of several specialized agents that work together to draft a full scientific manuscript and thus speed up science communication. We learned a lot about agentic systems design.
+- We combined previous human knowledge on how to structure sections of a scientific article with AI automation, with section-specific agents that can draft a full section in the proper format.
+- We tried Manugen-AI on a real set of results and results are very promising.
+- We worked together as a team in a very short period of time to come up with the basic idea and fully-functional implementation.
 
 ## What we learned
 
