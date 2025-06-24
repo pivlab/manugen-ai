@@ -28,7 +28,7 @@
     />
     <AppButton
       v-tooltip="'Download manuscript'"
-      @click="downloadTxt(editor?.getText() ?? '', `${title} Manuscript`)"
+      @click="downloadMd(editor?.getText() ?? '', `${title} Manuscript`)"
     >
       <Download />
     </AppButton>
@@ -136,7 +136,7 @@ import {
   LibraryBig,
   FolderGit2,
 } from "lucide-vue-next";
-import { downloadTxt } from "@/util/download";
+import { downloadMd } from "@/util/download";
 import { uniqueId } from "lodash";
 import Portal from "./portal";
 import { agentsWorking } from "@/components/AppAgents.vue";
