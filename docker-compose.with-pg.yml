@@ -22,6 +22,7 @@ services:
 
   # session database for ADK
   db:
+    restart: unless-stopped
     image: postgres:16
     env_file:
       - .env
