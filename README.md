@@ -10,7 +10,8 @@ It includes Docker Compose configuration to run the application stack locally.
 The application stack relies on a package called *Manugen AI*, a multi-agent tool for creating academic manuscripts from a collection of images, text, and other content files.
 See the [Manugen AI package README](packages/manugen-ai/README.md) for more details on the package itself.
 
-You can read a [blog post](https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html) and watch a [YouTube video](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE) with a demo.
+- 🎥 Watch our demo [YouTube video](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE)
+- 🔖 Read our [blog post](https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html)
 
 ## Project Structure
 
