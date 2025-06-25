@@ -72,8 +72,8 @@ If you want to use Manugen-AI to upload figures and interpret them, you'll also 
 ollama pull gemma3:4b
 ```
 
-For the sake of keeping computational demands low, **the models suggested here are small and may not yield the best results.**  
-You'll need to test which model works best for your task.  
+For the sake of keeping computational demands low, **the models suggested here are small and may not yield the best results.**
+You'll need to test which model works best for your task.
 In general, larger models perform better (you can try larger versions of Qwen3 and Gemma3), provided you have a GPU with sufficient VRAM to maintain acceptable inference times.
 
 
