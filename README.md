@@ -2,6 +2,8 @@
 
 <img align="left" src="packages/manugen-ai/docs/media/manugen-ai-logo.png" alt="Project Logo" width="300px" />
 
+Writing academic manuscripts can be tedious. Imagine that you could bring together your results, prior research, source code, and some brief bullet points per section to generate a manuscript automatically. That is **Manugen-AI**.
+
 This repo holds our submission for the 2025 [Agent Development Kit Hackathon with Google Cloud](https://googlecloudmultiagents.devpost.com/) - Manugen AI.
 **Manugen AI** is a multi-agent tool for drafting academic manuscripts from assets and guidance: a collection of images/figures, text/instructions, source code, and other content files.
 See the [Manugen AI package README](packages/manugen-ai/README.md) for more details on the package itself.
@@ -9,10 +11,12 @@ See the [Manugen AI package README](packages/manugen-ai/README.md) for more deta
 The project consists of a web-based frontend, backend, and additional services.
 It includes Docker Compose configuration to run the application stack locally.
 
+<div style="clear: both;">&nbsp;</div>
+
+## Get started
+
 - 🎥 Watch our demo [YouTube video](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE)
 - 🔖 Read our [blog post](https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html)
-
-<div style="clear: both;">&nbsp;</div>
 
 ## Project Structure
 
@@ -34,9 +38,9 @@ See here for [installation instructions for Docker](https://docs.docker.com/get-
 
 Docker Compose is typically included with Docker Desktop installations, but if you need to install it separately, see [the Docker Compose installation instructions](https://docs.docker.com/compose/install/).
 
-### Ollama
+### (Optional) Ollama
 
-To run models locally, you'll need to have [Ollama](https://ollama.com/) installed on your machine.
+If you want to run LLM models locally, you'll need to have [Ollama](https://ollama.com/) installed on your machine.
 Once you have Ollama installed, you want to run the Ollama server, which will allow the application to access the model.
 If Ollama server is not running as a system service already, you have to start it manually:
 
@@ -44,25 +48,42 @@ If Ollama server is not running as a system service already, you have to start i
 ollama serve
 ```
 
-Then, you'll need to pull the `llama3.2` model, which is used by the *Manugen AI* package for invoking tools and generating text.
+Then, you'll need to pull a model of your choice, which is used by the *Manugen AI* package for invoking tools and generating text.
+Make sure the model you pick [supports "tools"]([url](https://ollama.com/search?c=tools)).
+
 
 ```bash
-ollama pull llama3.2
+# options that currently support tools are (and also "thinking"):
+# - deepseek-r1
+# - qwen3
+ollama pull deepseek-r1:8b
 ```
 
-In OS X, if you'd like to see if your Ollama server is accepting requests, you can run the following command to tail the server logs:
-
-```bash
-tail -f ~/.ollama/logs/server.log
-```
+You'll need to test which model works best for you.
+Usually, bigger models yield better results, provided you have a GPU and enough VRAM for acceptable inference time.
 
 ## Usage
 
-First, copy `.env.TEMPLATE` in the root of the project to a file named `.env`, then fill in any missing values.
-You'll also want to fill out API keys for services you're using.
-Currently, the project uses Google's Gemini, so you'll need a valid API key value for the `GOOGLE_API_KEY` entry
+**First**, clone the repository, and in a terminal, change directory to the repo folder.
 
-To run the project, clone the repository and run:
+**Second**, copy `.env.TEMPLATE` in the root of the project to a file named `.env`:
+
+```bash
+cp .env.TEMPLATE .env
+```
+
+Then take a look at the `.env` file for other options.
+You'll also want to fill out API keys for services you're using.
+Currently, the project uses Google's Gemini 2.5 model (`gemini-2.5-flash`), so if you want to use it as well, you'll need a valid API key value for the `GOOGLE_API_KEY` entry.
+
+If you want to use an Ollama model, make sure you select it by changing the value of `MANUGENAI_MODEL_NAME`:
+
+```env
+# if you want to use Ollama, change this line:
+MANUGENAI_MODEL_NAME="ollama/deepseek-r1:8b"
+```
+
+**Third**, run the project:
 
 ```bash
 docker compose up --build
@@ -84,6 +105,8 @@ VITE v6.3.5  ready in 1276 ms
 ```
 
 Browse to http://localhost:8901 and you should see the frontend.
+It might take a few seconds to establish a connection.
+
 *(FYI: Despite the port being 5173 in the logs, the Docker Compose configuration maps it to port 8901 on the host machine.)*
 
 ### Accessing the Backend API
