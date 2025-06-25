@@ -60,7 +60,6 @@ To check the logs in OS X, you can run the following command to tail the server 
 Then, you'll need to pull a model of your choice, which is used by the *Manugen AI* package for invoking tools, generating text, and interpreting figures.
 Make sure the model you pick [supports "tools"](https://ollama.com/search?c=tools), such as [Qwen3](https://ollama.com/library/qwen3):
 
-
 ```bash
 # qwen3 supports tools and thinking
 ollama pull qwen3:8b
