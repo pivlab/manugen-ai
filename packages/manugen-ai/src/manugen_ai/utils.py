@@ -61,12 +61,41 @@ def graceful_fail():
 
 
 def get_llm(model_name: str, **kwargs):
+    """
+    It returns the correct value for the "model" argument of LlmAgent.
+    If it's a gemini model, it returns a string. If it is an OpenAI, Anthropic or
+    Ollama model, it returns a LiteLlm instance and handle needed changes for the API
+    base URL, etc.
+
+    Args:
+        model_name (str): The name of the model. It supports model names starting with
+        "openai/", "anthropic/", "ollama/", and "gemini-".
+        **kwargs: Additional keyword arguments to pass to LiteLlm.
+
+    Returns:
+        A string with model_name if it starts with "gemini-" or a LiteLlm instance
+        otherwise.
+    """
     from google.adk.models.lite_llm import LiteLlm
 
-    if model_name.startswith(("openai/", "anthropic/", "ollama/")):
+    if model_name.startswith(("openai/", "anthropic/")):
         # kwargs are interpreted as additional arguments to LiteLlm, such as
         # "response_format=ManuscriptStructure"
         return LiteLlm(model=model_name, **kwargs)
+    elif model_name.startswith("ollama/"):
+        model_api_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
+        model_name = model_name.replace("ollama", "openai")
+
+        if not model_api_base.endswith("/v1"):
+            model_api_base += "/v1"
+
+        os.environ["OPENAI_API_BASE"] = model_api_base
+        os.environ["OPENAI_API_KEY"] = "unused"
+
+        return LiteLlm(
+            model=model_name,
+            **kwargs,
+        )
     elif model_name.startswith("gemini-"):
         return model_name
 
