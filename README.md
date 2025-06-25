@@ -122,7 +122,7 @@ VITE v6.3.5  ready in 1276 ms
 ➜  Network: http://172.22.0.2:5173/
 ```
 
-Browse to http://localhost:8901 and you should see the frontend.
+Use a web browser to open http://localhost:8901 and to view the frontend user interface.
 It might take a few seconds to establish a connection.
 
 *(FYI: Despite the port being 5173 in the logs, the Docker Compose configuration maps it to port 8901 on the host machine.)*
