@@ -76,7 +76,6 @@ For the sake of keeping computational demands low, **the models suggested here a
 You'll need to test which model works best for your task.
 In general, larger models perform better (you can try larger versions of Qwen3 and Gemma3), provided you have a GPU with sufficient VRAM to maintain acceptable inference times.
 
-
 ## Usage
 
 **First**, clone the repository, and in a terminal, change directory to the repo folder.
