@@ -90,7 +90,7 @@ Then take a look at the `.env` file for other options.
 You'll also want to fill out API keys for services you're using.
 Currently, the project uses Google's Gemini 2.5 model (`gemini-2.5-flash`), so if you want to use it as well, you'll need a valid API key value for the `GOOGLE_API_KEY` entry.
 
-If you want to use an Ollama model, make sure you select it by changing the value of `MANUGENAI_MODEL_NAME`:
+If you want to use an Ollama model, make sure you select it by changing the value of `MANUGENAI_MODEL_NAME` (and maybe `MANUGENAI_FIGURE_MODEL_NAME`) in the `.env` file:
 
 ```env
 # if you want to use Ollama, select a model that supports "tools" such as Qwen3:
