@@ -55,7 +55,7 @@ OLLAMA_HOST=0.0.0.0 ollama serve
 
 Make sure the Ollama server is accepting requests by inspecting the logs.
 The command above should output something like `"Listening on [::]:11434"` (it *should not* include `127.0.0.1`, otherwise we won't be able to connect to it from a Docker container).
-To check the logs in OS X, you can run the following command to tail the server logs: `tail -f ~/.ollama/logs/server.log`.
+To check the logs in macOS, you can run the following command to tail the server logs: `tail -f ~/.ollama/logs/server.log`.
 
 Then, you'll need to pull a model of your choice, which is used by the *Manugen AI* package for invoking tools, generating text, and interpreting figures.
 Make sure the model you pick [supports "tools"](https://ollama.com/search?c=tools), such as [Qwen3](https://ollama.com/library/qwen3):
