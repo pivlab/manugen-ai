@@ -3,12 +3,11 @@
 <img align="left" src="packages/manugen-ai/docs/media/manugen-ai-logo.png" alt="Project Logo" width="300px" />
 
 This repo holds our submission for the 2025 [Agent Development Kit Hackathon with Google Cloud](https://googlecloudmultiagents.devpost.com/) - Manugen AI.
+**Manugen AI** is a multi-agent tool for drafting academic manuscripts from assets and guidance: a collection of images/figures, text/instructions, source code, and other content files.
+See the [Manugen AI package README](packages/manugen-ai/README.md) for more details on the package itself.
 
 The project consists of a web-based frontend, backend, and additional services.
 It includes Docker Compose configuration to run the application stack locally.
-
-The application stack relies on a package called *Manugen AI*, a multi-agent tool for creating academic manuscripts from a collection of images, text, and other content files.
-See the [Manugen AI package README](packages/manugen-ai/README.md) for more details on the package itself.
 
 - 🎥 Watch our demo [YouTube video](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE)
 - 🔖 Read our [blog post](https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html)
