@@ -2,18 +2,24 @@
 
 <img align="left" src="packages/manugen-ai/docs/media/manugen-ai-logo.png" alt="Project Logo" width="300px" />
 
-This repo holds our submission for the 2025 [Agent Development Kit Hackathon with Google Cloud](https://googlecloudmultiagents.devpost.com/) - Manugen AI.
+Writing academic manuscripts can be tedious.
+Imagine that you could bring together your results, prior research, source code, and some brief bullet points per section to generate a manuscript automatically.
+That is **Manugen-AI**.
+
+This repo holds our submission for the 2025 [Agent Development Kit (ADK) Hackathon with Google Cloud](https://googlecloudmultiagents.devpost.com/) - Manugen AI.
+**Manugen AI** is a multi-agent tool for drafting academic manuscripts from assets and guidance: a collection of figures, text/instructions, source code, and other content files.
+It uses agents based on large language models (LLMs) and the [Google ADK](https://google.github.io/adk-docs/).
+See the [Manugen AI package README](packages/manugen-ai/README.md) for more details on the package itself.
 
 The project consists of a web-based frontend, backend, and additional services.
 It includes Docker Compose configuration to run the application stack locally.
 
-The application stack relies on a package called *Manugen AI*, a multi-agent tool for creating academic manuscripts from a collection of images, text, and other content files.
-See the [Manugen AI package README](packages/manugen-ai/README.md) for more details on the package itself.
+<div style="clear: both;">&nbsp;</div>
+
+## Get started
 
 - 🎥 Watch our demo [YouTube video](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE)
 - 🔖 Read our [blog post](https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html)
-
-<div style="clear: both;">&nbsp;</div>
 
 ## Project Structure
 
@@ -35,35 +41,67 @@ See here for [installation instructions for Docker](https://docs.docker.com/get-
 
 Docker Compose is typically included with Docker Desktop installations, but if you need to install it separately, see [the Docker Compose installation instructions](https://docs.docker.com/compose/install/).
 
-### Ollama
+### (Optional) Ollama for local LLM models
 
-To run models locally, you'll need to have [Ollama](https://ollama.com/) installed on your machine.
+If you want to run LLM models locally, you'll need to have [Ollama](https://ollama.com/) installed on your machine.
 Once you have Ollama installed, you want to run the Ollama server, which will allow the application to access the model.
-If Ollama server is not running as a system service already, you have to start it manually:
+Make sure the Ollama server is listening to all addresses so you can use our Docker images.
+If the Ollama server is running as a system service already, stop it first (in Ubuntu Linux, you'll need to run `sudo systemctl stop ollama.service`).
+Then, start it manually:
 
 ```bash
-ollama serve
+OLLAMA_HOST=0.0.0.0 ollama serve
 ```
 
-Then, you'll need to pull the `llama3.2` model, which is used by the *Manugen AI* package for invoking tools and generating text.
+Make sure the Ollama server is accepting requests by inspecting the logs.
+The command above should output something like `"Listening on [::]:11434"` (it *should not* include `127.0.0.1`, otherwise we won't be able to connect to it from a Docker container).
+To check the logs in macOS, you can run the following command to tail the server logs: `tail -f ~/.ollama/logs/server.log`.
+
+Then, you'll need to pull a model of your choice, which is used by the *Manugen AI* package for invoking tools, generating text, and interpreting figures.
+Make sure the model you pick [supports "tools"](https://ollama.com/search?c=tools), such as [Qwen3](https://ollama.com/library/qwen3):
 
 ```bash
-ollama pull llama3.2
+# qwen3 supports tools and thinking
+ollama pull qwen3:8b
 ```
 
-In OS X, if you'd like to see if your Ollama server is accepting requests, you can run the following command to tail the server logs:
+If you want to use Manugen-AI to upload figures and interpret them, you'll also need a model that [supports "vision"](https://ollama.com/search?c=vision), such as [Gemma3](https://ollama.com/library/gemma3):
 
 ```bash
-tail -f ~/.ollama/logs/server.log
+# gemma3 supports vision, which can be used to interpret your figures
+ollama pull gemma3:4b
 ```
+
+For the sake of keeping computational demands low, **the models suggested here are small and may not yield the best results.**
+You'll need to test which model works best for your task.
+In general, we've observed that large models or those with high context size perform better (you can try larger versions of Qwen3 and Gemma3), provided you have a GPU with sufficient VRAM to maintain acceptable inference times.
 
 ## Usage
 
-First, copy `.env.TEMPLATE` in the root of the project to a file named `.env`, then fill in any missing values.
-You'll also want to fill out API keys for services you're using.
-Currently, the project uses Google's Gemini, so you'll need a valid API key value for the `GOOGLE_API_KEY` entry
+**First**, clone the repository, and in a terminal, change directory to the repo folder.
 
-To run the project, clone the repository and run:
+**Second**, copy `.env.TEMPLATE` in the root of the project to a file named `.env`:
+
+```bash
+cp .env.TEMPLATE .env
+```
+
+Then take a look at the `.env` file for other options.
+You'll also want to fill out API keys for services you're using.
+Currently, the project uses Google's Gemini 2.5 model (`gemini-2.5-flash`), so if you want to use it as well, you'll need a valid API key value for the `GOOGLE_API_KEY` entry.
+
+If you want to use an Ollama model, make sure you select it by changing the value of `MANUGENAI_MODEL_NAME` (and maybe `MANUGENAI_FIGURE_MODEL_NAME`) in the `.env` file:
+
+```env
+# if you want to use Ollama, select a model that supports "tools" such as Qwen3:
+MANUGENAI_MODEL_NAME="ollama/qwen3:8b"
+
+# Qwen3, however, does not support "vision" to interpret your figures
+# So you can select a model that supports "vision" such as Gemma3:
+MANUGENAI_FIGURE_MODEL_NAME="ollama/gemma3:4b"
+```
+
+**Third**, run the project:
 
 ```bash
 docker compose up --build
@@ -84,7 +122,9 @@ VITE v6.3.5  ready in 1276 ms
 ➜  Network: http://172.22.0.2:5173/
 ```
 
-Browse to http://localhost:8901 and you should see the frontend.
+Use a web browser to open http://localhost:8901 and to view the frontend user interface.
+It might take a few seconds to establish a connection.
+
 *(FYI: Despite the port being 5173 in the logs, the Docker Compose configuration maps it to port 8901 on the host machine.)*
 
 ### Accessing the Backend API
