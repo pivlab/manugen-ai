@@ -11,16 +11,6 @@ LLM = get_llm(
     MODEL_NAME,
     response_format=ManuscriptStructure,
 )
-model_api_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
-
-if MODEL_NAME.startswith(("ollama",)):
-    MODEL_NAME = MODEL_NAME.replace("ollama", "openai")
-
-    if not model_api_base.endswith("/v1"):
-        model_api_base += "/v1"
-
-    os.environ["OPENAI_API_BASE"] = model_api_base
-    os.environ["OPENAI_API_KEY"] = "unused"
 
 request_interpreter_agent = LlmAgent(
     name="request_interpreter_agent",
