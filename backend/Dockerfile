@@ -22,9 +22,12 @@ WORKDIR /app
 COPY --exclude=.venv ./packages/manugen-ai/ /packages/manugen-ai/
 
 # Install dependencies
+ENV VIRTUAL_ENV=/app/.venv
+ENV UV_LINK_MODE=copy
+ENV UV_NO_SYNC=1
+COPY ./backend/pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=backend/pyproject.toml,target=pyproject.toml \
-    uv sync
+    uv sync --cache-dir /root/.cache/uv
 
 # copy backend contents into working dir
 COPY --exclude=.venv ./backend/ .
