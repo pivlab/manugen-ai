@@ -1,4 +1,4 @@
-import { toast, type ToastOptions } from 'vue3-toastify';
+import { toast as _toast, type ToastOptions } from 'vue3-toastify';
 
 import { api, request } from "./";
 
@@ -101,27 +101,23 @@ export const aiWriterAsync = async (input: string, session: ADKSessionResponse|n
         msg = `<b>${event.author}</b><br />produced text`
       }
 
-      if (msg) {
-        toast(msg, {
-          position: "bottom-left",
-          autoClose: 6000,
-          hideProgressBar: true,
-          type: "info",
-          transition: "bounce",
-        } as ToastOptions);
-      }
+      if (msg) 
+        toast(msg);
+
     }
   });
 
   console.log("Final event log received:", eventLog);
 
-  toast("Done!", {
-    position: "bottom-left",
-    autoClose: 6000,
-    hideProgressBar: true,
-    type: "success",
-    transition: "bounce",
-  } as ToastOptions);
+  toast("Done!");
 
   return eventLog;
 }
+
+export const toast = (message = "") => _toast(message, {
+  position: "bottom-left",
+  autoClose: 6000,
+  hideProgressBar: true,
+  type: "info",
+  transition: "bounce",
+} as ToastOptions);

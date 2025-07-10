@@ -141,7 +141,7 @@ import { uniqueId } from "lodash";
 import Portal from "./portal";
 import { agentsWorking } from "@/components/AppAgents.vue";
 import type { AgentId } from "@/api/agents";
-import {  aiWriter, aiWriterAsync } from "@/api/endpoints";
+import { aiWriterAsync, toast } from "@/api/endpoints";
 import { type ADKSessionResponse, ensureSessionExists, extractADKText } from "@/api/adk";
 import example from "./example.txt?raw";
 
@@ -361,6 +361,17 @@ const aiWriterSelectAction = (label: string, icon: any, prefix: string = "", age
     action: action(
       [agent],
       async ({ sel }) => {
+
+        if (prefix === "") {
+          const lines = sel.split("\n").map(line => line.trim()).filter(Boolean);
+          const h1s = lines.filter(line => line.startsWith("# "));
+          const firstH1 = lines.findIndex(line => line.startsWith("# "));
+          if (!(h1s.length === 1 && lines.length - 1 > firstH1)) {
+            toast("This feature only works as expected when you select a single heading 1 (single #) and some content after it.")
+            return;
+          }
+        }
+
         return extractADKText(
           await aiWriterAsync(`${prefix}${sel}`, sessionData.value)
         )
