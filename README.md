@@ -107,7 +107,7 @@ docker compose up --build
 
 This will build the Docker images and start the application.
 You'll be attached to the logs of the application, which will show you live output from the various services that make up the stack.
-Pressing `Ctrl+C` will stop the application.
+You can press `Ctrl+C` if you want to stop the application.
 
 Wait until you see a message resembling the following in the logs:
 
@@ -118,70 +118,28 @@ VITE v6.3.5  ready in 1276 ms
 ➜  Network: http://172.22.0.2:5173/
 ```
 
-### Accessing the Frontend
+### Access the frontend
 
 Use a web browser to open http://localhost:8901 and to view the frontend user interface.
 It might take a few seconds to establish a connection.
 
 *(FYI: Despite the port being 5173 in the logs, the Docker Compose configuration maps it to port 8901 on the host machine.)*
 
-### Accessing the Backend API
+### Draft a manuscript
 
-While it's not necessary to use the app, you might want to access the backend API directly for testing or debugging purposes.
+TODO: describe section draft agent
 
-Wait until you see the following message in the logs:
+### Describe a GitHub repository
 
-```
-INFO:     Will watch for changes in these directories: ['/app']
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [102] using WatchFiles
-INFO:     Started server process [104]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-```
+TODO: describe repo to paper agent
 
-Visit http://localhost:8900 in your web browser to access the backend API; docs can be found at http://localhost:8900/docs.
+### Add ciations
 
-*(Again, note that the port within the container, 8000, is different than the one on the host to prevent collisions with other host services.)*
+TODO: describe citations agent
 
-### Purging Session State
+### Check retractions
 
-If you want to clear the session state, you can run the following command to stop any application containers that are running and remove the database volume:
-
-```bash
-docker compose down -v
-```
-
-This will purge any sessions or other data that ADK stores to the database.
-
-### (Optional) Running the App in Production
-
-The app includes configuration, located in `docker-compose.prod.yml`, for running the application in production mode.
-
-To use it, ensure that you've updated `DOMAIN_NAME` in your `.env` file to the domain name under which the app will be served.
-You should also ensure that you have access to map ports 80 and 443 on the machine that will be running the production app.
-
-The production configuration differs from the development configuration in a few ways:
-
-- The frontend is built and served as static files, rather than being served by a development server.
-- Volumes are disabled, and the code for each container is baked into the image. As a result, hot-reloading is disabled for all containers.
-- It uses [Caddy](https://caddyserver.com/) as a reverse proxy to serve the frontend and backend as well as to obtain an SSL cert for your chosen domain.
-  - The backend API is served from `/api/`
-  - The frontend is served from `/`
-
-To launch the production version of the app, you can run the following command:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
-```
-
-This will build the production images and start the application in detached mode.
-
-To tail the container logs, you can run:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
-```
+TODO: describe repo to paper agent
 
 ## Other Resources
 
