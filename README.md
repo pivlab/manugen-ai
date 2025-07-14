@@ -127,7 +127,18 @@ It might take a few seconds to establish a connection.
 
 ### Draft a manuscript
 
-TODO: describe section draft agent
+*(Remember this is a prototype system and it is still work-in-progress, so you might find bugs)*
+
+Once you loaded the frontend in your browser, you can load the included example to draft a manuscript from scratch:
+
+1. Click on the lightbulb icon ("Try an example") on the top right to load the guidelines (a set of bullet points per section) to draft [this peer-reviewed article](https://doi.org/10.1016/j.cels.2024.08.005).
+1. To *draft* sections of the manuscript, you need to select the _entire section_ and then click on the "Draft" action (see animation below).
+   The text you selected will be replaced by the draft when it's ready.
+1. If you are not happy with the current draft, you can *edit* the current draft by adding comments in the middle of it (such as `* emphasize more on this aspect`), selecting the entire section, and clicking on "Draft" again.
+1. You can upload figures before drafting a section, or after (in this case, you'll need to *edit* that section).
+   If your text/guidance for the Results section references your figures (such as "Figure 1"), and you uploaded that figure, the agent responsible for drafting the Results section will have access to the figure's description, which will be more helpful to generate the draft.
+
+<img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*GXmqk39rXlR9bbiLP5FIsw.gif" alt="Project Logo" width="100%" />
 
 ### Describe a GitHub repository
 
