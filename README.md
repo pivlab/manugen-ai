@@ -23,7 +23,8 @@ Our experienced team of engineers intends to turn this proof-of-concept into a f
 ## Get started
 
 - 🎥 Watch our demo [YouTube video](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE)
-- 🔖 Read our [blog post](https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html)
+- 🔖 Read our [story on
+  Medium](https://medium.com/@miltondp/manugen-ai-automatic-scientific-article-drafting-from-assets-and-guidance-47198ab0f244)
 
 ## Project Structure
 
