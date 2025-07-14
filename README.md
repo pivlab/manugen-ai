@@ -70,7 +70,7 @@ For the sake of keeping computational demands low, **the models suggested here a
 You'll need to test which model works best for your task.
 In general, we've observed that large models or those with high context size perform better (you can try larger versions of Qwen3 and Gemma3), provided you have a GPU with sufficient VRAM to maintain acceptable inference times.
 
-## Usage
+### Adjut settings (API keys, etc)
 
 **First**, clone the repository, and in a terminal, change directory to the repo folder.
 
@@ -95,7 +95,11 @@ MANUGENAI_MODEL_NAME="ollama/qwen3:8b"
 MANUGENAI_FIGURE_MODEL_NAME="ollama/gemma3:4b"
 ```
 
-**Third**, run the project:
+## Usage
+
+### Start the backend
+
+Run the following command:
 
 ```bash
 docker compose up --build
