@@ -16,6 +16,10 @@ It includes Docker Compose configuration to run the application stack locally.
 
 <div style="clear: both;">&nbsp;</div>
 
+**🚧 NOTE**:
+This product was initially made as part of a hackathon under very tight time and resource limitations, which resulted in a rapidly improvised architecture and user interface.
+Our experienced team of engineers intends to turn this proof-of-concept into a fully-fledged, robust system through ongoing funded work.
+
 ## Get started
 
 - 🎥 Watch our demo [YouTube video](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE)
