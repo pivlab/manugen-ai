@@ -71,7 +71,7 @@ You'll need to test which model works best for your task.
 As expected, we've observed that large models and those with high context size perform better, such as the latest models from OpenAI, Anthropic, or Google.
 Among local, open-weight models available in Ollama, we found that larger versions of Qwen3 and Gemma3 produced acceptable results, provided you have a GPU with sufficient VRAM to maintain acceptable inference times.
 
-### Adjut settings (API keys, etc)
+### Adjust settings (API keys, etc)
 
 **First**, clone the repository, and in a terminal, change directory to the repo folder.
 
