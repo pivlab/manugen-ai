@@ -154,9 +154,10 @@ After opening the web interface in your browser, follow these steps to draft a m
    To see accurate figure references in the text, click the paperclip icon in the top right and upload Figures 1, 2 and 3 from the [`frontend/public/example`](frontend/public/example) folder, then re‑draft the Results section (select its entire text and click *Draft*).
    You'll now see the narrative updated to reflect each figure's actual content.
 
-<p align="left">
-  <img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*GXmqk39rXlR9bbiLP5FIsw.gif" alt="Drafting a manuscript section" width="90%" />
-</p>
+1. **Draft the Methods section from source code files.**
+   The Methods Agent, responsible for drafting this section, can use tools to download and understand programming source code.
+   The guidance for the Methods section in the example contains a URL link to a Python file in a GitHub repository.
+   Select the entire text of the Methods section and click on the *Draft* action.
 
 ### Enhance existing content with revision
 
