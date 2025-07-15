@@ -149,6 +149,15 @@ Once you accessed the frontend in your browser, you can load the included exampl
 
 <img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*GXmqk39rXlR9bbiLP5FIsw.gif" alt="Project Logo" width="100%" />
 
+### Enhance existing content with revision
+
+After drafting a manuscript you may want to improve the quality of specific blocks.
+Leverage the "Refine" action to implement agentic enhance your content.
+
+1. Highlight any content within a draft manuscript in our front-end and click the "Refine" action.
+1. Manugen AI will improve the content through an agentic revision process.
+1. Content is updated and will include new revisions.
+
 ### Create a manuscript based on a version controlled repository
 
 Does your research involve the use of a version controlled repository (for example, hosted on GitHub)?
