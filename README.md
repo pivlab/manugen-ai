@@ -173,6 +173,8 @@ Leverage the "Refine" action to implement agentic enhance your content.
 Does your research involve the use of a version controlled repository (for example, hosted on GitHub)?
 You can use Manugen AI to create a manuscript by passing the URL for the project with the "Repos" action.
 
+> ⚠️ Note: we suggest refreshing the page and starting fresh from step one below when using the below example because the "Repos" action.
+
 1. Within the frontend, paste in a GitHub URL (e.g. `https://github.com/pivlab/manugen-ai`).
 1. Highlight the GitHub URL and click the "Repos" action.
 1. Manugen AI agents will absorb information about your repository and provide a draft manuscript in return.
