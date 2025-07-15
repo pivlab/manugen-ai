@@ -155,8 +155,8 @@ Does your research involve the use of a version controlled repository (for examp
 You can use Manugen AI to create a manuscript by passing the URL for the project with the "Repos" action.
 
 1. Within the frontend, paste in a GitHub URL (e.g. `https://github.com/pivlab/manugen-ai`).
-2. Highlight the GitHub URL and click the "Repos" action.
-3. Manugen AI agents will absorb information about your repository and provide a draft manuscript in return.
+1. Highlight the GitHub URL and click the "Repos" action.
+1. Manugen AI agents will absorb information about your repository and provide a draft manuscript in return.
 
 ### Enrich manuscript content with related citations
 
@@ -164,8 +164,8 @@ No manuscript is complete without citations from related work.
 Enrich your content by using Manugen AI agents which query [OpenAlex](https://openalex.org/) through the "Cites" action.
 
 1. Highlight any content within a draft manuscript in our front-end and click the "Cites" action.
-2. Manugen AI will summarize the content and leverage OpenAlex to query for related citations.
-3. Content is updated to include information with related citation.
+1. Manugen AI will summarize the content and leverage OpenAlex to query for related citations.
+1. Content is updated to include information with related citation.
 
 ### Avoid reasons for retraction
 
@@ -173,8 +173,8 @@ Maintaining the integrity and trustworthiness of the scientific record is paramo
 Avoid reasons for retraction within manuscript content by using the "Retracts" action.
 
 1. Highlight any content within a draft manuscript in our front-end and click the "Retracts" action.
-2. Manugen AI will use retrieval-augmented generation (RAG) to find related reasons for retraction based on [WithdrarXiv](https://huggingface.co/datasets/darpa-scify/withdrarxiv).
-3. Content is updated to avoid reasons for retraction based on this data.
+1. Manugen AI will use retrieval-augmented generation (RAG) to find related reasons for retraction based on [WithdrarXiv](https://huggingface.co/datasets/darpa-scify/withdrarxiv).
+1. Content is updated to avoid reasons for retraction based on this data.
 
 ## Other Resources
 
