@@ -127,8 +127,6 @@ It might take a few seconds to establish a connection.
 
 ### Draft a manuscript
 
-*(Remember this is a prototype system and it is still work-in-progress, so you might find bugs)*
-
 After opening the web interface in your browser, follow these steps to draft a manuscript from scratch:
 
 1. **Load an example of human guidelines.**
