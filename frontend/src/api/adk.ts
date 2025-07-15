@@ -215,7 +215,7 @@ export const sseRequest = async (
  * @param response - The ADK API response to extract text from
  * @param onlyLast - If true, returns only the last text section; if false,
  *                  returns all text sections concatenated with newlines
- * @returns The extracted text as a string
+ * @returns The extracted text as a string, or throws an error if error response detected
 */
 export const extractADKText = (response: ADKResponse|undefined, onlyLast: boolean = true): string => {
   // if response is undefined, return an empty string
@@ -235,6 +235,34 @@ export const extractADKText = (response: ADKResponse|undefined, onlyLast: boolea
       return textParts.map(x => x.text).join("\n");
   })
 
+  // Check for structured error responses
+  const allText = textSections.join("\n");
+  if (allText.includes("MANUGEN_ERROR:")) {
+    const errorMatch = allText.match(/MANUGEN_ERROR:\s*(\{.*?\})/);
+    if (errorMatch) {
+      try {
+        const errorData = JSON.parse(errorMatch[1]);
+        throw new ManugenError(
+          errorData.error_type || 'unknown_error',
+          errorData.message || 'An error occurred',
+          errorData.details || '',
+          errorData.suggestion || ''
+        );
+      } catch (e) {
+        if (e instanceof ManugenError) {
+          throw e;
+        }
+        // If JSON parsing fails, throw a generic error
+        throw new ManugenError(
+          'parse_error',
+          'Failed to parse error response',
+          'The server returned an error but it could not be parsed properly.',
+          'Please try again or contact support if the problem persists.'
+        );
+      }
+    }
+  }
+
   if (onlyLast) {
     // if onlyLast is true, return the last text section
     return textSections.length > 0 ? textSections[textSections.length - 1] : "";
@@ -242,5 +270,22 @@ export const extractADKText = (response: ADKResponse|undefined, onlyLast: boolea
   else {
     // if onlyLast is false, return all text sections concatenated
     return textSections.join("\n");
+  }
+}
+
+/**
+ * Custom error class for Manugen AI errors
+ */
+export class ManugenError extends Error {
+  public readonly errorType: string;
+  public readonly details: string;
+  public readonly suggestion: string;
+
+  constructor(errorType: string, message: string, details: string = '', suggestion: string = '') {
+    super(message);
+    this.name = 'ManugenError';
+    this.errorType = errorType;
+    this.details = details;
+    this.suggestion = suggestion;
   }
 }

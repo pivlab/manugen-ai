@@ -62,3 +62,12 @@ class SingleFigureDescription(BaseModel):
 CURRENT_FIGURE_KEY = "current_figure"
 FIGURES_KEY = "figures"
 FIGURES_DESCRIPTIONS_KEY = "figures_descriptions"
+
+
+class ErrorResponse(BaseModel):
+    """Standardized error response structure for the UI."""
+    error: bool = Field(default=True)
+    error_type: str = Field(description="Type of error (e.g., 'model_error', 'agent_error', 'validation_error')")
+    message: str = Field(description="Human-readable error message")
+    details: str = Field(default="", description="Additional error details for debugging")
+    suggestion: str = Field(default="", description="Suggested action for the user")

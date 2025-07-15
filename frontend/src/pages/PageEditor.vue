@@ -142,8 +142,9 @@ import Portal from "./portal";
 import { agentsWorking } from "@/components/AppAgents.vue";
 import type { AgentId } from "@/api/agents";
 import {  aiWriter, aiWriterAsync } from "@/api/endpoints";
-import { type ADKSessionResponse, ensureSessionExists, extractADKText } from "@/api/adk";
+import { type ADKSessionResponse, ensureSessionExists, extractADKText, ManugenError } from "@/api/adk";
 import example from "./example.txt?raw";
+import { toast } from 'vue3-toastify';
 
 /** app info */
 const { VITE_TITLE: title } = import.meta.env;
@@ -333,25 +334,87 @@ const action =
     /** tell agents component that these agents are working in this portal */
     agentsWorking.value[portalId] = agents;
 
-    /** run actual work func, providing context */
-    const result = await func(context);
+    try {
+      /** run actual work func, providing context */
+      const result = await func(context);
 
-    /** tell agents component that work is done */
-    delete agentsWorking.value[portalId];
+      /** tell agents component that work is done */
+      delete agentsWorking.value[portalId];
 
-    /** find node of portal created earlier */
-    const portalNode = findPortal(portalId);
-    if (!portalNode) return;
+      /** find node of portal created earlier */
+      const portalNode = findPortal(portalId);
+      if (!portalNode) return;
 
-    editor.value
-      .chain()
-      /** delete portal node */
-      .deleteRange({
-        from: portalNode.pos,
-        to: portalNode.pos + portalNode.node.nodeSize,
-      })
-      .insertContentAt(portalNode.pos,  paragraphizeToJSON(result))
-      .run();
+      editor.value
+        .chain()
+        /** delete portal node */
+        .deleteRange({
+          from: portalNode.pos,
+          to: portalNode.pos + portalNode.node.nodeSize,
+        })
+        .insertContentAt(portalNode.pos,  paragraphizeToJSON(result))
+        .run();
+    } catch (error) {
+      /** tell agents component that work is done */
+      delete agentsWorking.value[portalId];
+
+      /** find node of portal created earlier */
+      const portalNode = findPortal(portalId);
+      if (!portalNode) return;
+
+      // Handle ManugenError specially
+      if (error instanceof ManugenError) {
+        // Show a detailed error toast
+        toast.error(
+          `<strong>${error.message}</strong><br/>${error.suggestion ? `<em>Suggestion: ${error.suggestion}</em>` : ''}`,
+          {
+            position: "bottom-left",
+            autoClose: 10000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            dangerouslyUseHTMLString: true,
+          }
+        );
+
+        // Insert an error message in the editor instead of empty content
+        const errorText = `⚠️ Error: ${error.message}${error.suggestion ? `\n\nSuggestion: ${error.suggestion}` : ''}`;
+        
+        editor.value
+          .chain()
+          /** delete portal node */
+          .deleteRange({
+            from: portalNode.pos,
+            to: portalNode.pos + portalNode.node.nodeSize,
+          })
+          .insertContentAt(portalNode.pos, paragraphizeToJSON(errorText))
+          .run();
+      } else {
+        // Handle generic errors
+        console.error('Unexpected error in action:', error);
+        
+        toast.error(
+          'An unexpected error occurred. Please try again.',
+          {
+            position: "bottom-left",
+            autoClose: 5000,
+          }
+        );
+
+        // Insert a generic error message
+        const errorText = '⚠️ An unexpected error occurred. Please try again.';
+        
+        editor.value
+          .chain()
+          /** delete portal node */
+          .deleteRange({
+            from: portalNode.pos,
+            to: portalNode.pos + portalNode.node.nodeSize,
+          })
+          .insertContentAt(portalNode.pos, paragraphizeToJSON(errorText))
+          .run();
+      }
+    }
   };
 
 const aiWriterSelectAction = (label: string, icon: any, prefix: string = "", agent: AgentId = "aiWriter") => {

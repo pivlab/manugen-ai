@@ -24,7 +24,8 @@ class CoordinatorAgent(ManugenAIBaseAgent):
     Custom agent for drafting sections of a scientific manuscript.
 
     This agent orchestrates a sequence of LLM agents to draft the different sections
-    of a scientific manuscript.
+    of a scientific manuscript. Enhanced with proper error handling to provide
+    meaningful feedback to users.
     """
 
     sub_agents_cond: list[tuple[BaseAgent, Callable]]
@@ -44,52 +45,127 @@ class CoordinatorAgent(ManugenAIBaseAgent):
             sub_agents_cond=sub_agents_cond,
         )
 
+    def _extract_error_details(self, exception: Exception) -> tuple[str, str, str]:
+        """
+        Extract error details from an exception to provide better user feedback.
+        
+        Returns:
+            tuple: (error_type, message, suggestion)
+        """
+        error_str = str(exception).lower()
+        
+        # Check for common error patterns
+        if "ollama" in error_str and ("not found" in error_str or "pull" in error_str):
+            return (
+                "model_error",
+                "The selected AI model is not available.",
+                "Please check your .env file and ensure the specified Ollama model has been pulled. You can pull the model using: ollama pull <model_name>"
+            )
+        elif "connection" in error_str or "timeout" in error_str:
+            return (
+                "connection_error", 
+                "Unable to connect to the AI service.",
+                "Please check that the AI service (Ollama, OpenAI, etc.) is running and accessible."
+            )
+        elif "api key" in error_str or "unauthorized" in error_str:
+            return (
+                "auth_error",
+                "Authentication failed with the AI service.",
+                "Please check your API keys in the .env file."
+            )
+        elif "rate limit" in error_str:
+            return (
+                "rate_limit_error",
+                "Too many requests to the AI service.",
+                "Please wait a moment before trying again."
+            )
+        else:
+            return (
+                "agent_error",
+                "An error occurred while processing your request.",
+                "Please try again. If the problem persists, check the logs for more details."
+            )
+
     @override
     async def _run_async_impl(
         self, ctx: InvocationContext
     ) -> AsyncGenerator[Event, None]:
         """
         Implements own core agent logic. The coordinator agent runs only one agent per
-        request.
+        request. Enhanced with comprehensive error handling.
         """
         logger.info(f"[{self.name}] Starting Coordinator workflow.")
         logger.info(ctx.user_content)
 
-        # get the latest user's message
-        last_user_input = ctx.user_content.parts[0]
+        try:
+            # get the latest user's message
+            last_user_input = ctx.user_content.parts[0]
 
-        # FIXME: workaround to test in adk web
-        #  skip latest user message if it has text "fig"
-        #  adk web forces to send a text message as well, which should be always "fig"
-        #  for it to work here.
-        if last_user_input.text is not None and last_user_input.text.strip() == "fig":
-            last_user_input = ctx.user_content.parts[1]
+            # FIXME: workaround to test in adk web
+            #  skip latest user message if it has text "fig"
+            #  adk web forces to send a text message as well, which should be always "fig"
+            #  for it to work here.
+            if last_user_input.text is not None and last_user_input.text.strip() == "fig":
+                last_user_input = ctx.user_content.parts[1]
 
-        agent_was_run = False
+            agent_was_run = False
 
-        # iterate over the list of subagents and their conditions to run
-        for agent, agent_condition in self.sub_agents_cond:
-            if not agent_condition(last_user_input):
-                continue
+            # iterate over the list of subagents and their conditions to run
+            for agent, agent_condition in self.sub_agents_cond:
+                if not agent_condition(last_user_input):
+                    continue
 
-            # simulate an event that there was a transfer of agent
-            yield self.get_transfer_to_agent_event(ctx, agent)
+                # simulate an event that there was a transfer of agent
+                yield self.get_transfer_to_agent_event(ctx, agent)
 
-            # remove "display_name" since adk does not support it
-            if last_user_input.inline_data is not None:
-                last_user_input.inline_data.display_name = None
+                # remove "display_name" since adk does not support it
+                if last_user_input.inline_data is not None:
+                    last_user_input.inline_data.display_name = None
 
-            # call agent
-            async for event in agent.run_async(ctx):
-                yield event
+                try:
+                    # call agent with error handling
+                    async for event in agent.run_async(ctx):
+                        yield event
+                    
+                    agent_was_run = True
+                    # we only run one agent per request
+                    break
+                    
+                except Exception as e:
+                    logger.error(f"[{self.name}] Error in sub-agent {agent.name}: {str(e)}", exc_info=True)
+                    
+                    # Extract meaningful error information
+                    error_type, message, suggestion = self._extract_error_details(e)
+                    
+                    yield self.structured_error_message(
+                        ctx,
+                        error_type=error_type,
+                        message=message,
+                        details=f"Error in {agent.name}: {str(e)}",
+                        suggestion=suggestion
+                    )
+                    
+                    agent_was_run = True
+                    break
 
-            agent_was_run = True
-
-            # we only run one agent per request
-            break
-
-        if not agent_was_run:
-            yield self.error_message(ctx, "No agent was found for request.")
+            if not agent_was_run:
+                yield self.structured_error_message(
+                    ctx,
+                    error_type="validation_error",
+                    message="No suitable agent found for your request.",
+                    suggestion="Please check your input format or try a different type of request."
+                )
+                
+        except Exception as e:
+            logger.error(f"[{self.name}] Unexpected error in coordinator: {str(e)}", exc_info=True)
+            
+            yield self.structured_error_message(
+                ctx,
+                error_type="system_error",
+                message="An unexpected system error occurred.",
+                details=str(e),
+                suggestion="Please try again. If the problem persists, contact support."
+            )
 
 
 coordinator_agent = CoordinatorAgent(
