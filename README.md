@@ -146,10 +146,9 @@ After opening the web interface in your browser, follow these steps to draft a m
    The system will incorporate your new instructions into the updated draft.
 
 1. **Upload and integrate figures.**
-   Click the paperclip icon in the top right to upload figures.
-   Once uploaded, Manugen‑AI analyzes each image and generates a title and description, storing this information for use in drafts.
+   Once you upload a figure, Manugen‑AI analyzes the image and generates a title and description, storing this information for use in drafts.
    If you've already drafted the Results section (which in the example references "Figure 1", "Figure 2", and "Figure 3") before uploading images, the system will have guessed their content.
-   To see accurate figure references, upload Figures 1, 2 and 3 from the [`frontend/public/example`](frontend/public/example) folder, then re‑draft the Results section (select its text and click *Draft*).
+   To see accurate figure references in the text, click the paperclip icon in the top right and upload Figures 1, 2 and 3 from the [`frontend/public/example`](frontend/public/example) folder, then re‑draft the Results section (select its entire text and click *Draft*).
    You'll now see the narrative updated to reflect each figure's actual content.
 
 <p align="left">
