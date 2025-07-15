@@ -68,7 +68,8 @@ ollama pull gemma3:4b
 
 For the sake of keeping computational demands low, **the models suggested here are small and may not yield the best results.**
 You'll need to test which model works best for your task.
-In general, we've observed that large models or those with high context size perform better (you can try larger versions of Qwen3 and Gemma3), provided you have a GPU with sufficient VRAM to maintain acceptable inference times.
+As expected, we've observed that large models and those with high context size perform better, such as the latest models from OpenAI, Anthropic, or Google.
+Among local, open-weight models available in Ollama, we found that larger versions of Qwen3 and Gemma3 produced acceptable results, provided you have a GPU with sufficient VRAM to maintain acceptable inference times.
 
 ### Adjut settings (API keys, etc)
 
