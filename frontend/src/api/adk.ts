@@ -238,7 +238,7 @@ export const extractADKText = (response: ADKResponse|undefined, onlyLast: boolea
   // Check for structured error responses
   const allText = textSections.join("\n");
   if (allText.includes("MANUGEN_ERROR:")) {
-    const errorMatch = allText.match(/MANUGEN_ERROR:\s*(\{.*?\})/);
+    const errorMatch = allText.match(/MANUGEN_ERROR:\s*(\{.*?\})/s);
     if (errorMatch) {
       try {
         const errorData = JSON.parse(errorMatch[1]);
@@ -260,6 +260,14 @@ export const extractADKText = (response: ADKResponse|undefined, onlyLast: boolea
           'Please try again or contact support if the problem persists.'
         );
       }
+    } else {
+      // MANUGEN_ERROR found but no valid JSON match
+      throw new ManugenError(
+        'parse_error',
+        'Malformed error response detected',
+        'The server returned an error but it could not be parsed properly.',
+        'Please try again or contact support if the problem persists.'
+      );
     }
   }
 

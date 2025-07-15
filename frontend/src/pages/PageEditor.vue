@@ -171,7 +171,7 @@ onMounted(() => {
     adkUsername.value,
     adkSessionId.value
   ).then((data) => {
-    sessionData.value = data;
+    sessionData.value = data as ADKSessionResponse;
     console.log("ADK session created:", data);
   }).catch((error) => {
     console.error("Error creating ADK session:", error);
@@ -373,7 +373,7 @@ const action =
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
-            dangerouslyUseHTMLString: true,
+            dangerouslyHTMLString: true,
           }
         );
 
