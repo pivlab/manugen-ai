@@ -125,6 +125,8 @@ It might take a few seconds to establish a connection.
 
 *(FYI: Despite the port being 5173 in the logs, the Docker Compose configuration maps it to port 8901 on the host machine.)*
 
+You'll see two text fields: one on the left for entering manuscript content in Markdown, and one on the right displaying a live preview.
+
 ### Draft a manuscript
 
 Manugen-AI allows a human author to quickly draft a scientific manuscript from a minimum set of research assets (such as figures or source code) and human guidance.
