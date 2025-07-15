@@ -129,25 +129,33 @@ It might take a few seconds to establish a connection.
 
 *(Remember this is a prototype system and it is still work-in-progress, so you might find bugs)*
 
-Once you accessed the frontend in your browser, you can load the included example to draft a manuscript from scratch:
+After opening the web interface in your browser, follow these steps to draft a manuscript from scratch:
 
-1. **Load an example of human guidelines:** click on the lightbulb icon ("Try an example") on the top right to load an example.
-   This example represents some ideas that a human author might quickly sketch when thinking in a future scientific manuscript.
-   These ideas might be a set of bullet points per section with early notes on how you are thinking about the structure, content, etc.
-   We call this the "human guidelines" for Manugen-AI.
-   The example corresponds to the guidelines for [this peer-reviewed article](https://doi.org/10.1016/j.cels.2024.08.005).
-   You'll see the example is written in Markdown, with some ideas for the different sections (abstract, results, etc).
-   This is what the most early version of your manuscript might look like, and will surely evolve with time.
-1. **Draft a section:** to *draft* sections of the manuscript, you need to select the _entire section_ content and then click on the "Draft" action (see animation below).
-   You can try with the entire Results section (which includes two subsections).
-   When ready, the text you selected will be replaced by the draft.
-1. **Edit an existing draft:** if you are not happy with the current draft, you can *edit* it by adding comments/instructions in the middle (such as bullet points before a paragraph or notes in the middle of the text with instructions for Manugen-AI), selecting the entire section, and clicking on "Draft" again.
-1. **Upload figures:** you can upload figures by clicking on the paperclip icon on the top right corner.
-   Once you upload a figure, Manugen-AI will interpret it by generating a title and a description that will be added to the internal state of the system, and used by the Results Agent when drafting this section.
-   When you drafted the Results section in the steps above (which had references to "Figure 1", "Figure 2" and "Figure 3"), the system didn't have any figures added yet, so the agent did its best with the content you provided in the bullet points.
-   Now, try to upload [Figures 1, 2 and 3 from this folder](frontend/public/example), and then *edit* the Results section (just select its text and click on the "Draft" action), and you'll see how its text now correctly references the actual content of the figures.
+1. **Load an example of human guidelines.**
+   Click the lightbulb icon ("Try an example") in the top right.
+   This loads a set of bullet‑point notes—our "human guidelines"—that sketch out what a future scientific manuscript might include (e.g., section headings, key ideas, structural notes).
+   This built‑in example corresponds to the guidelines for [this peer‑reviewed article](https://doi.org/10.1016/j.cels.2024.08.005) and is written in Markdown.
+   Treat this as the earliest draft of your manuscript, which will evolve over time.
 
-<img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*GXmqk39rXlR9bbiLP5FIsw.gif" alt="Project Logo" width="100%" />
+1. **Draft a section.**
+   Select the *entire* content of the section you'd like to draft (for instance, the *Results* section, including its subsections), then click the *Draft* button.
+   Manugen‑AI will replace your selected text with a full draft generated from your guidelines.
+
+1. **Edit an existing draft.**
+   If the draft isn't quite right, add inline comments or extra bullet‑point notes—inserted anywhere within the section—to guide Manugen‑AI's revisions.
+   Reselect the entire section and click *Draft* again.
+   The system will incorporate your new instructions into the updated draft.
+
+1. **Upload and integrate figures.**
+   Click the paperclip icon in the top right to upload figures.
+   Once uploaded, Manugen‑AI analyzes each image and generates a title and description, storing this information for use in drafts.
+   If you've already drafted the Results section (which in the example references "Figure 1", "Figure 2", and "Figure 3") before uploading images, the system will have guessed their content.
+   To see accurate figure references, upload \[Figures 1–3 from the `frontend/public/example` folder\], then re‑draft the Results section (select its text and click *Draft*).
+   You'll now see the narrative updated to reflect each figure's actual content.
+
+<p align="left">
+  <img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*GXmqk39rXlR9bbiLP5FIsw.gif" alt="Drafting a manuscript section" width="90%" />
+</p>
 
 ### Enhance existing content with revision
 
