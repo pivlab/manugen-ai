@@ -192,6 +192,9 @@ Enrich your content by using Manugen AI agents which query [OpenAlex](https://op
 Maintaining the integrity and trustworthiness of the scientific record is paramount, and proactively avoiding retractions is a core responsibility.
 Avoid reasons for retraction within manuscript content by using the "Retracts" action.
 
+1. If you are using local models, make sure you set `USE_GEMINI_EMBEDDINGS=0` in your `.env` file and restart the backend, so the needed files are downloaded.
+   Otherwise, a Gemini embedding model is used, and you'll need to set up an API key (`GOOGLE_API_KEY`);
+   see instructions in `.env`.
 1. Highlight any content within a draft manuscript in our front-end and click the "Retracts" action.
 1. Manugen AI will use retrieval-augmented generation (RAG) to find related reasons for retraction based on [WithdrarXiv](https://huggingface.co/datasets/darpa-scify/withdrarxiv).
 1. Content is updated to avoid reasons for retraction based on this data.
