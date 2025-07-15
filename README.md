@@ -132,13 +132,13 @@ After opening the web interface in your browser, follow these steps to draft a m
 
 1. **Load an example of human guidelines.**
    Click the lightbulb icon ("Try an example") in the top right.
-   This loads a set of bullet‑point notes—our "human guidelines"—that sketch out what a future scientific manuscript might include (e.g., section headings, key ideas, structural notes).
-   This built‑in example corresponds to the guidelines for [this peer‑reviewed article](https://doi.org/10.1016/j.cels.2024.08.005) and is written in Markdown.
+   This loads a set of bullet‑point notes—our "human guidance"—that sketch out what a future scientific manuscript might include (e.g., section headings, key ideas, structural notes).
+   This built‑in example corresponds to the guidance for [this peer‑reviewed article](https://doi.org/10.1016/j.cels.2024.08.005) and is written in Markdown.
    Treat this as the earliest draft of your manuscript, which will evolve over time.
 
 1. **Draft a section.**
    Select the *entire* content of the section you'd like to draft (for instance, the *Results* section, including its subsections), then click the *Draft* button.
-   Manugen‑AI will replace your selected text with a full draft generated from your guidelines.
+   Manugen‑AI will replace your selected text with a full draft generated from the guidance provided.
 
 1. **Edit an existing draft.**
    If the draft isn't quite right, add inline comments or extra bullet‑point notes—inserted anywhere within the section—to guide Manugen‑AI's revisions.
