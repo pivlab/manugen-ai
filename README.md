@@ -127,6 +127,7 @@ It might take a few seconds to establish a connection.
 
 ### Draft a manuscript
 
+Manugen-AI allows a human author to quickly draft a scientific manuscript from a minimum set of research assets (such as figures or source code) and human guidance.
 After opening the web interface in your browser, follow these steps to draft a manuscript from scratch:
 
 1. **Load an example of human guidelines.**
