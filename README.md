@@ -149,17 +149,32 @@ Once you accessed the frontend in your browser, you can load the included exampl
 
 <img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*GXmqk39rXlR9bbiLP5FIsw.gif" alt="Project Logo" width="100%" />
 
-### Describe a GitHub repository
+### Create a manuscript based on a version controlled repository
 
-TODO: describe repo to paper agent
+Does your research involve the use of a version controlled repository (for example, hosted on GitHub)?
+You can use Manugen AI to create a manuscript by passing the URL for the project with the "Repos" action.
 
-### Add ciations
+1. Within the frontend, paste in a GitHub URL (e.g. `https://github.com/pivlab/manugen-ai`).
+2. Highlight the GitHub URL and click the "Repos" action.
+3. Manugen AI agents will absorb information about your repository and provide a draft manuscript in return.
 
-TODO: describe citations agent
+### Enrich manuscript content with related citations
 
-### Check retractions
+No manuscript is complete without citations from related work.
+Enrich your content by using Manugen AI agents which query [OpenAlex](https://openalex.org/) through the "Cites" action.
 
-TODO: describe repo to paper agent
+1. Highlight any content within a draft manuscript in our front-end and click the "Cites" action.
+2. Manugen AI will summarize the content and leverage OpenAlex to query for related citations.
+3. Content is updated to include information with related citation.
+
+### Avoid reasons for retraction
+
+Maintaining the integrity and trustworthiness of the scientific record is paramount, and proactively avoiding retractions is a core responsibility.
+Avoid reasons for retraction within manuscript content by using the "Retracts" action.
+
+1. Highlight any content within a draft manuscript in our front-end and click the "Retracts" action.
+2. Manugen AI will use retrieval-augmented generation (RAG) to find related reasons for retraction based on [WithdrarXiv](https://huggingface.co/datasets/darpa-scify/withdrarxiv).
+3. Content is updated to avoid reasons for retraction based on this data.
 
 ## Other Resources
 
