@@ -23,18 +23,8 @@ Our experienced team of engineers intends to turn this proof-of-concept into a f
 ## Get started
 
 - 🎥 Watch our demo [YouTube video](https://youtu.be/WkfA-7lXE5w?si=7P_1BMonfFpm_2YE)
-- 🔖 Read our [blog post](https://pivlab.org/2025/06/23/Google-ADK-Hackathon.html)
-
-## Project Structure
-
-The project is a standard three-tier web application, with the following components:
-
-- `./frontend/`: A web-based user interface for interacting with the application, built with React.
-- `./backend/`: A REST API that serves the frontend and handles requests from the web interface.
-- `./packages/manugen-ai/`: The *Manugen AI* package, which is used to generate academic manuscripts from content files.
-  The backend relies on this package to perform the actual manuscript generation.
-
-The project includes an optional PostgreSQL database that, if available, ADK will use to persist session data between stack runs.
+- 🔖 Read our [story on
+  Medium](https://medium.com/@miltondp/manugen-ai-automatic-scientific-article-drafting-from-assets-and-guidance-47198ab0f244)
 
 ## Installation
 
@@ -78,9 +68,10 @@ ollama pull gemma3:4b
 
 For the sake of keeping computational demands low, **the models suggested here are small and may not yield the best results.**
 You'll need to test which model works best for your task.
-In general, we've observed that large models or those with high context size perform better (you can try larger versions of Qwen3 and Gemma3), provided you have a GPU with sufficient VRAM to maintain acceptable inference times.
+As expected, we've observed that large models and those with high context size perform better, such as the latest models from OpenAI, Anthropic, or Google.
+Among local, open-weight models available in Ollama, we found that larger versions of Qwen3 and Gemma3 produced acceptable results, provided you have a GPU with sufficient VRAM to maintain acceptable inference times.
 
-## Usage
+### Adjust settings (API keys, etc)
 
 **First**, clone the repository, and in a terminal, change directory to the repo folder.
 
@@ -105,7 +96,11 @@ MANUGENAI_MODEL_NAME="ollama/qwen3:8b"
 MANUGENAI_FIGURE_MODEL_NAME="ollama/gemma3:4b"
 ```
 
-**Third**, run the project:
+## Usage
+
+### Start the backend
+
+Run the following command:
 
 ```bash
 docker compose up --build
@@ -113,11 +108,9 @@ docker compose up --build
 
 This will build the Docker images and start the application.
 You'll be attached to the logs of the application, which will show you live output from the various services that make up the stack.
-Pressing `Ctrl+C` will stop the application.
+You can press `Ctrl+C` if you want to stop the application.
 
 Wait until you see a message resembling the following in the logs:
-
-### Accessing the Frontend
 
 ```
 VITE v6.3.5  ready in 1276 ms
@@ -126,10 +119,98 @@ VITE v6.3.5  ready in 1276 ms
 ➜  Network: http://172.22.0.2:5173/
 ```
 
+### Access the frontend
+
 Use a web browser to open http://localhost:8901 and to view the frontend user interface.
 It might take a few seconds to establish a connection.
 
 *(FYI: Despite the port being 5173 in the logs, the Docker Compose configuration maps it to port 8901 on the host machine.)*
+
+You'll see two text fields: one on the left for entering manuscript content in Markdown, and one on the right displaying a live preview.
+
+### Draft a manuscript
+
+Manugen-AI allows a human author to quickly draft a scientific manuscript from a minimum set of research assets (such as figures or source code) and human guidance.
+After opening the web interface in your browser, follow these steps to draft a manuscript from scratch:
+
+1. **Load an example of human guidelines.**
+   Click the lightbulb icon ("Try an example") in the top right.
+   This loads a set of bullet‑point notes—our "human guidance"—that sketch out what a future scientific manuscript might include (e.g., section headings, key ideas, structural notes).
+   This built‑in example corresponds to the guidance for [this peer‑reviewed article](https://doi.org/10.1016/j.cels.2024.08.005) and is written in Markdown.
+   Treat this as the earliest draft of your manuscript, which will evolve over time.
+
+1. **Draft a section.**
+   Select the *entire* content of the section you'd like to draft (for instance, the *Results* section, including its subsections), then click the *Draft* button.
+   Manugen‑AI will replace your selected text with a full draft generated from the guidance provided.
+
+1. **Edit an existing draft.**
+   If the draft isn't quite right, add inline comments or extra bullet‑point notes—inserted anywhere within the section—to guide Manugen‑AI's revisions.
+   Reselect the entire section and click *Draft* again.
+   The system will incorporate your new instructions into the updated draft.
+
+1. **Upload and integrate figures.**
+   Once you upload a figure, Manugen‑AI analyzes the image and generates a title and description, storing this information for use in drafts.
+   If you've already drafted the Results section (which in the example references "Figure 1", "Figure 2", and "Figure 3") before uploading images, the system will have guessed their content.
+   To see accurate figure references in the text, click the paperclip icon in the top right and upload Figures 1, 2 and 3 from the [`frontend/public/example`](frontend/public/example) folder, then re‑draft the Results section (select its entire text and click *Draft*).
+   You'll now see the narrative updated to reflect each figure's actual content.
+
+1. **Draft the Methods section from source code files.**
+   The Methods Agent, responsible for drafting this section, can use tools to download and understand programming source code.
+   The guidance for the Methods section in the example contains a URL link to a Python file in a GitHub repository.
+   Select the entire text of the Methods section and click on the *Draft* action.
+
+### Enhance existing content with revision
+
+After drafting a manuscript you may want to improve the quality of specific blocks.
+Leverage the "Refine" action to implement agentic enhance your content.
+
+1. Highlight any content within a draft manuscript in our front-end and click the "Refine" action.
+1. Manugen AI will improve the content through an agentic revision process.
+1. Content is updated and will include new revisions.
+
+### Create a manuscript based on a version controlled repository
+
+Does your research involve the use of a version controlled repository (for example, hosted on GitHub)?
+You can use Manugen AI to create a manuscript by passing the URL for the project with the "Repos" action.
+
+1. Within the frontend, refresh your browser so you start with an empty session.
+1. On the left panel, paste in a GitHub URL (e.g. `https://github.com/pivlab/manugen-ai`).
+1. Highlight the GitHub URL and click the "Repos" action.
+1. Manugen AI agents will absorb information about your repository and provide a draft manuscript in return.
+
+### Enrich manuscript content with related citations
+
+No manuscript is complete without citations from related work.
+Enrich your content by using Manugen AI agents which query [OpenAlex](https://openalex.org/) through the "Cites" action.
+
+1. Highlight any content within a draft manuscript in our front-end and click the "Cites" action.
+1. Manugen AI will summarize the content and leverage OpenAlex to query for related citations.
+1. Content is updated to include information with related citation.
+
+### Avoid reasons for retraction
+
+Maintaining the integrity and trustworthiness of the scientific record is paramount, and proactively avoiding retractions is a core responsibility.
+Avoid reasons for retraction within manuscript content by using the "Retracts" action.
+
+1. If you are using local models, make sure you set `USE_GEMINI_EMBEDDINGS=0` in your `.env` file and restart the backend, so the needed files are downloaded.
+   Otherwise, a Gemini embedding model is used, and you'll need to set up an API key (`GOOGLE_API_KEY`);
+   see instructions in `.env`.
+1. Highlight any content within a draft manuscript in our front-end and click the "Retracts" action.
+1. Manugen AI will use retrieval-augmented generation (RAG) to find related reasons for retraction based on [WithdrarXiv](https://huggingface.co/datasets/darpa-scify/withdrarxiv).
+1. Content is updated to avoid reasons for retraction based on this data.
+
+## Other Resources
+
+### Project Structure
+
+The project is a standard three-tier web application, with the following components:
+
+- `./frontend/`: A web-based user interface for interacting with the application, built with React.
+- `./backend/`: A REST API that serves the frontend and handles requests from the web interface.
+- `./packages/manugen-ai/`: The *Manugen AI* package, which is used to generate academic manuscripts from content files.
+  The backend relies on this package to perform the actual manuscript generation.
+
+The project includes an optional PostgreSQL database that, if available, ADK will use to persist session data between stack runs.
 
 ### Accessing the Backend API
 
@@ -188,8 +269,6 @@ To tail the container logs, you can run:
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
 ```
-
-## Other Resources
 
 - *For project members: [internal planning doc](https://olucdenver.sharepoint.com/:w:/r/sites/CenterforHealthAI939-SoftwareEngineering/Shared%20Documents/Software%20Engineering/Projects/PivLab%20-%20ADK%20Hackathon/Agent%20Development%20Kit%20Hackathon%20with%20Google%20Cloud.docx?d=w0cfff935f2754c3492489ef5b15fe2f4&csf=1&web=1&e=NRM3en)*
 
