@@ -21,7 +21,7 @@ export const request = async <Response>(
   if (!response.ok) error = "Response not OK";
 
   /** try to parse as json */
-  let parsed: Response;
+  let parsed: Response | undefined;
   try {
     parsed = await response.clone().json();
   } catch (e) {
