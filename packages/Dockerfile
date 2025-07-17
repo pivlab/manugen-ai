@@ -11,7 +11,7 @@ WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=manugen-ai/uv.lock,target=uv.lock \
     --mount=type=bind,source=manugen-ai/pyproject.toml,target=pyproject.toml \
-    uv sync --locked --no-install-project
+    uv sync --frozen --no-install-project
 
 # Copy the project into the image
 ADD ./manugen-ai/ /app
