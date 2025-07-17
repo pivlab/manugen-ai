@@ -18,4 +18,4 @@ ADD ./manugen-ai/ /app
 
 # Sync the project
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked
+    uv sync --frozen
