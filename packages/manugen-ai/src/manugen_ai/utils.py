@@ -99,7 +99,7 @@ def get_llm(model_name: str, **kwargs):
     elif model_name.startswith("gemini-"):
         return model_name
 
-    raise ValueError(f"Unknown model name: {model_name}")
+    raise ValueError(f"Unknown model name: {model_name if model_name else '<empty>'}")
 
 
 def prepare_ollama_models_for_adk_state() -> None:
