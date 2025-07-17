@@ -1,3 +1,7 @@
+"""
+Tests for custom tools
+"""
+
 import pathlib
 from types import SimpleNamespace
 

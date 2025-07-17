@@ -2,11 +2,18 @@
 conftest for pytest fixutres and related
 """
 
+import os
 import pathlib
 import tempfile
 from typing import Any, Generator
 
 import pytest
+
+
+@pytest.fixture(autouse=True, scope="session")
+def set_model_name_env():
+    os.environ["MANUGENAI_MODEL_NAME"] = "openai/llama3.2:3b"
+    os.environ["MANUGENAI_FIGURE_MODEL_NAME"] = "openai/llama3.2:3b"
 
 
 @pytest.fixture
